@@ -1,0 +1,47 @@
+location: packages
+sources:
+- name: grvc_ual
+  type: git
+  repo: https://github.com/grvcTeam/grvc-ual.git
+  sparse_paths:
+  - "px4_bringup/*\n"
+  - "robots_description/*\n"
+  - "ual_backend_gazebo_light/*\n"
+  - "ual_backend_mavros/*\n"
+  - "ual_teleop/*\n"
+  - "uav_abstraction_layer/*\n"
+  - ".gitignore\n"
+  - "LICENSE\n"
+  - "README.md\n"
+  rev: master
+  link: 
+  scripts: 
+
+- name: grvc_utils
+  type: git
+  repo: https://github.com/grvcTeam/grvc-utils.git
+  sparse_paths:
+  -
+  rev: master
+  link: 
+  scripts: 
+  - 
+
+- name: acado
+  type: git
+  repo: https://github.com/alfalcmar/acado.git
+  sparse_paths:
+  -
+  rev: master
+  link: 
+  scripts: 
+  - 
+- name: PX4
+  type: git
+  repo: https://github.com/PX4/PX4-Autopilot.git
+  sparse_paths:
+  -
+  rev: v1.10.2
+  link: 
+  scripts: 
+  - git submodule update --init --recursive
