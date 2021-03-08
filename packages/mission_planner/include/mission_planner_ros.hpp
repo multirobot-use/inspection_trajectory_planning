@@ -1,13 +1,12 @@
 #pragma once
-#include "ros/ros.h"
 #include "mission_planner.hpp"
-
-
+#include "ros/ros.h"
 
 class MissionPlannerRos {
  private:
-  /* data */
+  ros::NodeHandle nh_;
+
  public:
-  MissionPlannerRos(/* args */);
+  MissionPlannerRos(ros::NodeHandle _nh);
   ~MissionPlannerRos();
 };
