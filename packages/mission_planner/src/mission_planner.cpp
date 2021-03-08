@@ -1,9 +1,5 @@
 #include "mission_planner.hpp"
 
-MissionPlanner::MissionPlanner(/* args */)
-{
-}
+MissionPlanner::MissionPlanner(/* args */) {}
 
-MissionPlanner::~MissionPlanner()
-{
-}
+MissionPlanner::~MissionPlanner() {}

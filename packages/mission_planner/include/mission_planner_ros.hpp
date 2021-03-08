@@ -2,12 +2,10 @@
 
 #include "mission_planner.hpp"
 
-class MissionPlannerRos
-{
-private:
-    /* data */
-public:
-    MissionPlannerRos(/* args */);
-    ~MissionPlannerRos();
+class MissionPlannerRos {
+ private:
+  /* data */
+ public:
+  MissionPlannerRos(/* args */);
+  ~MissionPlannerRos();
 };
-
