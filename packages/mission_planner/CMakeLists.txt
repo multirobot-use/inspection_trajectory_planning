@@ -7,6 +7,9 @@ add_compile_options(-std=c++17)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+find_package( Eigen3 REQUIRED )
+include_directories(${EIGEN3_INCLUDE_DIR} ${PCL_INCLUDE_DIRS} include)
+
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
