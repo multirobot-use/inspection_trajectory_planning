@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+
+packages/PX4/
+packages/acado/
+packages/grvc-utils/
+packages/grvc_ual/
