@@ -1,0 +1,4 @@
+# PARAMS for mission planner 
+
+horizon_length: 40 # steps
+step_size: 0.1     # seconds
