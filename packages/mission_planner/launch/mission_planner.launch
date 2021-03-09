@@ -1,6 +1,7 @@
 <launch>
-    <arg name="drone_id" default="1"/>
+    <arg name="drone_id" default="drone_1"/>
     <!-- Launch mission_planner_node -->
-    <node pkg="mission_planner" type="mission_planner_node" name="mission_planner_ros" output="screen" ns="$(arg drone_id)" />
-
+    <node pkg="mission_planner" type="mission_planner_node" name="mission_planner_ros" output="screen" ns="$(arg drone_id)">
+        <rosparam file="$(find mission_planner)/param/mission_planner.yml" command="load"/>
+    </node>
 </launch>

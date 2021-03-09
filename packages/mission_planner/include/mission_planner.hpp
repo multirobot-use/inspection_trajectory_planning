@@ -7,9 +7,10 @@
 
 class MissionPlanner {
  private:
+  const parameters param_;
   std::map<int, state> states_;
   /* data */
  public:
-  MissionPlanner(/* args */);
+  MissionPlanner(const parameters _param);
   ~MissionPlanner();
 };
