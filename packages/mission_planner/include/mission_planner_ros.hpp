@@ -1,28 +1,58 @@
 #pragma once
-#include "mission_planner.hpp"
-#include "ros/ros.h"
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TwistStamped.h>
+#include "mission_planner.hpp"
+#include "ros/ros.h"
+
+//!  MissionPlannerRos class.
+/*!
+  A class to handle the functionality of the mission planner on ROS.
+*/
 
 class MissionPlannerRos {
-  private:
-    // Declarations
-    ros::NodeHandle nh_;
-    parameters param_;
-    std::unique_ptr<MissionPlanner> mission_planner_ptr_;
+ private:
+  //! Declarations
+  ros::NodeHandle nh_;
+  parameters param_;
+  std::unique_ptr<MissionPlanner> mission_planner_ptr_;
 
-    std::map<int, geometry_msgs::PoseStamped>     cur_pose_;
-    std::map<int, geometry_msgs::TwistStamped>    cur_vel_;
+  //!   Current pose variable
+  /*!
+   *   \param int for identifying the drone
+   *   \param geometry_msgs::PoseStamped the pose's information
+   */
+  std::map<int, geometry_msgs::PoseStamped> cur_pose_;
 
-    // Subscriptions
-    std::map<int, ros::Subscriber>          cur_pose_sub_;
-    std::map<int, ros::Subscriber>          cur_vel_sub_;
+  //!   Current velocity variable
+  /*!
+   *   \param int for identifying the drone
+   *   \param geometry_msgs::TwistStamped the velocity's information
+   */
+  std::map<int, geometry_msgs::TwistStamped> cur_vel_;
 
-    // Callback prototypes
-    void uavPoseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg, int id);
-    void uavVelocityCallback(const geometry_msgs::TwistStamped::ConstPtr &msg, int id);
+  //! Subscriptions
+  std::map<int, ros::Subscriber> cur_pose_sub_;
+  std::map<int, ros::Subscriber> cur_vel_sub_;
 
-  public:
-    MissionPlannerRos(ros::NodeHandle _nh);
-    ~MissionPlannerRos();
+  //! Callback prototypes
+
+  /*! \brief Callback for drone's pose
+   *   \param msg drone's pose, geometry_msgs/PoseStamped
+   *   \param id  identifier of the drone
+   **/
+  void uavPoseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg, int id);
+
+  /*! \brief Callback for drone's velocity
+   *   \param msg drone's velocity, geometry_msgs/TwistStamped
+   *   \param id  identifier of the drone
+   **/
+  void uavVelocityCallback(const geometry_msgs::TwistStamped::ConstPtr &msg,
+                           int id);
+
+ public:
+  //! MissionPlannerRos constructor
+  MissionPlannerRos(ros::NodeHandle _nh);
+
+  //! MissionPlannerRos destructor
+  ~MissionPlannerRos();
 };

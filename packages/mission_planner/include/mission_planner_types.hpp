@@ -3,7 +3,7 @@
 #include "ros/ros.h"
 struct parameters {
   float horizon_length = 0;  // number of steps
-  int   n_drones = 1;        // number of drones
+  int n_drones = 1;          // number of drones
   float step_size = 0.1;     // seconds
 };
 
