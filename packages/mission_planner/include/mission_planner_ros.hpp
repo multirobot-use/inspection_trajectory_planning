@@ -6,22 +6,21 @@
 
 class MissionPlannerRos {
   private:
-    // Definitions
+    // Declarations
     ros::NodeHandle nh_;
     parameters param_;
     std::unique_ptr<MissionPlanner> mission_planner_ptr_;
 
-    int                            drone_id_;  // From launch
-    geometry_msgs::PoseStamped     cur_pose_;
-    geometry_msgs::TwistStamped    cur_vel_;
+    std::map<int, geometry_msgs::PoseStamped>     cur_pose_;
+    std::map<int, geometry_msgs::TwistStamped>    cur_vel_;
 
     // Subscriptions
-    ros::Subscriber               cur_pose_sub_;
-    ros::Subscriber               cur_vel_sub_;
+    std::map<int, ros::Subscriber>          cur_pose_sub_;
+    std::map<int, ros::Subscriber>          cur_vel_sub_;
 
-    // Callbacks prototypes
-    void uavPoseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg);
-    void uavVelocityCallback(const geometry_msgs::TwistStamped::ConstPtr &msg);
+    // Callback prototypes
+    void uavPoseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg, int id);
+    void uavVelocityCallback(const geometry_msgs::TwistStamped::ConstPtr &msg, int id);
 
   public:
     MissionPlannerRos(ros::NodeHandle _nh);
