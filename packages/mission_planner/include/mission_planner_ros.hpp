@@ -15,6 +15,7 @@ class MissionPlannerRos {
   ros::NodeHandle nh_;
   parameters param_;
   std::unique_ptr<MissionPlanner> mission_planner_ptr_;
+  ros::Timer planTimer_;
 
   //   Current pose variable
   std::map<int, geometry_msgs::PoseStamped> cur_pose_;
@@ -27,6 +28,11 @@ class MissionPlannerRos {
   std::map<int, ros::Subscriber> cur_vel_sub_;
 
   //! Callback prototypes
+
+  /*! \brief Callback for plan timer.
+   *   \param TimerEvent structure passed to callback invoked by ros::Timer
+   */
+  void replanCB(const ros::TimerEvent &e);
 
   /*! \brief Callback for drone's pose
    *   \param msg drone's pose, geometry_msgs/PoseStamped

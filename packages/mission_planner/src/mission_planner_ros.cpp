@@ -9,7 +9,7 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh) : nh_(_nh) {
   mission_planner_ptr_ = std::make_unique<MissionPlanner>(param_);
 
   // Subscribers
-  for (auto drone = 1; drone <= param_.n_drones; drone ++) {
+  for (auto drone = 1; drone <= param_.n_drones; drone++) {
     cur_pose_sub_[drone] = nh_.subscribe<geometry_msgs::PoseStamped>(
         "/drone_" + std::to_string(drone) + "/ual/pose", 1,
         std::bind(&MissionPlannerRos::uavPoseCallback, this,
@@ -24,6 +24,10 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh) : nh_(_nh) {
 MissionPlannerRos::~MissionPlannerRos() {}
 
 // Callbacks
+void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
+  MissionPlanner->plan();
+}
+
 void MissionPlannerRos::uavPoseCallback(
     const geometry_msgs::PoseStamped::ConstPtr &msg, int id) {
   cur_pose_[id].pose.position.x = msg->pose.position.x;
