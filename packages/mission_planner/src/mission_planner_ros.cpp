@@ -19,11 +19,21 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh) : nh_(_nh) {
         std::bind(&MissionPlannerRos::uavVelocityCallback, this,
                   std::placeholders::_1, drone));
   }
+
+  // Services
+  service_activate_planner = _nh.advertiseService("activate_planner", &MissionPlannerRos::activationPlannerServiceCallback, this);
 }
 
 MissionPlannerRos::~MissionPlannerRos() {}
 
 // Callbacks
+bool MissionPlannerRos::activationPlannerServiceCallback(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res){
+  ROS_INFO("[%s]: Activation planner service called.", ros::this_node::getName().c_str());
+  res.message = "Planning activated.";
+  res.success = true;
+  return true;
+}
+
 void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
   mission_planner_ptr_->plan();
 }

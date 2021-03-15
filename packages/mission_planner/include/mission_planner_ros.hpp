@@ -2,6 +2,7 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TwistStamped.h>
 #include "mission_planner.hpp"
+#include <std_srvs/SetBool.h>
 #include "ros/ros.h"
 
 //!  MissionPlannerRos class.
@@ -24,7 +25,17 @@ class MissionPlannerRos {
   std::map<int, ros::Subscriber> cur_pose_sub_;
   std::map<int, ros::Subscriber> cur_vel_sub_;
 
+  // Services
+  ros::ServiceServer service_activate_planner;
+
   //! Callback prototypes
+
+  /*! \brief Callback for the activate planner service.
+   *   \param req structure of the request message
+   *   \param res structure of the response message
+   *   \return planning_activated
+   */
+  bool activationPlannerServiceCallback(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res);
 
   /*! \brief Callback for plan timer.
    *   \param TimerEvent structure passed to callback invoked by ros::Timer
