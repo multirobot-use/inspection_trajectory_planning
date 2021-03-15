@@ -17,11 +17,8 @@ class MissionPlannerRos {
   std::unique_ptr<MissionPlanner> mission_planner_ptr_;
   ros::Timer planTimer_;
 
-  //   Current pose variable
-  std::map<int, geometry_msgs::PoseStamped> cur_pose_;
-
-  //   Current velocity variable
-  std::map<int, geometry_msgs::TwistStamped> cur_vel_;
+  // Current state of the drone
+  std::map<int, struct state>                        cur_state_;
 
   // Subscriptions
   std::map<int, ros::Subscriber> cur_pose_sub_;
