@@ -45,3 +45,12 @@ sources:
   link: 
   scripts: 
   - git submodule update --init --recursive
+- name: upat_follower
+  type: git
+  repo: https://github.com/alfalcmar/upat_follower.git
+  sparse_paths:
+  -
+  rev: master
+  link: 
+  scripts: 
+  - 
