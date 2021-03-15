@@ -11,26 +11,18 @@
 
 class MissionPlannerRos {
  private:
-  //! Declarations
+  // Declarations
   ros::NodeHandle nh_;
   parameters param_;
   std::unique_ptr<MissionPlanner> mission_planner_ptr_;
 
-  //!   Current pose variable
-  /*!
-   *   \param int for identifying the drone
-   *   \param geometry_msgs::PoseStamped the pose's information
-   */
+  //   Current pose variable
   std::map<int, geometry_msgs::PoseStamped> cur_pose_;
 
-  //!   Current velocity variable
-  /*!
-   *   \param int for identifying the drone
-   *   \param geometry_msgs::TwistStamped the velocity's information
-   */
+  //   Current velocity variable
   std::map<int, geometry_msgs::TwistStamped> cur_vel_;
 
-  //! Subscriptions
+  // Subscriptions
   std::map<int, ros::Subscriber> cur_pose_sub_;
   std::map<int, ros::Subscriber> cur_vel_sub_;
 

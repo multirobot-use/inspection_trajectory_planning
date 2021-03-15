@@ -9,15 +9,15 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh) : nh_(_nh) {
   mission_planner_ptr_ = std::make_unique<MissionPlanner>(param_);
 
   // Subscribers
-  for (int i = 1; i <= param_.n_drones; i++) {
-    cur_pose_sub_[i] = nh_.subscribe<geometry_msgs::PoseStamped>(
-        "/drone_" + std::to_string(i) + "/ual/pose", 1,
+  for (auto drone = 1; drone <= param_.n_drones; drone ++) {
+    cur_pose_sub_[drone] = nh_.subscribe<geometry_msgs::PoseStamped>(
+        "/drone_" + std::to_string(drone) + "/ual/pose", 1,
         std::bind(&MissionPlannerRos::uavPoseCallback, this,
-                  std::placeholders::_1, i));
-    cur_vel_sub_[i] = nh_.subscribe<geometry_msgs::TwistStamped>(
-        "/drone_" + std::to_string(i) + "/ual/velocity", 1,
+                  std::placeholders::_1, drone));
+    cur_vel_sub_[drone] = nh_.subscribe<geometry_msgs::TwistStamped>(
+        "/drone_" + std::to_string(drone) + "/ual/velocity", 1,
         std::bind(&MissionPlannerRos::uavVelocityCallback, this,
-                  std::placeholders::_1, i));
+                  std::placeholders::_1, drone));
   }
 }
 
