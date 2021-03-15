@@ -15,7 +15,7 @@ class MissionPlanner {
  public:
   MissionPlanner(const parameters _param);
   ~MissionPlanner();
-  void appendGoal();
+  void appendGoal(const state&);
   void clearGoals();
   void initialTrajectory();
   void optimalTrajectory();

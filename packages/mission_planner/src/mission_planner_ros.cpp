@@ -25,7 +25,7 @@ MissionPlannerRos::~MissionPlannerRos() {}
 
 // Callbacks
 void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
-  MissionPlanner->plan();
+  mission_planner_ptr_->plan();
 }
 
 void MissionPlannerRos::uavPoseCallback(
