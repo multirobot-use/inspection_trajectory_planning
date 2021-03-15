@@ -23,6 +23,9 @@ class MissionPlannerRos {
   //   Current velocity variable
   std::map<int, geometry_msgs::TwistStamped> cur_vel_;
 
+  // Current state of the drone
+  std::map<int, struct state>                        cur_state_;
+
   // Subscriptions
   std::map<int, ros::Subscriber> cur_pose_sub_;
   std::map<int, ros::Subscriber> cur_vel_sub_;

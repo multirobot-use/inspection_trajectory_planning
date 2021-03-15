@@ -30,6 +30,10 @@ void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
 
 void MissionPlannerRos::uavPoseCallback(
     const geometry_msgs::PoseStamped::ConstPtr &msg, int id) {
+  cur_state_[id].pos[0] = msg->pose.position.x;
+  cur_state_[id].pos[1] = msg->pose.position.y;
+  cur_state_[id].pos[2] = msg->pose.position.z;
+
   cur_pose_[id].pose.position.x = msg->pose.position.x;
   cur_pose_[id].pose.position.y = msg->pose.position.y;
   cur_pose_[id].pose.position.z = msg->pose.position.z;
@@ -42,6 +46,10 @@ void MissionPlannerRos::uavPoseCallback(
 
 void MissionPlannerRos::uavVelocityCallback(
     const geometry_msgs::TwistStamped::ConstPtr &msg, int id) {
+  cur_state_[id].vel[0] = msg->twist.linear.x;
+  cur_state_[id].vel[1] = msg->twist.linear.y;
+  cur_state_[id].vel[2] = msg->twist.linear.z;
+  
   cur_vel_[id].twist.linear.x = msg->twist.linear.x;
   cur_vel_[id].twist.linear.y = msg->twist.linear.y;
   cur_vel_[id].twist.linear.z = msg->twist.linear.z;
