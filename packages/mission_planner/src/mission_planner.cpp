@@ -8,9 +8,9 @@ void MissionPlanner::appendGoal(const state &_new_goal) {
   goals_.push_back(_new_goal);
 }
 
-void MissionPlanner::clearGoals() { goals_.clean(); }
+void MissionPlanner::clearGoals() { goals_.clear(); }
 
-void MissionPlanner::planRoutine() {
+void MissionPlanner::plan() {
   // calculate initial trajectory
   // calculate optimal trajectory
 }

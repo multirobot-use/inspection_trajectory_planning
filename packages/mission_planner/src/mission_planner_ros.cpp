@@ -25,7 +25,7 @@ MissionPlannerRos::~MissionPlannerRos() {}
 
 // Callbacks
 void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
-  MissionPlanner->plan();
+  mission_planner_ptr_->plan();
 }
 
 void MissionPlannerRos::uavPoseCallback(
@@ -34,14 +34,6 @@ void MissionPlannerRos::uavPoseCallback(
   cur_state_[id].pos[1] = msg->pose.position.y;
   cur_state_[id].pos[2] = msg->pose.position.z;
 
-  cur_pose_[id].pose.position.x = msg->pose.position.x;
-  cur_pose_[id].pose.position.y = msg->pose.position.y;
-  cur_pose_[id].pose.position.z = msg->pose.position.z;
-
-  cur_pose_[id].pose.orientation.x = msg->pose.orientation.x;
-  cur_pose_[id].pose.orientation.y = msg->pose.orientation.y;
-  cur_pose_[id].pose.orientation.z = msg->pose.orientation.z;
-  cur_pose_[id].pose.orientation.w = msg->pose.orientation.w;
 }
 
 void MissionPlannerRos::uavVelocityCallback(
@@ -49,12 +41,5 @@ void MissionPlannerRos::uavVelocityCallback(
   cur_state_[id].vel[0] = msg->twist.linear.x;
   cur_state_[id].vel[1] = msg->twist.linear.y;
   cur_state_[id].vel[2] = msg->twist.linear.z;
-  
-  cur_vel_[id].twist.linear.x = msg->twist.linear.x;
-  cur_vel_[id].twist.linear.y = msg->twist.linear.y;
-  cur_vel_[id].twist.linear.z = msg->twist.linear.z;
 
-  cur_vel_[id].twist.angular.x = msg->twist.angular.x;
-  cur_vel_[id].twist.angular.y = msg->twist.angular.y;
-  cur_vel_[id].twist.angular.z = msg->twist.angular.z;
 }
