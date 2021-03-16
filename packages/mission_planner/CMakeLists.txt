@@ -15,11 +15,9 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_srvs
   std_msgs
-)
-
-add_message_files(
-#  FILES
-#  DesiredShot.msg
+  message_generation
+  geometry_msgs
+  nav_msgs
 )
 
 add_service_files(
