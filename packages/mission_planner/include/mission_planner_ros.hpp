@@ -5,6 +5,7 @@
 #include <mission_planner/WaypointSrv.h>
 #include "mission_planner.hpp"
 #include <std_srvs/SetBool.h>
+#include <std_srvs/Empty.h>
 #include "ros/ros.h"
 
 //!  MissionPlannerRos class.
@@ -30,6 +31,7 @@ class MissionPlannerRos {
   // Services
   ros::ServiceServer service_activate_planner;
   ros::ServiceServer service_waypoint;
+  ros::ServiceServer clear_waypoints;
 
   //! Callback prototypes
 
@@ -46,6 +48,13 @@ class MissionPlannerRos {
    *   \return success
    */
   bool addWaypointServiceCallback(mission_planner::WaypointSrv::Request &req, mission_planner::WaypointSrv::Response &res);
+
+  /*! \brief Callback for the clean waypoints service. It cleans all the waypoints queued
+   *   \param req request
+   *   \param res success
+   *   \return success
+   */
+  bool clearWaypointsServiceCallback(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res);
 
   /*! \brief Callback for plan timer.
    *   \param TimerEvent structure passed to callback invoked by ros::Timer

@@ -23,6 +23,7 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh) : nh_(_nh) {
   // Services
   service_activate_planner = _nh.advertiseService("activate_planner", &MissionPlannerRos::activationPlannerServiceCallback, this);
   service_waypoint         = _nh.advertiseService("add_waypoint", &MissionPlannerRos::addWaypointServiceCallback, this);
+  clear_waypoints          = _nh.advertiseService("clear_waypoints", &MissionPlannerRos::clearWaypointsServiceCallback, this);
 }
 
 MissionPlannerRos::~MissionPlannerRos() {}
@@ -47,6 +48,12 @@ bool MissionPlannerRos::addWaypointServiceCallback(mission_planner::WaypointSrv:
   // ROS_INFO("[%s]: Waypoint service called.", ros::this_node::getName().c_str());
   ROS_INFO("Waypoint service called.");
   res.success = true;
+}
+
+bool MissionPlannerRos::clearWaypointsServiceCallback(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res){
+  ROS_INFO("Clear waypoints service called.");
+
+  return 1;
 }
 
 void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
