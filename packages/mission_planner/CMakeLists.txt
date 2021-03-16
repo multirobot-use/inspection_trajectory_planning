@@ -13,8 +13,30 @@ include_directories(${EIGEN3_INCLUDE_DIR} ${PCL_INCLUDE_DIRS} include)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
+  std_srvs
   std_msgs
+  message_generation
+  geometry_msgs
+  nav_msgs
 )
+
+add_service_files(
+  FILES
+  WaypointSrv.srv
+)
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  geometry_msgs
+  nav_msgs
+)
+
+# catkin_package(
+#  INCLUDE_DIRS include
+#   LIBRARIES mission_planner
+#   CATKIN_DEPENDS roscpp rospy std_msgs std_srvs
+# )
 
 ###################################
 ## catkin specific configuration ##
