@@ -1,6 +1,8 @@
 #pragma once
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TwistStamped.h>
+#include <nav_msgs/Odometry.h>
+// #include <mission_planner/WaypointSrv.h>    // DOUBT: How do I include a .srv file?
 #include "mission_planner.hpp"
 #include <std_srvs/SetBool.h>
 #include "ros/ros.h"
@@ -19,7 +21,7 @@ class MissionPlannerRos {
   ros::Timer planTimer_;
 
   // Current state of the drone
-  std::map<int, struct state>                        cur_state_;
+  std::map<int, state> cur_state_;
 
   // Subscriptions
   std::map<int, ros::Subscriber> cur_pose_sub_;
@@ -27,6 +29,7 @@ class MissionPlannerRos {
 
   // Services
   ros::ServiceServer service_activate_planner;
+  ros::ServiceServer service_waypoint;
 
   //! Callback prototypes
 
@@ -36,6 +39,13 @@ class MissionPlannerRos {
    *   \return planning_activated
    */
   bool activationPlannerServiceCallback(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res);
+
+  /*! \brief Callback for the waypoint service. It adds a desired waypoint
+   *   \param req new desired waypoint
+   *   \param res success
+   *   \return success
+   */
+  bool addWaypointServiceCallback(mission_planner::WaypointSrv::Request &req, mission_planner::WaypointSrv::Response &res);
 
   /*! \brief Callback for plan timer.
    *   \param TimerEvent structure passed to callback invoked by ros::Timer
