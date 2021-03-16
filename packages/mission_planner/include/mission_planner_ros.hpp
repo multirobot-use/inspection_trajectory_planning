@@ -2,7 +2,7 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <nav_msgs/Odometry.h>
-#include <mission_planner/WaypointSrv.h
+#include <mission_planner/WaypointSrv.h>
 #include "mission_planner.hpp"
 #include <std_srvs/SetBool.h>
 #include "ros/ros.h"

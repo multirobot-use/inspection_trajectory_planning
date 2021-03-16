@@ -46,6 +46,7 @@ bool MissionPlannerRos::activationPlannerServiceCallback(std_srvs::SetBool::Requ
 bool MissionPlannerRos::addWaypointServiceCallback(mission_planner::WaypointSrv::Request &req, mission_planner::WaypointSrv::Response &res){
   // ROS_INFO("[%s]: Waypoint service called.", ros::this_node::getName().c_str());
   ROS_INFO("Waypoint service called.");
+  res.success = true;
 }
 
 void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
