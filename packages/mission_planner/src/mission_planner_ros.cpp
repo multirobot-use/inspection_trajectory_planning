@@ -19,11 +19,43 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh) : nh_(_nh) {
         std::bind(&MissionPlannerRos::uavVelocityCallback, this,
                   std::placeholders::_1, drone));
   }
+
+  // Services
+  service_activate_planner = _nh.advertiseService("activate_planner", &MissionPlannerRos::activationPlannerServiceCallback, this);
+  service_waypoint         = _nh.advertiseService("add_waypoint", &MissionPlannerRos::addWaypointServiceCallback, this);
+  clear_waypoints          = _nh.advertiseService("clear_waypoints", &MissionPlannerRos::clearWaypointsServiceCallback, this);
 }
 
 MissionPlannerRos::~MissionPlannerRos() {}
 
 // Callbacks
+bool MissionPlannerRos::activationPlannerServiceCallback(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res){
+  ROS_INFO("[%s]: Activation planner service called.", ros::this_node::getName().c_str());
+
+  res.success = req.data;
+
+  if (res.success == false){
+    res.message = "Planning deactivated.";
+  }
+  else{
+    res.message = "Planning activated.";
+  }
+  
+  // return res.success;
+}
+
+bool MissionPlannerRos::addWaypointServiceCallback(mission_planner::WaypointSrv::Request &req, mission_planner::WaypointSrv::Response &res){
+  // ROS_INFO("[%s]: Waypoint service called.", ros::this_node::getName().c_str());
+  ROS_INFO("Waypoint service called.");
+  res.success = true;
+}
+
+bool MissionPlannerRos::clearWaypointsServiceCallback(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res){
+  ROS_INFO("Clear waypoints service called.");
+
+  return 1;
+}
+
 void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
   mission_planner_ptr_->plan();
 }
