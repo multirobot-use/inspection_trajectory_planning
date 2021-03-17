@@ -1,6 +1,8 @@
 #pragma once
 #include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/PoseWithCovariance.h>
 #include <geometry_msgs/TwistStamped.h>
+#include <geometry_msgs/TwistWithCovariance.h>
 #include <nav_msgs/Odometry.h>
 #include <mission_planner/WaypointSrv.h>
 #include "mission_planner.hpp"
@@ -23,6 +25,9 @@ class MissionPlannerRos {
 
   // Current state of the drone
   std::map<int, state> cur_state_;
+
+  // Waypoints counter
+  int   n_waypoints_ = 0;
 
   // Subscriptions
   std::map<int, ros::Subscriber> cur_pose_sub_;

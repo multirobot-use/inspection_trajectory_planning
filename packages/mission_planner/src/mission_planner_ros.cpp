@@ -45,13 +45,27 @@ bool MissionPlannerRos::activationPlannerServiceCallback(std_srvs::SetBool::Requ
 }
 
 bool MissionPlannerRos::addWaypointServiceCallback(mission_planner::WaypointSrv::Request &req, mission_planner::WaypointSrv::Response &res){
-  // ROS_INFO("[%s]: Waypoint service called.", ros::this_node::getName().c_str());
-  ROS_INFO("Waypoint service called.");
+  ROS_INFO("[%s]: Waypoint service called.", ros::this_node::getName().c_str());
+
+  state aux_goal;
+
+  aux_goal.pos[0]   = req.waypoint.pose.pose.position.x;
+  aux_goal.pos[1]   = req.waypoint.pose.pose.position.y;
+  aux_goal.pos[2]   = req.waypoint.pose.pose.position.z;
+
+  aux_goal.vel[0]   = req.waypoint.twist.twist.linear.x;
+  aux_goal.vel[1]   = req.waypoint.twist.twist.linear.y;
+  aux_goal.vel[2]   = req.waypoint.twist.twist.linear.z;
+
+  // MissionPlanner::appendGoal(aux_goal);
+
   res.success = true;
 }
 
 bool MissionPlannerRos::clearWaypointsServiceCallback(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res){
   ROS_INFO("Clear waypoints service called.");
+
+  // MissionPlanner::clearGoals();
 
   return 1;
 }
