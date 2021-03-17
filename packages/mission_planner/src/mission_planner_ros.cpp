@@ -5,6 +5,8 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh) : nh_(_nh) {
   safeGetParam(nh_, "horizon_length", param_.horizon_length);
   safeGetParam(nh_, "n_drones", param_.n_drones);
   safeGetParam(nh_, "step_size", param_.step_size);
+  safeGetParam(nh_, "planning_rate", param_.planning_rate);
+
   // initialize mission planner
   mission_planner_ptr_ = std::make_unique<MissionPlanner>(param_);
 
@@ -20,10 +22,14 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh) : nh_(_nh) {
                   std::placeholders::_1, drone));
   }
 
+  // create timer
+  planTimer_ = nh_.createTimer(ros::Duration(param_.planning_rate), &MissionPlannerRos::replanCB, this);
+  planTimer_.stop();
+
   // Services
-  service_activate_planner = _nh.advertiseService("activate_planner", &MissionPlannerRos::activationPlannerServiceCallback, this);
-  service_waypoint         = _nh.advertiseService("add_waypoint", &MissionPlannerRos::addWaypointServiceCallback, this);
-  clear_waypoints          = _nh.advertiseService("clear_waypoints", &MissionPlannerRos::clearWaypointsServiceCallback, this);
+  service_activate_planner = nh_.advertiseService("activate_planner", &MissionPlannerRos::activationPlannerServiceCallback, this);
+  service_waypoint         = nh_.advertiseService("add_waypoint", &MissionPlannerRos::addWaypointServiceCallback, this);
+  clear_waypoints          = nh_.advertiseService("clear_waypoints", &MissionPlannerRos::clearWaypointsServiceCallback, this);
 }
 
 MissionPlannerRos::~MissionPlannerRos() {}
@@ -31,21 +37,21 @@ MissionPlannerRos::~MissionPlannerRos() {}
 // Callbacks
 bool MissionPlannerRos::activationPlannerServiceCallback(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res){
   ROS_INFO("[%s]: Activation planner service called.", ros::this_node::getName().c_str());
-
-  res.success = req.data;
-
-  if (res.success == false){
+  
+  res.success = true;
+  if (req.data == false){
     res.message = "Planning deactivated.";
+    planTimer_.stop();
   }
   else{
     res.message = "Planning activated.";
+    planTimer_.start();
   }
-  
-  // return res.success;
+  return true;
 }
 
 bool MissionPlannerRos::addWaypointServiceCallback(mission_planner::WaypointSrv::Request &req, mission_planner::WaypointSrv::Response &res){
-  ROS_INFO("[%s]: Waypoint service called.", ros::this_node::getName().c_str());
+  ROS_INFO("[%s]: Add waypoint service called.", ros::this_node::getName().c_str());
 
   state aux_goal;
 
@@ -57,20 +63,21 @@ bool MissionPlannerRos::addWaypointServiceCallback(mission_planner::WaypointSrv:
   aux_goal.vel[1]   = req.waypoint.twist.twist.linear.y;
   aux_goal.vel[2]   = req.waypoint.twist.twist.linear.z;
 
-  // MissionPlanner::appendGoal(aux_goal);
+  mission_planner_ptr_->appendGoal(aux_goal);
 
   res.success = true;
 }
 
 bool MissionPlannerRos::clearWaypointsServiceCallback(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res){
-  ROS_INFO("Clear waypoints service called.");
+  ROS_INFO("[%s]: Clear waypoints service called.", ros::this_node::getName().c_str());
 
-  // MissionPlanner::clearGoals();
+  mission_planner_ptr_->clearGoals();
 
   return 1;
 }
 
 void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
+  ROS_INFO("Planning loop");
   mission_planner_ptr_->plan();
 }
 
