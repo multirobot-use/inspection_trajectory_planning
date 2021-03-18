@@ -26,9 +26,6 @@ class MissionPlannerRos {
   // Current state of the drone
   std::map<int, state> cur_state_;
 
-  // Waypoints counter
-  int   n_waypoints_ = 0;
-
   // Subscriptions
   std::map<int, ros::Subscriber> cur_pose_sub_;
   std::map<int, ros::Subscriber> cur_vel_sub_;
