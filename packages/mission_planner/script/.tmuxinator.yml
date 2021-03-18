@@ -1,0 +1,20 @@
+name: mission_planner
+root: ./
+
+windows:
+  - gazebo:
+      layout: even-vertical
+      panes:
+        - roslaunch mission_planner simulation_windmill.launch
+  - mission_planner node:
+      layout: even-vertical
+      panes:
+        - sleep 16; roslaunch mission_planner mission_planner.launch
+  - rviz:
+      layout: even-vertical
+      panes:
+        - sleep 16; roslaunch mission_planner rviz.launch
+  - python script:  
+      layout: even-vertical
+      panes:
+        - sleep 20; python mission_script.py

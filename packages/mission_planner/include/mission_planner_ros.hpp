@@ -1,6 +1,8 @@
 #pragma once
 #include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/PoseWithCovariance.h>
 #include <geometry_msgs/TwistStamped.h>
+#include <geometry_msgs/TwistWithCovariance.h>
 #include <nav_msgs/Odometry.h>
 #include <mission_planner/WaypointSrv.h>
 #include "mission_planner.hpp"
