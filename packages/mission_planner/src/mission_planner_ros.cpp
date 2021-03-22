@@ -44,7 +44,7 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh) : nh_(_nh) {
   pubVis_ = nh_.createTimer(ros::Duration(param_.planning_rate),
                                &MissionPlannerRos::pubVisCB, this);
   planTimer_.stop();
-  pubVis_.stop();
+  pubVis_.start();
 
   // publishers
   points_pub_ = nh_.advertise<visualization_msgs::Marker>("points_to_inspect",1);
@@ -99,7 +99,6 @@ bool MissionPlannerRos::addWaypointServiceCallback(mission_planner::WaypointSrv:
 
   mission_planner_ptr_->appendGoal(aux_goal);
   points_.points.push_back(point); 
-
 
   res.success = true;
 }
