@@ -3,12 +3,19 @@ project(mission_planner)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++17)
+set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR} "cmake/Modules/" )
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package( Eigen3 REQUIRED )
-include_directories(${EIGEN3_INCLUDE_DIR} ${PCL_INCLUDE_DIRS} include)
+find_package(ACADO REQUIRED)
+
+link_directories(${ACADO_LIBRARY_DIRS})
+
+
+include_directories(${EIGEN3_INCLUDE_DIR} ${PCL_INCLUDE_DIRS} ${ACADO_INCLUDE_DIRS} include )
+
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -65,6 +72,6 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(${PROJECT_NAME}_node src/main.cpp src/mission_planner_ros.cpp src/mission_planner.cpp src/solver_formulation.cpp)
-target_link_libraries(${PROJECT_NAME}_node ${catkin_LIBRARIES} )
+add_executable(${PROJECT_NAME}_node src/main.cpp src/mission_planner_ros.cpp src/mission_planner.cpp src/mission_planner_durable.cpp)
+target_link_libraries(${PROJECT_NAME}_node ${catkin_LIBRARIES} ${ACADO_SHARED_LIBRARIES})
 add_dependencies(${PROJECT_NAME}_node ${catkin_EXPORTED_TARGETS} )

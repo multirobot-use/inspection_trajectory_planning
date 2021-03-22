@@ -2,15 +2,17 @@
 
 #include "ros/ros.h"
 struct parameters {
-  float horizon_length = 0;  // number of steps
-  int n_drones = 1;          // number of drones
-  float step_size = 0.1;     // seconds
-  float planning_rate = 0.0; // sec
+  float horizon_length = 0;   // number of steps
+  int n_drones = 1;           // number of drones
+  float step_size = 0.1;      // seconds
+  float planning_rate = 0.0;  // sec
+  int drone_id = 0;
 };
 
 struct state {
   Eigen::Vector3d pos = Eigen::Vector3d::Zero();
   Eigen::Vector3d vel = Eigen::Vector3d::Zero();
+  Eigen::Vector3d acc = Eigen::Vector3d::Zero();
 };
 
 template <typename T>
