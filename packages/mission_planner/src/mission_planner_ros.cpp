@@ -7,6 +7,8 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh) : nh_(_nh) {
   safeGetParam(nh_, "step_size", param_.step_size);
   safeGetParam(nh_, "planning_rate", param_.planning_rate);
   safeGetParam(nh_, "drone_id", param_.drone_id);
+  safeGetParam(nh_, "vel_max", param_.vel_max);
+  safeGetParam(nh_, "acc_max", param_.acc_max);
 
   // initialize mission planner
   mission_planner_ptr_ = std::make_unique<MissionPlannerDurable>(param_);

@@ -25,13 +25,12 @@ void MissionPlannerDurable::optimalTrajectory(
   ACADO::OCP ocp(my_grid_);
   ocp.subjectTo(model);
 
-  // TODO max_acc, max_vel as parameter
-  // ocp.subjectTo(  -MAX_ACC <= ax_ <= MAX_ACC   );  
-  // ocp.subjectTo(  -MAX_ACC <= ay_ <= MAX_ACC   );
-  // ocp.subjectTo(  -MAX_ACC <= az_ <= MAX_ACC   );
-  // ocp.subjectTo(  -MAX_VEL_XY <= vx_ <= MAX_VEL_XY   );
-  // ocp.subjectTo(  -MAX_VEL_XY <= vy_ <= MAX_VEL_XY   );
-  // ocp.subjectTo(  -MAX_VEL_Z <= vz_ <= MAX_VEL_Z   );
+  ocp.subjectTo(  -param_.acc_max <= ax_ <= param_.acc_max   );  
+  ocp.subjectTo(  -param_.acc_max <= ay_ <= param_.acc_max   );
+  ocp.subjectTo(  -param_.acc_max <= az_ <= param_.acc_max   );
+  ocp.subjectTo(  -param_.vel_max <= vx_ <= param_.vel_max   );
+  ocp.subjectTo(  -param_.vel_max <= vy_ <= param_.vel_max   );
+  ocp.subjectTo(  -param_.vel_max <= vz_ <= param_.vel_max   );
 
   ocp.subjectTo(ACADO::AT_START, px_ == initial_trajectory[0].pos(0));
   ocp.subjectTo(ACADO::AT_START, py_ == initial_trajectory[0].pos(1));
@@ -99,5 +98,4 @@ void MissionPlannerDurable::optimalTrajectory(
   ax_.clearStaticCounters();
   ay_.clearStaticCounters();
   az_.clearStaticCounters();
-
 };
