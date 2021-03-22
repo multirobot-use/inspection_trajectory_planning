@@ -5,9 +5,10 @@
 #include <geometry_msgs/TwistWithCovariance.h>
 #include <nav_msgs/Odometry.h>
 #include <mission_planner/WaypointSrv.h>
-#include "mission_planner.hpp"
-#include <std_srvs/SetBool.h>
+#include <nav_msgs/Odometry.h>
 #include <std_srvs/Empty.h>
+#include <std_srvs/SetBool.h>
+#include "mission_planner_durable.hpp"
 #include "ros/ros.h"
 
 //!  MissionPlannerRos class.
@@ -20,7 +21,7 @@ class MissionPlannerRos {
   // Declarations
   ros::NodeHandle nh_;
   parameters param_;
-  std::unique_ptr<MissionPlanner> mission_planner_ptr_;
+  std::unique_ptr<MissionPlannerDurable> mission_planner_ptr_;
   ros::Timer planTimer_;
 
   // Current state of the drone
@@ -42,21 +43,22 @@ class MissionPlannerRos {
    *   \param res structure of the response message
    *   \return planning_activated
    */
-  bool activationPlannerServiceCallback(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res);
+  bool activationPlannerServiceCallback(std_srvs::SetBool::Request &req,
+                                        std_srvs::SetBool::Response &res);
 
   /*! \brief Callback for the waypoint service. It adds a desired waypoint
    *   \param req new desired waypoint
    *   \param res success
    *   \return success
    */
-  bool addWaypointServiceCallback(mission_planner::WaypointSrv::Request &req, mission_planner::WaypointSrv::Response &res);
+  bool addWaypointServiceCallback(mission_planner::WaypointSrv::Request &req,
+                                  mission_planner::WaypointSrv::Response &res);
 
-  /*! \brief Callback for the clean waypoints service. It cleans all the waypoints queued
-   *   \param req request
-   *   \param res success
-   *   \return success
+  /*! \brief Callback for the clean waypoints service. It cleans all the
+   * waypoints queued \param req request \param res success \return success
    */
-  bool clearWaypointsServiceCallback(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res);
+  bool clearWaypointsServiceCallback(std_srvs::Empty::Request &req,
+                                     std_srvs::Empty::Response &res);
 
   /*! \brief Callback for plan timer.
    *   \param TimerEvent structure passed to callback invoked by ros::Timer
