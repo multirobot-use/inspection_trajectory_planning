@@ -9,6 +9,7 @@ struct parameters {
   int drone_id = 0;
   float vel_max = 0.0;
   float acc_max = 0.0;
+  std::string frame;
 };
 
 struct state {

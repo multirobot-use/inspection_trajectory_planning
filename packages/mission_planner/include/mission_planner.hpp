@@ -21,6 +21,7 @@ class MissionPlanner {
   void appendGoal(const state &);
   void clearGoals();
   void plan();
+  
  protected:
   const parameters param_;
   const ACADO::Grid my_grid_;

@@ -1,4 +1,5 @@
 #pragma once
+#include "ros/ros.h"
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/PoseWithCovariance.h>
 #include <geometry_msgs/TwistStamped.h>
@@ -9,7 +10,7 @@
 #include <std_srvs/Empty.h>
 #include <std_srvs/SetBool.h>
 #include "mission_planner_durable.hpp"
-#include "ros/ros.h"
+#include <visualization_msgs/Marker.h>
 
 //!  MissionPlannerRos class.
 /*!
@@ -23,6 +24,7 @@ class MissionPlannerRos {
   parameters param_;
   std::unique_ptr<MissionPlannerDurable> mission_planner_ptr_;
   ros::Timer planTimer_;
+  ros::Timer pubVis_;
 
   // Current state of the drone
   std::map<int, state> cur_state_;
@@ -31,10 +33,16 @@ class MissionPlannerRos {
   std::map<int, ros::Subscriber> cur_pose_sub_;
   std::map<int, ros::Subscriber> cur_vel_sub_;
 
+  // Publishers
+  ros::Publisher points_pub_;
   // Services
   ros::ServiceServer service_activate_planner;
   ros::ServiceServer service_waypoint;
   ros::ServiceServer clear_waypoints;
+
+  // markers
+  visualization_msgs::Marker points_;
+
 
   //! Callback prototypes
 
@@ -59,7 +67,10 @@ class MissionPlannerRos {
    */
   bool clearWaypointsServiceCallback(std_srvs::Empty::Request &req,
                                      std_srvs::Empty::Response &res);
-
+  /*! \brief Callback for timer that publishes rviz markers
+  * \param TimerEvent structure passed to callback invoked by ros::Timer
+  */
+  void pubVisCB(const ros::TimerEvent &e);
   /*! \brief Callback for plan timer.
    *   \param TimerEvent structure passed to callback invoked by ros::Timer
    */
