@@ -49,6 +49,7 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh) : nh_(_nh) {
   // publishers
   points_pub_ = nh_.advertise<visualization_msgs::Marker>("points_to_inspect",1);
   pub_path_   = nh_.advertise<nav_msgs::Path>("solved_traj", 1);
+  tracking_pub_   = nh_.advertise<nav_msgs::Path>("/drone_"+std::to_string(param_.drone_id)+"/upat_follower/follower/trajectory_to_follow", 1);
 
   // Services
   service_activate_planner = nh_.advertiseService(
@@ -116,6 +117,7 @@ bool MissionPlannerRos::clearWaypointsServiceCallback(std_srvs::Empty::Request &
 void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
   ROS_INFO("Planning loop");
   mission_planner_ptr_->plan();
+  publishPath(tracking_pub_, mission_planner_ptr_->last_trajectory_);
 }
 
 void MissionPlannerRos::pubVisCB(const ros::TimerEvent &e) {

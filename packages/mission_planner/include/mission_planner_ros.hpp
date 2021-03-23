@@ -37,6 +37,7 @@ class MissionPlannerRos {
   // Publishers
   ros::Publisher points_pub_;
   ros::Publisher pub_path_;
+  ros::Publisher tracking_pub_;
   // Services
   ros::ServiceServer service_activate_planner;
   ros::ServiceServer service_waypoint;
