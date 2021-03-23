@@ -93,7 +93,7 @@ class MissionPlannerRos {
 
   /*! \brief function to publish last solved trajectory
   */
-  void publishPath();
+  void publishPath(const ros::Publisher &pub_path, const std::vector<state> &trajectory);
 
  public:
   //! MissionPlannerRos constructor

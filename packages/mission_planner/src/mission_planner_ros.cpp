@@ -137,22 +137,22 @@ void MissionPlannerRos::uavVelocityCallback(
   cur_state_[id].vel[2] = msg->twist.linear.z;
 }
 
-void MissionPlannerRos::publishPath(){
+void MissionPlannerRos::publishPath(const ros::Publisher &pub_path, const std::vector<state> &trajectory){
   nav_msgs::Path path_to_publish;
   geometry_msgs::PoseStamped aux_pose;
   path_to_publish.header.frame_id = param_.frame;
   path_to_publish.header.stamp = ros::Time::now();
-  for(const auto& state: mission_planner_ptr_->last_trajectory_){
+  for(const auto& state: trajectory){
     aux_pose.pose.position.x = state.pos(0);
     aux_pose.pose.position.y = state.pos(1);
     aux_pose.pose.position.z = state.pos(2);
     path_to_publish.poses.push_back(aux_pose);
   }
   try {
-    pub_path_.publish(path_to_publish);
+    pub_path.publish(path_to_publish);
   }
   catch (...) {
-    ROS_ERROR("exception caught during publishing topic '%s'", pub_path_.getTopic().c_str());
+    ROS_ERROR("exception caught during publishing topic '%s'", pub_path.getTopic().c_str());
   }
 }
 
