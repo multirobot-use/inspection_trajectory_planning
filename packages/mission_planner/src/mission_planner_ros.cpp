@@ -48,6 +48,8 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh) : nh_(_nh) {
 
   // publishers
   points_pub_ = nh_.advertise<visualization_msgs::Marker>("points_to_inspect",1);
+  pub_path_   = nh_.advertise<nav_msgs::Path>("solved_traj", 1);
+
   // Services
   service_activate_planner = nh_.advertiseService(
       "activate_planner", &MissionPlannerRos::activationPlannerServiceCallback,
@@ -133,5 +135,24 @@ void MissionPlannerRos::uavVelocityCallback(
   cur_state_[id].vel[0] = msg->twist.linear.x;
   cur_state_[id].vel[1] = msg->twist.linear.y;
   cur_state_[id].vel[2] = msg->twist.linear.z;
+}
+
+void MissionPlannerRos::publishPath(){
+  nav_msgs::Path path_to_publish;
+  geometry_msgs::PoseStamped aux_pose;
+  path_to_publish.header.frame_id = param_.frame;
+  path_to_publish.header.stamp = ros::Time::now();
+  for(const auto& state: mission_planner_ptr_->last_trajectory_){
+    aux_pose.pose.position.x = state.pos(0);
+    aux_pose.pose.position.y = state.pos(1);
+    aux_pose.pose.position.z = state.pos(2);
+    path_to_publish.poses.push_back(aux_pose);
+  }
+  try {
+    pub_path_.publish(path_to_publish);
+  }
+  catch (...) {
+    ROS_ERROR("exception caught during publishing topic '%s'", pub_path_.getTopic().c_str());
+  }
 }
 

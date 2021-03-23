@@ -5,6 +5,7 @@
 #include <geometry_msgs/TwistStamped.h>
 #include <geometry_msgs/TwistWithCovariance.h>
 #include <nav_msgs/Odometry.h>
+#include <nav_msgs/Path.h>
 #include <mission_planner/WaypointSrv.h>
 #include <nav_msgs/Odometry.h>
 #include <std_srvs/Empty.h>
@@ -35,6 +36,7 @@ class MissionPlannerRos {
 
   // Publishers
   ros::Publisher points_pub_;
+  ros::Publisher pub_path_;
   // Services
   ros::ServiceServer service_activate_planner;
   ros::ServiceServer service_waypoint;
@@ -88,6 +90,10 @@ class MissionPlannerRos {
    **/
   void uavVelocityCallback(const geometry_msgs::TwistStamped::ConstPtr &msg,
                            int id);
+
+  /*! \brief function to publish last solved trajectory
+  */
+  void publishPath();
 
  public:
   //! MissionPlannerRos constructor
