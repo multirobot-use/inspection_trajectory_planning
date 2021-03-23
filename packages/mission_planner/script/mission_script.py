@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 import sys
 import rospy
+import rospkg
 import time
 import math
 import numpy
 import os
+import yaml
 import threading
 from std_srvs.srv import SetBool
 from std_srvs.srv import Empty
@@ -12,12 +14,26 @@ from uav_abstraction_layer.srv import TakeOff
 from uav_abstraction_layer.srv import TakeOffRequest
 from uav_abstraction_layer.srv import GoToWaypoint
 from uav_abstraction_layer.srv import GoToWaypointRequest
+from uav_abstraction_layer.msg import State
 from mission_planner.srv import WaypointSrvRequest
 from mission_planner.srv import WaypointSrv
 
+# Params read from .yml file
+global leader_ready
+
+global start_point
+global take_off_height
+global take_off_blocking
+global height_to_inspect
 
 # Menu function
 def show_menu():
+    global start_point
+    global take_off_height
+    global take_off_blocking
+    global height_to_inspect
+    
+    # Menu
     print "\n\nWelcome to the main menu. Put the number of the desired option:\n"
     print "\t1. Take off and send the drones to their initial points (WORKING)"
     print "\t2. Start the mission"
@@ -33,7 +49,7 @@ def show_menu():
         option = raw_input("Please, choose a valid option: ")
 
     if option == 1:
-        preparing_drones()
+        preparing_drones(start_point, take_off_height, take_off_blocking)
     elif option == 2:
         start_mission()
     elif option == 3:
@@ -47,7 +63,7 @@ def show_menu():
     elif option == 7:
         distance_inspection()
     elif option == 8:
-        height_inspection()
+        height_inspection(height_to_inspect)
     else:
         print ("Option n" + str(option) + "does not exist!")
     
@@ -55,7 +71,10 @@ def show_menu():
 # 1.        preparing_drones function
 # Brief:    Takes off all the drones and send them to the initial point
 # NOTE: Not finished
-def preparing_drones():
+def preparing_drones(start_point, height, blocking):
+    # This variable changes its value because there is a callback periodically
+    # Need to know every change it has
+    global leader_ready
     print "Preparing drones called"
     
     # DRONE 1 - LEADER
@@ -63,54 +82,54 @@ def preparing_drones():
     uav_id = "drone_1"
     ns     = "/drone_1"
     
-    # TakeOff service
-    take_off_service = rospy.ServiceProxy(ns+"/ual/take_off", TakeOff)
+    if not leader_ready:
+        # TakeOff service
+        take_off_service = rospy.ServiceProxy(ns+"/ual/take_off", TakeOff)
     
-    # GoToWaypoint service
-    go_to_waypoint_url      = "/drone_1/ual/go_to_waypoint"
-    rospy.wait_for_service(go_to_waypoint_url)
-    go_to_waypoint_service  = rospy.ServiceProxy(go_to_waypoint_url, GoToWaypoint)
+        # GoToWaypoint service
+        go_to_waypoint_url      = "/drone_1/ual/go_to_waypoint"
+        rospy.wait_for_service(go_to_waypoint_url)
+        go_to_waypoint_service  = rospy.ServiceProxy(go_to_waypoint_url, GoToWaypoint)
     
     # DRONE n - FOLLOWERS
     # TODO
     
     
     # Taking off
-    try:
-        take_off            = TakeOffRequest()
-        take_off.height     = 1
-        take_off.blocking   = False
-        
-        # Leader drone service
-        take_off_service(take_off)
-        
-        # Followers service
-        # TODO
-        
-        print "LEADER: Taking off the drone"
-    except rospy.ServiceException, e:
-        print "Service call failed: %s" %e
+    if not leader_ready:
+        try:
+            take_off            = TakeOffRequest()
+            take_off.height     = height
+            take_off.blocking   = blocking
+            
+            # Leader drone service
+            take_off_service(take_off)
+            
+            # Followers service
+            # TODO
+            
+            print "LEADER: Taking off the drone"
+        except rospy.ServiceException, e:
+            print "Service call failed: %s" %e
+    
+        # Temporary fix: need to know if the drone has already reached the desired height of the take off
+        while (not leader_ready):
+            time.sleep(0.2)
     
     # Send to the initial point
-    # TODO: NEED TO GET THE INITIAL POINT FROM SOMEWHERE
-    initial_point = [3, 4, 5]
-    
-    # Temporary fix: need to know if the drone has already reached the desired height of the take off
-    time.sleep(7)
-    
-    # Going to initial point
-    try:
-        waypoint              = GoToWaypointRequest()
-        waypoint.blocking     = False
-        waypoint.waypoint.pose.position.x     = initial_point[0]
-        waypoint.waypoint.pose.position.y     = initial_point[1]
-        waypoint.waypoint.pose.position.z     = initial_point[2]
+    if leader_ready:
+        try:
+            waypoint              = GoToWaypointRequest()
+            waypoint.blocking     = False
+            waypoint.waypoint.pose.position.x     = start_point[0]
+            waypoint.waypoint.pose.position.y     = start_point[1]
+            waypoint.waypoint.pose.position.z     = start_point[2]
+            
+            go_to_waypoint_service(waypoint)
+            print "LEADER: Going to initial waypoint"
         
-        go_to_waypoint_service(waypoint)
-        print "LEADER: Going to initial waypoint"
-    
-    except rospy.ServiceException, e:
-        print "Service call failed: %s" %e
+        except rospy.ServiceException, e:
+            print "Service call failed: %s" %e
 
 
 # 2.        start_mission function
@@ -181,22 +200,55 @@ def distance_inspection():
 # 8.        height_inspection function
 # Brief:    This function changes the desired height to inspect
 # TODO
-def height_inspection():
+def height_inspection(height_to_inspect):
     pass
 
 
+def callbackStateLeader(data):
+    global leader_ready
+    data_splitted = str(data).split(": ")
+    state = int(data_splitted[1])
 
+    # state     = 2     --> landed
+    #           = 3     --> taking off
+    #           = 4     --> ready for moving
+    if (state == 4):
+        leader_ready = True
+    else:
+        leader_ready = False
 
-
-
-
-
+#           read_params function
+# Brief:    This function reads the parameters of a .yml file
+def read_params(file_route):
+    global start_point
+    global take_off_height
+    global take_off_blocking
+    global height_to_inspect
     
+    print 'The full path is: ' + file_route
+    
+    # Read parameters in local function:
+    yml_file = open(file_route, 'r')
+    yml_content = yaml.load(yml_file)
+    
+    start_point         = yml_content.get('start_point')
+    take_off_height     = yml_content.get('take_off_height')
+    take_off_blocking   = yml_content.get('take_off_blocking')
+    height_to_inspect   = yml_content.get('height_to_inspect')
+
+
 # Main function
 if __name__ == "__main__":
+    global leader_ready
+    
+    # Initialize
+    leader_ready = False
     
     # Create the node
     rospy.init_node("operator", anonymous=True)
+    
+    # Subscribers
+    rospy.Subscriber("/drone_1/ual/state", State, callbackStateLeader)
     
     # Mission planner services
     activate_planner_url = "/drone_1/mission_planner_ros/activate_planner" # Missing its functionality atm
@@ -206,6 +258,11 @@ if __name__ == "__main__":
     activate_planner_service = rospy.ServiceProxy(activate_planner_url, SetBool)
     add_waypoint_service     = rospy.ServiceProxy(add_waypoint_url, WaypointSrv)
     clear_waypoints_service  = rospy.ServiceProxy(clear_waypoints_url, Empty)
+    
+    # Read the parameters
+    rospack = rospkg.RosPack()
+    f_route = rospack.get_path('mission_planner')+'/config/param.yml'
+    read_params(f_route)
     
     while (not rospy.is_shutdown()):
         show_menu()
