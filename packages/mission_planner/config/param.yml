@@ -1,0 +1,4 @@
+start_point: [3, 3, 3]
+take_off_height: 2
+take_off_blocking: False
+height_to_inspect: 8
