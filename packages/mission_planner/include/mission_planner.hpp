@@ -16,15 +16,17 @@ enum PlannerStatus { FIRST_PLAN = 0, START_REPLANNING = 1, REPLANNED = 2 };
 
 class MissionPlanner {
  public:
+  std::vector<state> last_trajectory_;
   MissionPlanner(const parameters _param);
   virtual ~MissionPlanner();
   void appendGoal(const state &);
   void clearGoals();
   void plan();
+
+  
  protected:
   const parameters param_;
   const ACADO::Grid my_grid_;
-  std::vector<state> last_trajectory_;
 
  private:
 
