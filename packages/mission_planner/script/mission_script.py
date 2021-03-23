@@ -7,6 +7,7 @@ import numpy
 import os
 import threading
 from std_srvs.srv import SetBool
+from std_srvs.srv import SetBoolRequest
 from std_srvs.srv import Empty
 from uav_abstraction_layer.srv import TakeOff
 from uav_abstraction_layer.srv import TakeOffRequest
@@ -14,6 +15,8 @@ from uav_abstraction_layer.srv import GoToWaypoint
 from uav_abstraction_layer.srv import GoToWaypointRequest
 from mission_planner.srv import WaypointSrvRequest
 from mission_planner.srv import WaypointSrv
+import signal
+import sys
 
 
 # Menu function
@@ -50,7 +53,11 @@ def show_menu():
         height_inspection()
     else:
         print ("Option n" + str(option) + "does not exist!")
-    
+
+# Finish the execution directly when Ctrl+C is pressed (signal.SIGINT received), without escalating to SIGTERM.
+def signal_handler(sig, frame):
+    print('Ctrl+C pressed, signal.SIGINT received.')
+    sys.exit(0)    
 
 # 1.        preparing_drones function
 # Brief:    Takes off all the drones and send them to the initial point
@@ -117,8 +124,12 @@ def preparing_drones():
 # Brief:    This function allows the drones to start the mission
 # TODO
 def start_mission():
-    pass
-
+    try:
+        req = SetBoolRequest()
+        req.data = True
+        activate_planner_service(req)
+    except rospy.ServiceException, e:
+        print("Failed calling add_waypoint service")
 
 # 3.        stop_mission function
 # Brief:    This function stops mission
@@ -198,6 +209,7 @@ if __name__ == "__main__":
     # Create the node
     rospy.init_node("operator", anonymous=True)
     
+    signal.signal(signal.SIGINT, signal_handler)    # Associate signal SIGINT (Ctrl+C pressed) to handler (function "signal_handler")
     # Mission planner services
     activate_planner_url = "/drone_1/mission_planner_ros/activate_planner" # Missing its functionality atm
     add_waypoint_url     = "/drone_1/mission_planner_ros/add_waypoint"
