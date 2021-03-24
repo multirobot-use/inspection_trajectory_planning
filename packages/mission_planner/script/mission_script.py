@@ -8,6 +8,7 @@ import numpy
 import os
 import yaml
 import threading
+import numpy as np
 from std_srvs.srv import SetBool
 from std_srvs.srv import SetBoolRequest
 from std_srvs.srv import Empty
@@ -21,18 +22,22 @@ from mission_planner.srv import WaypointSrv
 import signal
 import sys
 
-# Params read from .yml file
+# Global variables
 global take_off_service
 global go_to_waypoint_service
 
 global leader_ready
 global follower_ready
 
+# Params read from .yml file
+global auto
 global leader_start_point
 global follower_start_point
 global take_off_height
 global take_off_blocking
 global height_to_inspect
+global n_waypoints
+global waypoint
 
 # Menu function
 def show_menu():
@@ -64,7 +69,7 @@ def show_menu():
     elif option == 3:
         stop_mission()
     elif option == 4:
-        add_one_waypoint()
+        add_one_waypoint(False)
     elif option == 5:
         clear_all_waypoints()
     elif option == 6:
@@ -74,7 +79,7 @@ def show_menu():
     elif option == 8:
         height_inspection(height_to_inspect)
     else:
-        print ("Option n" + str(option) + "does not exist!")
+        print ("Option n " + str(option) + " does not exist!")
 
 # Finish the execution directly when Ctrl+C is pressed (signal.SIGINT received), without escalating to SIGTERM.
 def signal_handler(sig, frame):
@@ -98,7 +103,7 @@ def preparing_drones(leader_start_point, follower_start_point, height, blocking)
     # Temporary fix: look for a better solution
     if (leader_ready and follower_ready):
         print "All drones are already taken off!"
-        resp = raw_input("Do you want to send them to their respective initial point? (y/n)")
+        resp = raw_input("Do you want to send them to their respective initial point? (y/n): ")
 
     else:
         # Taking off
@@ -185,30 +190,50 @@ def stop_mission():
 
 # 4.        add_one_waypoint function
 # Brief:    This function adds one waypoint to the queue of waypoints that the drone has to reach
-def add_one_waypoint():
-    px = float(raw_input("X pose: "))
-    py = float(raw_input("Y pose: "))
-    pz = float(raw_input("Z pose: "))
+def add_one_waypoint(data):
     
-    tx = float(raw_input("X linear velocity: "))
-    ty = float(raw_input("Y linear velocity: "))
-    tz = float(raw_input("Z linear velocity: "))
-    
-    add_waypoint_req = WaypointSrvRequest()
-    
-    add_waypoint_req.waypoint.pose.pose.position.x      = px
-    add_waypoint_req.waypoint.pose.pose.position.y      = py
-    add_waypoint_req.waypoint.pose.pose.position.z      = pz
-    
-    add_waypoint_req.waypoint.twist.twist.linear.x      = tx
-    add_waypoint_req.waypoint.twist.twist.linear.y      = ty
-    add_waypoint_req.waypoint.twist.twist.linear.z      = tz
+    global add_waypoint_service
+    global n_waypoints
+    # Not auto mode
+    if data.all == False:
+        px = float(raw_input("X pose: "))
+        py = float(raw_input("Y pose: "))
+        pz = float(raw_input("Z pose: "))
         
-    try:
-        add_waypoint_service(add_waypoint_req)
-        print "Waypoint added"
-    except:
-        print("Failed calling add_waypoint service")
+        tx = float(raw_input("X linear velocity: "))
+        ty = float(raw_input("Y linear velocity: "))
+        tz = float(raw_input("Z linear velocity: "))
+        
+        add_waypoint_req = WaypointSrvRequest()
+        
+        add_waypoint_req.waypoint.pose.pose.position.x      = px
+        add_waypoint_req.waypoint.pose.pose.position.y      = py
+        add_waypoint_req.waypoint.pose.pose.position.z      = pz
+        
+        add_waypoint_req.waypoint.twist.twist.linear.x      = tx
+        add_waypoint_req.waypoint.twist.twist.linear.y      = ty
+        add_waypoint_req.waypoint.twist.twist.linear.z      = tz
+            
+        try:
+            add_waypoint_service(add_waypoint_req)
+            print "Waypoint added"
+        except:
+            print("Failed calling add_waypoint service")
+    
+    # Auto mode
+    else:
+        # data are the waypoints
+        for index in range(n_waypoints):
+            add_waypoint_req = WaypointSrvRequest()
+            add_waypoint_req.waypoint.pose.pose.position.x      = data[index, 0]
+            add_waypoint_req.waypoint.pose.pose.position.y      = data[index, 1]
+            add_waypoint_req.waypoint.pose.pose.position.z      = data[index, 2]
+            
+            try:
+                add_waypoint_service(add_waypoint_req)
+                print "Waypoint " + str(index) + " added"
+            except:
+                print("Failed calling add_waypoint service")
 
 
 # 5.        clear_all_waypoints function
@@ -240,6 +265,20 @@ def distance_inspection():
 def height_inspection(height_to_inspect):
     pass
 
+def automatic_function():
+    global leader_start_point
+    global follower_start_point
+    global take_off_height
+    global take_off_blocking
+    global height_to_inspect
+    global waypoint
+    
+    print "-------- TAKE OFF AND INITIAL POINT --------\n"
+    preparing_drones(leader_start_point, follower_start_point, take_off_height, take_off_blocking)
+    
+    print "-------- ADDING WAYPOINTS --------\n"
+    add_one_waypoint(waypoint)
+    
 
 def callbackStateLeader(data):
     global leader_ready
@@ -270,21 +309,36 @@ def callbackStateFollower(data):
 #           read_params function
 # Brief:    This function reads the parameters of a .yml file
 def read_params(file_route):
+    global auto
     global leader_start_point
     global follower_start_point
     global take_off_height
     global take_off_blocking
     global height_to_inspect
+    global n_waypoints
+    global waypoint
 
     # Read parameters in local function:
     yml_file = open(file_route, 'r')
     yml_content = yaml.load(yml_file)
     
+    auto                    = yml_content.get('auto')
     leader_start_point      = yml_content.get('leader_start_point')
     follower_start_point    = yml_content.get('follower_start_point')
     take_off_height         = yml_content.get('take_off_height')
     take_off_blocking       = yml_content.get('take_off_blocking')
     height_to_inspect       = yml_content.get('height_to_inspect')
+    
+    if auto:
+        n_waypoints         = yml_content.get('n_waypoints')
+        
+        # Initialize
+        waypoint            = np.zeros((n_waypoints, 3))
+        
+        for index in range(n_waypoints):
+            waypoint[index] = yml_content.get('waypoint' + str(index + 1))
+
+        print waypoint
 
 
 # Main function
@@ -293,6 +347,7 @@ if __name__ == "__main__":
     global follower_ready
     
     global take_off_service
+    global add_waypoint_service
     global go_to_waypoint_service
     
     # Initialize
@@ -343,5 +398,11 @@ if __name__ == "__main__":
     read_params(f_route)
     
     while (not rospy.is_shutdown()):
-        show_menu()
+        if not auto:
+            show_menu()
+        else:
+            print "Using the automatic interface"
+            automatic_function()
+            exit()
+            
         time.sleep(1)
