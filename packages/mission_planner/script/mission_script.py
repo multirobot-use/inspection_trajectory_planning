@@ -193,13 +193,19 @@ def start_mission():
         activate_planner_service(req)
         print "Mission has started!"
     except rospy.ServiceException, e:
-        print("Failed calling add_waypoint service")
+        print("Failed calling start_mission service")
 
 # 3.        stop_mission function
 # Brief:    This function stops mission
 # TODO
 def stop_mission():
-    pass
+    try:
+        req = SetBoolRequest()
+        req.data = False
+        activate_planner_service(req)
+        print "Mission has been stopped!"
+    except rospy.ServiceException, e:
+        print("Failed calling stop_mission service")
 
 
 # 4.        add_one_waypoint function
