@@ -143,7 +143,6 @@ void MissionPlannerRos::uavVelocityCallback(
 void MissionPlannerRos::publishPath(const ros::Publisher &pub_path, const std::vector<state> &trajectory){
   nav_msgs::Path path_to_publish;
   geometry_msgs::PoseStamped aux_pose;
-  std::cout<<param_.frame<<std::endl;
   path_to_publish.header.frame_id = param_.frame;
   path_to_publish.header.stamp = ros::Time::now();
   for(const auto& state: trajectory){
