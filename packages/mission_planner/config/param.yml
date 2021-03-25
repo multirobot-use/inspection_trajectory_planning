@@ -1,4 +1,12 @@
-start_point: [3, 3, 3]
+auto: True
+leader_start_point: [3, 3, 3]
+follower_start_point: [3, 3, 3]
 take_off_height: 2
 take_off_blocking: False
 height_to_inspect: 8
+
+n_waypoints: 4
+waypoint1: [10, 12, 15]
+waypoint2: [18, 5, 12]
+waypoint3: [30, 22, 5]
+waypoint4: [27, 11, 9]
