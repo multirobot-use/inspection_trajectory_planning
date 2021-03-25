@@ -1,4 +1,4 @@
-auto: False
+auto: True
 leader_start_point: [3, 3, 3]
 follower_start_point: [3, 3, 3]
 take_off_height: 2

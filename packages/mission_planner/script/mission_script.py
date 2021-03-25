@@ -27,7 +27,10 @@ global take_off_service
 global go_to_waypoint_service
 
 global leader_ready
+global leader_landed
+
 global follower_ready
+global follower_landed
 
 # Params read from .yml file
 global auto
@@ -94,7 +97,10 @@ def preparing_drones(leader_start_point, follower_start_point, height, blocking)
     global go_to_waypoint_service
     
     global leader_ready
+    global leader_landed
+    
     global follower_ready
+    global follower_landed
     print "Preparing drones function called"
     
     # DRONE 1 - LEADER
@@ -106,8 +112,13 @@ def preparing_drones(leader_start_point, follower_start_point, height, blocking)
         resp = raw_input("Do you want to send them to their respective initial point? (y/n): ")
 
     else:
+        if not (leader_landed and follower_landed):
+            print "Waiting for drones..."
+        while not (leader_landed and follower_landed):
+            time.sleep(1)
+        
         # Taking off
-        if not leader_ready:
+        if leader_landed:
             try:
                 take_off            = TakeOffRequest()
                 take_off.height     = height
@@ -120,7 +131,7 @@ def preparing_drones(leader_start_point, follower_start_point, height, blocking)
             except rospy.ServiceException, e:
                 print "Service call failed: %s" %e
         
-        if not follower_ready:
+        if follower_landed:
             try:
                 take_off            = TakeOffRequest()
                 take_off.height     = height
@@ -136,10 +147,12 @@ def preparing_drones(leader_start_point, follower_start_point, height, blocking)
         # Wait until all of the drones are ready
         while (not (leader_ready and follower_ready)):
             time.sleep(0.2)
+        
+        resp = 'y'
     
     # LEADER
     # Send to the initial point
-    if leader_ready or (leader_ready and resp == 'y'):
+    if (leader_ready and follower_ready) and resp == 'y':
         try:
             waypoint              = GoToWaypointRequest()
             waypoint.blocking     = False
@@ -154,8 +167,6 @@ def preparing_drones(leader_start_point, follower_start_point, height, blocking)
             print "Service call failed: %s" %e
     
     # FOLLOWER
-    # Send to the initial point
-    if follower_ready:
         try:
             waypoint              = GoToWaypointRequest()
             waypoint.blocking     = False
@@ -195,7 +206,7 @@ def add_one_waypoint(data):
     global add_waypoint_service
     global n_waypoints
     # Not auto mode
-    if data.all == False:
+    if type(data) == bool and data == False:
         px = float(raw_input("X pose: "))
         py = float(raw_input("Y pose: "))
         pz = float(raw_input("Z pose: "))
@@ -221,7 +232,7 @@ def add_one_waypoint(data):
             print("Failed calling add_waypoint service")
     
     # Auto mode
-    else:
+    if type(data) == list:
         # data are the waypoints
         for index in range(n_waypoints):
             add_waypoint_req = WaypointSrvRequest()
@@ -265,7 +276,7 @@ def distance_inspection():
 def height_inspection(height_to_inspect):
     pass
 
-def automatic_function():
+def automatic_function():    
     global leader_start_point
     global follower_start_point
     global take_off_height
@@ -276,31 +287,43 @@ def automatic_function():
     print "-------- TAKE OFF AND INITIAL POINT --------\n"
     preparing_drones(leader_start_point, follower_start_point, take_off_height, take_off_blocking)
     
-    print "-------- ADDING WAYPOINTS --------\n"
+    print "\n-------- ADDING WAYPOINTS --------\n"
     add_one_waypoint(waypoint)
     
 
 def callbackStateLeader(data):
     global leader_ready
+    global leader_landed
     data_splitted = str(data).split(": ")
     state = int(data_splitted[1])
 
     # state     = 2     --> landed
     #           = 3     --> taking off
     #           = 4     --> ready for moving
-    if (state == 4):
-        leader_ready = True
+    if (state == 2):
+        leader_landed   = True
     else:
-        leader_ready = False
+        leader_landed   = False
+    
+    if (state == 4):
+        leader_ready    = True
+    else:
+        leader_ready    = False
 
 def callbackStateFollower(data):
     global follower_ready
+    global follower_landed
     data_splitted = str(data).split(": ")
     state = int(data_splitted[1])
 
     # state     = 2     --> landed
     #           = 3     --> taking off
     #           = 4     --> ready for moving
+    if (state == 2):
+        follower_landed = True
+    else:
+        follower_landed = False
+        
     if (state == 4):
         follower_ready = True
     else:
@@ -335,16 +358,20 @@ def read_params(file_route):
         # Initialize
         waypoint            = np.zeros((n_waypoints, 3))
         
+        print "Waypoints for auto mode: "
+        
         for index in range(n_waypoints):
             waypoint[index] = yml_content.get('waypoint' + str(index + 1))
-
-        print waypoint
+            print waypoint[index]
 
 
 # Main function
 if __name__ == "__main__":
     global leader_ready
+    global leader_landed
+    
     global follower_ready
+    global follower_landed
     
     global take_off_service
     global add_waypoint_service
@@ -352,7 +379,9 @@ if __name__ == "__main__":
     
     # Initialize
     leader_ready        = False
+    leader_landed       = False
     follower_ready      = False
+    leader_landed       = False
     
     take_off_service        = [0, 0]
     go_to_waypoint_url      = [0, 0]
