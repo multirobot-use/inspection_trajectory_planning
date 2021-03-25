@@ -24,17 +24,23 @@ void MissionPlanner::clearGoals() { goals_.clear(); }
 
 void MissionPlanner::plan() {
   state initial_pose;
+  if(states_.count(param_.drone_id) == 0){
+      std::cout<<"uav "<<param_.drone_id<<"pose is not available"<<std::endl;
+      return;
+  } 
+
   if (planner_state_ == PlannerStatus::FIRST_PLAN) {
     initial_pose = states_[param_.drone_id];
   } else if (planner_state_ == PlannerStatus::REPLANNED) {
     initial_pose = last_trajectory_[param_.planning_rate];
   }
   // check waypoints to remove or not the waypoints to follow
-  checkWaypoints();
+  // checkWaypoints();
   // calculate initial trajectory
   std::vector<state> initial_traj = initialTrajectory(initial_pose);
+  last_trajectory_ = initial_traj;
   // calculate optimal trajectory
-  optimalTrajectory(initial_traj);
+  // optimalTrajectory(initial_traj);
 }
 
 void MissionPlanner::checkWaypoints(){};

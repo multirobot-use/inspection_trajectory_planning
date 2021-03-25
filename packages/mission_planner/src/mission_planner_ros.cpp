@@ -10,12 +10,13 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh) : nh_(_nh) {
   safeGetParam(nh_, "vel_max", param_.vel_max);
   safeGetParam(nh_, "acc_max", param_.acc_max);
   safeGetParam(nh_, "frame", param_.frame);
+  safeGetParam(nh_, "drone_id", param_.drone_id);
 
   // initialize mission planner
   mission_planner_ptr_ = std::make_unique<MissionPlannerDurable>(param_);
 
   // Subscribers
-  for (auto drone = 1; drone <= param_.n_drones; drone++) {
+  for (int drone = 1; drone <= param_.n_drones; drone++) {
     cur_pose_sub_[drone] = nh_.subscribe<geometry_msgs::PoseStamped>(
         "/drone_" + std::to_string(drone) + "/ual/pose", 1,
         std::bind(&MissionPlannerRos::uavPoseCallback, this,
@@ -118,6 +119,7 @@ void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
   ROS_INFO("Planning loop");
   mission_planner_ptr_->plan();
   publishPath(tracking_pub_, mission_planner_ptr_->last_trajectory_);
+  publishPath(pub_path_, mission_planner_ptr_->last_trajectory_);
 }
 
 void MissionPlannerRos::pubVisCB(const ros::TimerEvent &e) {
@@ -127,21 +129,22 @@ void MissionPlannerRos::pubVisCB(const ros::TimerEvent &e) {
 
 void MissionPlannerRos::uavPoseCallback(
     const geometry_msgs::PoseStamped::ConstPtr &msg, int id) {
-  cur_state_[id].pos[0] = msg->pose.position.x;
-  cur_state_[id].pos[1] = msg->pose.position.y;
-  cur_state_[id].pos[2] = msg->pose.position.z;
+  mission_planner_ptr_->states_[id].pos[0] = msg->pose.position.x;
+  mission_planner_ptr_->states_[id].pos[1] = msg->pose.position.y;
+  mission_planner_ptr_->states_[id].pos[2] = msg->pose.position.z;
 }
 
 void MissionPlannerRos::uavVelocityCallback(
     const geometry_msgs::TwistStamped::ConstPtr &msg, int id) {
-  cur_state_[id].vel[0] = msg->twist.linear.x;
-  cur_state_[id].vel[1] = msg->twist.linear.y;
-  cur_state_[id].vel[2] = msg->twist.linear.z;
+  mission_planner_ptr_->states_[id].vel[0] = msg->twist.linear.x;
+  mission_planner_ptr_->states_[id].vel[1] = msg->twist.linear.y;
+  mission_planner_ptr_->states_[id].vel[2] = msg->twist.linear.z;
 }
 
 void MissionPlannerRos::publishPath(const ros::Publisher &pub_path, const std::vector<state> &trajectory){
   nav_msgs::Path path_to_publish;
   geometry_msgs::PoseStamped aux_pose;
+  std::cout<<param_.frame<<std::endl;
   path_to_publish.header.frame_id = param_.frame;
   path_to_publish.header.stamp = ros::Time::now();
   for(const auto& state: trajectory){
