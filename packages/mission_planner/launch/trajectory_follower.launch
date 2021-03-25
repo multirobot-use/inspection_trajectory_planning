@@ -13,7 +13,7 @@
     <arg name="look_ahead" default="1.0"/>
     <arg name="generator_mode" default = "0"/>
 
-    <node pkg="upat_follower" type="follower_node" name="follower" output="screen" required="true" unless="$(arg use_class)">
+    <node pkg="upat_follower" type="follower_node" name="follower" output="screen" required="true" unless="$(arg use_class)" ns="$(arg ns_prefix)1/upat_follower">
         <param name="uav_id" value="1"/>
         <param name="ns_prefix" value="$(arg ns_prefix)"/>
         <param name="debug" value="$(arg debug)"/>
@@ -29,7 +29,7 @@
         <param name="generator_mode" value="$(arg generator_mode)"/>
     </node>
 
-    <!-- Add one more UAV and nodes to manage it -->
+    <!-- Add one more UAV and nodes to manage it
     <group if="$(arg multi)" ns="$(arg ns_prefix)2">
         <group ns="upat_follower">
             <node pkg="upat_follower" type="follower_node" name="follower" required="true" unless="$(arg use_class)">
@@ -44,6 +44,6 @@
                 <param name="robot_model" value="$(arg robot_model)"/>
             </node>
         </group>
-    </group>
+    </group> -->
 
 </launch>
