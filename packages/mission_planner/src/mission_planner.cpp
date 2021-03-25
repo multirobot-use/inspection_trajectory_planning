@@ -23,6 +23,11 @@ void MissionPlanner::appendGoal(const state &_new_goal) {
 void MissionPlanner::clearGoals() { goals_.clear(); }
 
 void MissionPlanner::plan() {
+  if(goals_.empty()){
+    std::cout<<"Mission planner "<<param_.drone_id<<": no goals"<<std::endl;
+    return;
+  }
+
   state initial_pose;
   if (planner_state_ == PlannerStatus::FIRST_PLAN) {
     initial_pose = states_[param_.drone_id];

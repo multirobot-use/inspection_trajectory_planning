@@ -83,7 +83,6 @@ bool MissionPlannerRos::activationPlannerServiceCallback(
 
 bool MissionPlannerRos::addWaypointServiceCallback(mission_planner::WaypointSrv::Request &req, mission_planner::WaypointSrv::Response &res){
   ROS_INFO("[%s]: Add waypoint service called.", ros::this_node::getName().c_str());
-
   state aux_goal;
   geometry_msgs::Point point;
 
