@@ -7,4 +7,4 @@ planning_rate: 1   # sec
 vel_max: 5         # m/s
 acc_max: 5         # m/s
 
-frame: map
+frame: "map"
