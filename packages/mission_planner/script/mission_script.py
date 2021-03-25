@@ -290,6 +290,9 @@ def automatic_function():
     print "\n-------- ADDING WAYPOINTS --------\n"
     add_one_waypoint(waypoint)
     
+    print "\n-------- STARTING MISSION --------\n"
+    start_mission()
+    
 
 def callbackStateLeader(data):
     global leader_ready
