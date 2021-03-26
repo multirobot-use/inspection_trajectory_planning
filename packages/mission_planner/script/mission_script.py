@@ -215,7 +215,7 @@ def add_one_waypoint(data):
     global add_waypoint_service
     global n_waypoints
     # Not auto mode
-    if type(data) == bool and data == False:
+    if(auto==False):
         px = float(raw_input("X pose: "))
         py = float(raw_input("Y pose: "))
         pz = float(raw_input("Z pose: "))
@@ -239,9 +239,8 @@ def add_one_waypoint(data):
             print "Waypoint added"
         except:
             print("Failed calling add_waypoint service")
-    
-    # Auto mode
-    if type(data) == list:
+    else:
+        print("calling list")
         # data are the waypoints
         for index in range(n_waypoints):
             add_waypoint_req = WaypointSrvRequest()
@@ -296,7 +295,7 @@ def automatic_function():
     
     print "-------- TAKE OFF AND INITIAL POINT --------\n"
     preparing_drones(leader_start_point, follower_start_point, take_off_height, take_off_blocking)
-    
+    print(type(waypoint))
     print "\n-------- ADDING WAYPOINTS --------\n"
     add_one_waypoint(waypoint)
     
