@@ -25,22 +25,23 @@ class FollowerDrone : public MissionPlanner {
     ros::Timer planTimer_;
     ros::Timer pubVis_;
 
+    // id_ of the drone (got from launch)
+    int id_; 
+
     // Current state of the drone
     std::map<int, state> cur_state_;
 
     // Subscriptions
-    std::map<int, ros::Subscriber> cur_pose_sub_;
-    std::map<int, ros::Subscriber> cur_vel_sub_;
+    ros::Subscriber leader_cur_pose_sub_;
+    ros::Subscriber leader_cur_vel_sub_;
+
+    ros::Subscriber follower_cur_pose_sub_;
+    ros::Subscriber follower_cur_vel_sub_;
 
     // Publishers
     ros::Publisher points_pub_;
-    ros::Publisher pub_path_;
-    ros::Publisher tracking_pub_;
 
     // Services
-    ros::ServiceServer service_activate_planner;
-    ros::ServiceServer service_waypoint;
-    ros::ServiceServer clear_waypoints;
 
     // markers
     visualization_msgs::Marker points_;
