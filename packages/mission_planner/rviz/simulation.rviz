@@ -9,6 +9,7 @@ Panels:
         - /points_to_inspect1
         - /Pose1
         - /Pose2
+        - /Path1
         - /PointStamped1
       Splitter Ratio: 0.5
     Tree Height: 555
@@ -117,7 +118,7 @@ Visualization Manager:
         Y: 0
         Z: 0
       Pose Color: 255; 85; 255
-      Pose Style: None
+      Pose Style: Arrows
       Radius: 0.029999999329447746
       Shaft Diameter: 0.10000000149011612
       Shaft Length: 0.10000000149011612
@@ -169,9 +170,9 @@ Visualization Manager:
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -10.23049545288086
-        Y: -0.35229790210723877
-        Z: 2.1452863216400146
+        X: -9.114665985107422
+        Y: 1.579216718673706
+        Z: 4.5368547439575195
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false

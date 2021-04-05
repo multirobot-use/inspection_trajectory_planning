@@ -178,7 +178,6 @@ void MissionPlannerRos::publishTrajectoryJoint(const ros::Publisher &pub_path, c
     point_to_follow.velocities.push_back(point.vel(0));
     point_to_follow.velocities.push_back(point.vel(1));
     point_to_follow.velocities.push_back(point.vel(2));
-
     trajectory_to_follow.points.push_back(point_to_follow);
   }
   try {

@@ -2,6 +2,7 @@
 
 MissionPlanner::MissionPlanner(const parameters _param)
     : param_(_param),
+      last_trajectory_(_param.horizon_length),
       my_grid_(0.0, (param_.horizon_length - 1) * param_.step_size,
                param_.horizon_length) {}
 
@@ -43,9 +44,8 @@ void MissionPlanner::plan() {
   // checkWaypoints();
   // calculate initial trajectory
   std::vector<state> initial_traj = initialTrajectory(initial_pose);
-  last_trajectory_ = initial_traj;
   // calculate optimal trajectory
-  // optimalTrajectory(initial_traj);
+  optimalTrajectory(initial_traj);
 }
 
 void MissionPlanner::checkWaypoints(){};
