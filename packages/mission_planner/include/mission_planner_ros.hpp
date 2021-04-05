@@ -27,9 +27,6 @@ class MissionPlannerRos {
   ros::Timer planTimer_;
   ros::Timer pubVis_;
 
-  // Current state of the drone
-  std::map<int, state> cur_state_;
-
   // Subscriptions
   std::map<int, ros::Subscriber> cur_pose_sub_;
   std::map<int, ros::Subscriber> cur_vel_sub_;
@@ -38,6 +35,7 @@ class MissionPlannerRos {
   ros::Publisher points_pub_;
   ros::Publisher pub_path_;
   ros::Publisher tracking_pub_;
+  
   // Services
   ros::ServiceServer service_activate_planner;
   ros::ServiceServer service_waypoint;

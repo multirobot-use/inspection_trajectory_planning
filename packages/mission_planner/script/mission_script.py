@@ -115,7 +115,7 @@ def preparing_drones(leader_start_point, follower_start_point, height, blocking)
         if not (leader_landed and follower_landed):
             print "Waiting for drones..."
         while not (leader_landed and follower_landed):
-            time.sleep(1)
+            time.sleep(0.5)
         
         # Taking off
         if leader_landed:
@@ -147,7 +147,9 @@ def preparing_drones(leader_start_point, follower_start_point, height, blocking)
         # Wait until all of the drones are ready
         while (not (leader_ready and follower_ready)):
             time.sleep(0.2)
-        
+            
+        print "Leader drone and follower drone took off successfully!"
+        print "Sending each drone to its initial point"
         resp = 'y'
     
     # LEADER
@@ -189,14 +191,21 @@ def start_mission():
         req = SetBoolRequest()
         req.data = True
         activate_planner_service(req)
+        print "Mission has started!"
     except rospy.ServiceException, e:
-        print("Failed calling add_waypoint service")
+        print("Failed calling start_mission service")
 
 # 3.        stop_mission function
 # Brief:    This function stops mission
 # TODO
 def stop_mission():
-    pass
+    try:
+        req = SetBoolRequest()
+        req.data = False
+        activate_planner_service(req)
+        print "Mission has been stopped!"
+    except rospy.ServiceException, e:
+        print("Failed calling stop_mission service")
 
 
 # 4.        add_one_waypoint function
@@ -206,7 +215,7 @@ def add_one_waypoint(data):
     global add_waypoint_service
     global n_waypoints
     # Not auto mode
-    if type(data) == bool and data == False:
+    if(auto==False):
         px = float(raw_input("X pose: "))
         py = float(raw_input("Y pose: "))
         pz = float(raw_input("Z pose: "))
@@ -230,9 +239,8 @@ def add_one_waypoint(data):
             print "Waypoint added"
         except:
             print("Failed calling add_waypoint service")
-    
-    # Auto mode
-    if type(data) == list:
+    else:
+        print("calling list")
         # data are the waypoints
         for index in range(n_waypoints):
             add_waypoint_req = WaypointSrvRequest()
@@ -252,6 +260,7 @@ def add_one_waypoint(data):
 def clear_all_waypoints():
     try:
         clear_waypoints_service()
+        print "Waypoints cleared!"
     except:
         print("Failed calling clear_waypoints service")
 
@@ -286,12 +295,14 @@ def automatic_function():
     
     print "-------- TAKE OFF AND INITIAL POINT --------\n"
     preparing_drones(leader_start_point, follower_start_point, take_off_height, take_off_blocking)
-    
+    print(type(waypoint))
     print "\n-------- ADDING WAYPOINTS --------\n"
     add_one_waypoint(waypoint)
     
     print "\n-------- STARTING MISSION --------\n"
     start_mission()
+    
+    print "\n\n"
     
 
 def callbackStateLeader(data):
@@ -399,6 +410,7 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)    # Associate signal SIGINT (Ctrl+C pressed) to handler (function "signal_handler")
     
     # Subscribers
+    print "Subscribing to topics..."
     rospy.Subscriber("/drone_1/ual/state", State, callbackStateLeader)
     rospy.Subscriber("/drone_2/ual/state", State, callbackStateFollower)
     
@@ -407,12 +419,22 @@ if __name__ == "__main__":
     add_waypoint_url     = ns[0] + "/mission_planner_ros/add_waypoint"
     clear_waypoints_url  = ns[0] + "/mission_planner_ros/clear_waypoints"
     
+    print "Waiting until services are available..."
+    
+    rospy.wait_for_service(activate_planner_url)
     activate_planner_service = rospy.ServiceProxy(activate_planner_url, SetBool)
+    
+    rospy.wait_for_service(add_waypoint_url)
     add_waypoint_service     = rospy.ServiceProxy(add_waypoint_url, WaypointSrv)
+    
+    rospy.wait_for_service(clear_waypoints_url)
     clear_waypoints_service  = rospy.ServiceProxy(clear_waypoints_url, Empty)
     
-    # TakeOff service
+    # TakeOff service --> make a for loop when necessary
+    rospy.wait_for_service(ns[0]+"/ual/take_off")
     take_off_service[0] = rospy.ServiceProxy(ns[0]+"/ual/take_off", TakeOff)
+    
+    rospy.wait_for_service(ns[1]+"/ual/take_off")
     take_off_service[1] = rospy.ServiceProxy(ns[1]+"/ual/take_off", TakeOff)
     
     # GoToWaypoint service
@@ -431,10 +453,11 @@ if __name__ == "__main__":
     
     while (not rospy.is_shutdown()):
         if not auto:
+            print "Using manual mode. Showing menu:"
             show_menu()
         else:
             print "Using the automatic interface"
             automatic_function()
-            exit()
+            # exit()
             
         time.sleep(1)
