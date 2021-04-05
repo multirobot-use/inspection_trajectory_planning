@@ -18,6 +18,7 @@
         <param name="ns_prefix" value="$(arg ns_prefix)"/>
         <param name="debug" value="$(arg debug)"/>
         <param name="pub_rate" value="$(arg pub_rate)"/>
+        <param name="time_step" value="0.1"/>
     </node>
     <node pkg="upat_follower" type="visualization_node" name="visualization" required="true" output="screen">
         <param name="uav_id" value="1"/>

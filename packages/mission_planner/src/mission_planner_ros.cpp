@@ -51,6 +51,7 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh) : nh_(_nh) {
   points_pub_ = nh_.advertise<visualization_msgs::Marker>("points_to_inspect",1);
   pub_path_   = nh_.advertise<nav_msgs::Path>("solved_traj", 1);
   tracking_pub_   = nh_.advertise<nav_msgs::Path>("/drone_"+std::to_string(param_.drone_id)+"/upat_follower/follower/trajectory_to_follow", 1);
+  tracking_pub_trajectory_   = nh_.advertise<trajectory_msgs::JointTrajectory>("/drone_"+std::to_string(param_.drone_id)+"/trajectory_follower_node/trajectory_to_follow", 1);
 
   // Services
   service_activate_planner = nh_.advertiseService(
@@ -117,7 +118,8 @@ bool MissionPlannerRos::clearWaypointsServiceCallback(std_srvs::Empty::Request &
 void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
   ROS_INFO("Planning loop");
   mission_planner_ptr_->plan();
-  publishPath(tracking_pub_, mission_planner_ptr_->last_trajectory_);
+  publishTrajectoryJoint(tracking_pub_trajectory_, mission_planner_ptr_->last_trajectory_);
+  // publishPath(tracking_pub_, mission_planner_ptr_->last_trajectory_);
   publishPath(pub_path_, mission_planner_ptr_->last_trajectory_);
 }
 
@@ -157,5 +159,30 @@ void MissionPlannerRos::publishPath(const ros::Publisher &pub_path, const std::v
   catch (...) {
     ROS_ERROR("exception caught during publishing topic '%s'", pub_path.getTopic().c_str());
   }
+}
+
+void MissionPlannerRos::publishTrajectoryJoint(const ros::Publisher &pub_path, const std::vector<state> &trajectory){
+  trajectory_msgs::JointTrajectory trajectory_to_follow;
+  trajectory_msgs::JointTrajectoryPoint point_to_follow;
+  for(auto &point : trajectory){
+    point_to_follow.positions.clear();
+    point_to_follow.velocities.clear();
+    point_to_follow.positions.push_back(point.pos(0));
+    point_to_follow.positions.push_back(point.pos(1));
+    point_to_follow.positions.push_back(point.pos(2));
+
+    point_to_follow.velocities.push_back(point.vel(0));
+    point_to_follow.velocities.push_back(point.vel(1));
+    point_to_follow.velocities.push_back(point.vel(2));
+
+    trajectory_to_follow.points.push_back(point_to_follow);
+  }
+  try {
+    pub_path.publish(trajectory_to_follow);
+  }
+  catch (...) {
+    ROS_ERROR("exception caught during publishing topic '%s'", pub_path.getTopic().c_str());
+  }
+  
 }
 

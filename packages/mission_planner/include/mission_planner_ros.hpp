@@ -12,6 +12,8 @@
 #include <std_srvs/SetBool.h>
 #include "mission_planner_durable.hpp"
 #include <visualization_msgs/Marker.h>
+#include <trajectory_msgs/JointTrajectory.h>
+
 
 //!  MissionPlannerRos class.
 /*!
@@ -35,6 +37,7 @@ class MissionPlannerRos {
   ros::Publisher points_pub_;
   ros::Publisher pub_path_;
   ros::Publisher tracking_pub_;
+  ros::Publisher tracking_pub_trajectory_;
   
   // Services
   ros::ServiceServer service_activate_planner;
@@ -93,6 +96,10 @@ class MissionPlannerRos {
   /*! \brief function to publish last solved trajectory
   */
   void publishPath(const ros::Publisher &pub_path, const std::vector<state> &trajectory);
+
+  /*! \brief function to publish trajectory to the solver
+  */
+  void publishTrajectoryJoint(const ros::Publisher &pub_path, const std::vector<state> &trajectory);
 
  public:
   //! MissionPlannerRos constructor
