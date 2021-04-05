@@ -74,9 +74,13 @@ bool MissionPlannerRos::activationPlannerServiceCallback(
 
   res.success = true;
   if (req.data == false) {
+    ROS_INFO("[%s]: Planning deactivated.",
+            ros::this_node::getName().c_str());
     res.message = "Planning deactivated.";
     planTimer_.stop();
   } else {
+    ROS_INFO("[%s]: Planning activated.",
+            ros::this_node::getName().c_str());
     res.message = "Planning activated.";
     planTimer_.start();
   }
