@@ -26,7 +26,7 @@ class MissionPlannerRos {
   // Declarations
   ros::NodeHandle nh_;
   parameters param_;
-  std::unique_ptr<MissionPlannerDurableLeader> mission_planner_ptr_;
+  std::unique_ptr<MissionPlanner> mission_planner_ptr_;
   ros::Timer planTimer_;
   ros::Timer pubVis_;
 
