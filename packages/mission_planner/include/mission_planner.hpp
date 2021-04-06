@@ -13,6 +13,7 @@
  */
 
 enum PlannerStatus { FIRST_PLAN = 0, REPLANNED = 2 };
+enum MissionStatus { GO_TO = 0, MISSION_ZONE = 1};
 
 class MissionPlanner {
  public:
@@ -33,11 +34,19 @@ class MissionPlanner {
 
 
  private:
-
+  const float REACH_TOL = 1; //! tolerance to reach waypoints
   int planner_state_ = PlannerStatus::FIRST_PLAN;
-  void checkWaypoints();
+
+  /*! \brief this function check if the planned trajectory has already reach the waypoint to inspect
+  *   \return true if the last trajectory has reached the commanded waypoint
+  */
+  bool waypointReached();
   virtual std::vector<state> initialTrajectory(const state &_initial_pose) = 0;
   virtual void optimalTrajectory(const std::vector<state> &_initial_traj) = 0;
   void initialOrientation(std::vector<state> &traj);
   void optimalOrientation(const std::vector<state> &traj_to_optimize);
+
+  bool hasGoal(){return !goals_.empty();}
+  bool hasPose(){return (states_.count(param_.drone_id) != 0);}
+  bool waypointReached(const state &point, const state &waypoint) {return ((point.pos-waypoint.pos).norm() < REACH_TOL);}
 };

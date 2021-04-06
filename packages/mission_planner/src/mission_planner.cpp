@@ -10,43 +10,39 @@ MissionPlanner::~MissionPlanner() {}
 
 void MissionPlanner::appendGoal(const state &_new_goal) {
   goals_.push_back(_new_goal);
-
-  // // Test
-  // int goals_size = (goals_.size()-1);
-
-  // for (int i=0; i < goals_size; i++)
-  // {
-  //   ROS_INFO("Already have point %d position x:   %f", i, goals_[i].pos[0]);
-  // }
-  // ROS_INFO("Receiving now point %d position x:   %f", goals_size, goals_[goals_size].pos[0]);
 }
 
 void MissionPlanner::clearGoals() { goals_.clear(); }
 
 void MissionPlanner::plan() {
-  if(goals_.empty()){
-    std::cout<<"Mission planner "<<param_.drone_id<<": no goals"<<std::endl;
+  
+  if(!hasGoal() || !hasPose()) {
+    std::cout<<"Mission planner is not ready"<<std::endl;
     return;
   }
 
-  state initial_pose;
-  if(states_.count(param_.drone_id) == 0){
-      std::cout<<"uav "<<param_.drone_id<<"pose is not available"<<std::endl;
-      return;
-  } 
+  state initial_pose = states_[param_.drone_id];
 
-  if (planner_state_ == PlannerStatus::FIRST_PLAN) {
-    initial_pose = states_[param_.drone_id];
-  } else if (planner_state_ == PlannerStatus::REPLANNED) {
-    initial_pose = last_trajectory_[param_.planning_rate];
-  }
+  // if (planner_state_ == PlannerStatus::FIRST_PLAN) {
+  //   initial_pose = states_[param_.drone_id];
+  // } else if (planner_state_ == PlannerStatus::REPLANNED) {
+  //   initial_pose = last_trajectory_[param_.planning_rate];
+  // }
+
   // check waypoints to remove or not the waypoints to follow
-  // checkWaypoints();
+  if(waypointReached(goals_[0],last_trajectory_.back()) && planner_state_ == PlannerStatus::REPLANNED){
+    std::cout<<"Removed waypoint"<<std::endl;
+    goals_.erase(goals_.begin());
+    if(goals_.empty()) return;
+  } 
   // calculate initial trajectory
   std::vector<state> initial_traj = initialTrajectory(initial_pose);
   // calculate optimal trajectory
   optimalTrajectory(initial_traj);
+  // calculate orientation
   initialOrientation(last_trajectory_);
+
+  planner_state_ = PlannerStatus::REPLANNED;
   // optimalOrientation(last_trajectory_);
 }
 
@@ -147,4 +143,10 @@ void MissionPlanner::optimalOrientation(const std::vector<state> &traj_to_optimi
   // ROS_INFO("[Acado]: Acado angular optimization took %.3f, success = %d ", (ros::Time::now() - start).toSec(), success_value);
   // return success_value;
 }
-void MissionPlanner::checkWaypoints(){};
+
+// bool MissionPlanner::waypointReached(){
+//   for(const auto &point : last_trajectory_){
+//     if((goals_[0].pos-point.pos).norm() < REACH_TOL) return true;
+//   }
+//   return false;
+// };
