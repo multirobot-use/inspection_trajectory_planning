@@ -10,7 +10,8 @@
 #include <nav_msgs/Odometry.h>
 #include <std_srvs/Empty.h>
 #include <std_srvs/SetBool.h>
-#include "mission_planner_durable.hpp"
+#include "mission_planner_durable_leader.hpp"
+#include "mission_planner_durable_follower.hpp"
 #include <visualization_msgs/Marker.h>
 
 //!  MissionPlannerRos class.
@@ -23,7 +24,7 @@ class MissionPlannerRos {
   // Declarations
   ros::NodeHandle nh_;
   parameters param_;
-  std::unique_ptr<MissionPlannerDurable> mission_planner_ptr_;
+  std::unique_ptr<MissionPlannerDurableLeader> mission_planner_ptr_;
   ros::Timer planTimer_;
   ros::Timer pubVis_;
 
