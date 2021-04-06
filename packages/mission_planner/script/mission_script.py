@@ -53,8 +53,8 @@ def show_menu():
     # Menu
     print "\n\nWelcome to the main menu. Put the number of the desired option:\n"
     print "\t1. Take off and send the drones to their initial points (WORKING)"
-    print "\t2. Start the mission"
-    print "\t3. Stop the mission"
+    print "\t2. Start the mission (WORKING)"
+    print "\t3. Stop the mission (WORKING)"
     print "\t4. Add waypoint (WORKING)"
     print "\t5. Clear all the waypoints (WORKING)"
     print "\t6. Change relative angles between followers and leader"
@@ -128,6 +128,7 @@ def preparing_drones(leader_start_point, follower_start_point, height, blocking)
                 take_off_service[0](take_off)
                 
                 print "LEADER: Taking off the drone"
+                
             except rospy.ServiceException, e:
                 print "Service call failed: %s" %e
         
@@ -141,6 +142,7 @@ def preparing_drones(leader_start_point, follower_start_point, height, blocking)
                 take_off_service[1](take_off)
                 
                 print "FOLLOWER: Taking off the drone"
+                
             except rospy.ServiceException, e:
                 print "Service call failed: %s" %e
         
@@ -192,6 +194,7 @@ def start_mission():
         req.data = True
         activate_planner_service(req)
         print "Mission has started!"
+        
     except rospy.ServiceException, e:
         print("Failed calling start_mission service")
 
@@ -204,6 +207,7 @@ def stop_mission():
         req.data = False
         activate_planner_service(req)
         print "Mission has been stopped!"
+        
     except rospy.ServiceException, e:
         print("Failed calling stop_mission service")
 
@@ -215,7 +219,7 @@ def add_one_waypoint(data):
     global add_waypoint_service
     global n_waypoints
     # Not auto mode
-    if(auto==False):
+    if(auto == False):
         px = float(raw_input("X pose: "))
         py = float(raw_input("Y pose: "))
         pz = float(raw_input("Z pose: "))
@@ -237,8 +241,10 @@ def add_one_waypoint(data):
         try:
             add_waypoint_service(add_waypoint_req)
             print "Waypoint added"
+            
         except:
             print("Failed calling add_waypoint service")
+            
     else:
         print("calling list")
         # data are the waypoints
@@ -251,6 +257,7 @@ def add_one_waypoint(data):
             try:
                 add_waypoint_service(add_waypoint_req)
                 print "Waypoint " + str(index) + " added"
+                
             except:
                 print("Failed calling add_waypoint service")
 
@@ -261,6 +268,7 @@ def clear_all_waypoints():
     try:
         clear_waypoints_service()
         print "Waypoints cleared!"
+        
     except:
         print("Failed calling clear_waypoints service")
 
@@ -295,7 +303,7 @@ def automatic_function():
     
     print "-------- TAKE OFF AND INITIAL POINT --------\n"
     preparing_drones(leader_start_point, follower_start_point, take_off_height, take_off_blocking)
-    print(type(waypoint))
+    
     print "\n-------- ADDING WAYPOINTS --------\n"
     add_one_waypoint(waypoint)
     
