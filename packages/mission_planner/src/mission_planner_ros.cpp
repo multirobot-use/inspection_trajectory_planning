@@ -60,7 +60,7 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh) : nh_(_nh) {
   service_waypoint = nh_.advertiseService(
       "add_waypoint", &MissionPlannerRos::addWaypointServiceCallback, this);
   service_point_to_inspect = nh_.advertiseService(
-      "clear_waypoints", &MissionPlannerRos::pointToInspectServiceCallback,
+      "point_to_inspect", &MissionPlannerRos::pointToInspectServiceCallback,
       this);
   clear_waypoints = nh_.advertiseService(
       "clear_waypoints", &MissionPlannerRos::clearWaypointsServiceCallback,
@@ -119,11 +119,23 @@ bool MissionPlannerRos::clearWaypointsServiceCallback(std_srvs::Empty::Request &
 
   mission_planner_ptr_->clearGoals();
   points_.points.clear(); 
-  return 1;
+  
 }
 
-void MissionPlannerRos::pointToInspectServiceCallback(mission_planner::pointToInspect::Request &req, mission_planner::pointToInspect::Response &res){
-  // TODO
+bool MissionPlannerRos::pointToInspectServiceCallback(mission_planner::PointToInspectSrv::Request &req, mission_planner::PointToInspectSrv::Response &res){
+  ROS_INFO("[%s]: Point to inspect service called.", ros::this_node::getName().c_str());
+
+  Eigen::Vector3d point;
+
+  point[0] = req.point.x;
+  point[1] = req.point.y;
+  point[2] = req.point.z;
+  
+  mission_planner_ptr_->setPointToInspect(point);
+
+  ROS_INFO("[%s]: Point to inspect changed successfully!.", ros::this_node::getName().c_str());
+  res.success = true;
+
 }
 
 void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {

@@ -22,6 +22,7 @@ class MissionPlanner {
   virtual ~MissionPlanner();
   void appendGoal(const state &);
   void clearGoals();
+  void setPointToInspect(const Eigen::Vector3d &);
   void plan();
 
   
@@ -29,7 +30,7 @@ class MissionPlanner {
   const parameters param_;
   const ACADO::Grid my_grid_;
   std::vector<state> goals_;
-
+  Eigen::Vector3d point_to_inspect_;
 
 
  private:

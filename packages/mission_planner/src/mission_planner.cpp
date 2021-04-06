@@ -21,6 +21,11 @@ void MissionPlanner::appendGoal(const state &_new_goal) {
   // ROS_INFO("Receiving now point %d position x:   %f", goals_size, goals_[goals_size].pos[0]);
 }
 
+void MissionPlanner::setPointToInspect(const Eigen::Vector3d &point){
+  point_to_inspect_ = point;
+  std::cout << "New point to inspect added!";
+}
+
 void MissionPlanner::clearGoals() { goals_.clear(); }
 
 void MissionPlanner::plan() {

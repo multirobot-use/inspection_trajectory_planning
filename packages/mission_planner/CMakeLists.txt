@@ -31,6 +31,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_service_files(
   FILES
   WaypointSrv.srv
+  PointToInspectSrv.srv
 )
 
 generate_messages(

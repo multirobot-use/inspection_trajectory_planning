@@ -8,6 +8,7 @@
 #include <nav_msgs/Odometry.h>
 #include <nav_msgs/Path.h>
 #include <mission_planner/WaypointSrv.h>
+#include <mission_planner/PointToInspectSrv.h>
 #include <nav_msgs/Odometry.h>
 #include <std_srvs/Empty.h>
 #include <std_srvs/SetBool.h>
@@ -79,7 +80,7 @@ class MissionPlannerRos {
    *   \param req point to inspect (XYZ)
    *   \param res success
    */
-  void MissionPlannerRos::pointToInspectServiceCallback(mission_planner::PointToInspectSrv::Request &req, mission_planner::PointToInspectSrv::Response &res);
+  bool pointToInspectServiceCallback(mission_planner::PointToInspectSrv::Request &req, mission_planner::PointToInspectSrv::Response &res);
   
   /*! \brief Callback for timer that publishes rviz markers
   * \param TimerEvent structure passed to callback invoked by ros::Timer
