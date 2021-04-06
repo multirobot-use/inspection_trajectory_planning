@@ -19,6 +19,8 @@ from uav_abstraction_layer.srv import GoToWaypointRequest
 from uav_abstraction_layer.msg import State
 from mission_planner.srv import WaypointSrvRequest
 from mission_planner.srv import WaypointSrv
+from mission_planner.srv import PointToInspectSrvRequest
+from mission_planner.srv import PointToInspectSrv
 import signal
 import sys
 
@@ -38,7 +40,8 @@ global leader_start_point
 global follower_start_point
 global take_off_height
 global take_off_blocking
-global height_to_inspect
+global inspection_point
+global config_inspection_point
 global n_waypoints
 global waypoint
 
@@ -48,7 +51,7 @@ def show_menu():
     global follower_start_point
     global take_off_height
     global take_off_blocking
-    global height_to_inspect
+    global inspection_point
     
     # Menu
     print "\n\nWelcome to the main menu. Put the number of the desired option:\n"
@@ -59,7 +62,7 @@ def show_menu():
     print "\t5. Clear all the waypoints (WORKING)"
     print "\t6. Change relative angles between followers and leader"
     print "\t7. Change distance to inspection point"
-    print "\t8. Change height to inspection point\n"
+    print "\t8. Change inspection point\n"
     
     option = int(raw_input (">> "))
     while (option < 1 or option > 8):
@@ -80,7 +83,7 @@ def show_menu():
     elif option == 7:
         distance_inspection()
     elif option == 8:
-        height_inspection(height_to_inspect)
+        change_inspection_point(inspection_point)
     else:
         print ("Option n " + str(option) + " does not exist!")
 
@@ -287,22 +290,40 @@ def distance_inspection():
     pass
 
 
-# 8.        height_inspection function
+# 8.        change_inspection_point function
 # Brief:    This function changes the desired height to inspect
 # TODO
-def height_inspection(height_to_inspect):
-    pass
+def change_inspection_point(height_to_inspect):
+    global inspection_point
+    global config_inspection_point
+    global auto
+    
+    if auto:
+        print "Selected inspection point from config file (Auto mode)\n"
+        inspection_point = config_inspection_point
+    else:
+        print "Select the desired inspection point (Manual mode):\n"
+        inspection_point[0] = float(raw_input("X: "))
+        inspection_point[1] = float(raw_input("Y: "))
+        inspection_point[2] = float(raw_input("Z: "))
+    
+    print "Inspection point changed successfully!"
+        
+
 
 def automatic_function():    
     global leader_start_point
     global follower_start_point
     global take_off_height
     global take_off_blocking
-    global height_to_inspect
+    global inspection_point
     global waypoint
     
     print "-------- TAKE OFF AND INITIAL POINT --------\n"
     preparing_drones(leader_start_point, follower_start_point, take_off_height, take_off_blocking)
+    
+    print "-------- ADDING INSPECTION WAYPOINT --------\n"
+    change_inspection_point(inspection_point)
     
     print "\n-------- ADDING WAYPOINTS --------\n"
     add_one_waypoint(waypoint)
@@ -359,20 +380,22 @@ def read_params(file_route):
     global follower_start_point
     global take_off_height
     global take_off_blocking
-    global height_to_inspect
+    global config_inspection_point
     global n_waypoints
     global waypoint
 
     # Read parameters in local function:
-    yml_file = open(file_route, 'r')
+    yml_file    = open(file_route, 'r')
     yml_content = yaml.load(yml_file)
     
-    auto                    = yml_content.get('auto')
-    leader_start_point      = yml_content.get('leader_start_point')
-    follower_start_point    = yml_content.get('follower_start_point')
-    take_off_height         = yml_content.get('take_off_height')
-    take_off_blocking       = yml_content.get('take_off_blocking')
-    height_to_inspect       = yml_content.get('height_to_inspect')
+    auto                            = yml_content.get('auto')
+    leader_start_point              = yml_content.get('leader_start_point')
+    follower_start_point            = yml_content.get('follower_start_point')
+    take_off_height                 = yml_content.get('take_off_height')
+    take_off_blocking               = yml_content.get('take_off_blocking')
+    config_inspection_point[0]      = yml_content.get('x_inspect')
+    config_inspection_point[1]      = yml_content.get('y_inspect')
+    config_inspection_point[2]      = yml_content.get('z_inspect')
     
     if auto:
         n_waypoints         = yml_content.get('n_waypoints')
@@ -399,6 +422,9 @@ if __name__ == "__main__":
     global add_waypoint_service
     global go_to_waypoint_service
     
+    global inspection_point
+    global config_inspection_point
+    
     # Initialize
     leader_ready        = False
     leader_landed       = False
@@ -408,6 +434,9 @@ if __name__ == "__main__":
     take_off_service        = [0, 0]
     go_to_waypoint_url      = [0, 0]
     go_to_waypoint_service  = [0, 0]
+    
+    inspection_point        = [0, 0, 0]
+    config_inspection_point = [0, 0, 0]
     
     uav_id  = ["drone_1", "drone_2"]
     ns      = ["/drone_1", "/drone_2"]
