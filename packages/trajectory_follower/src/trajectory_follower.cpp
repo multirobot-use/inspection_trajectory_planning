@@ -80,6 +80,10 @@ void trajectoryCallback(const trajectory_msgs::JointTrajectory::ConstPtr &msg){
         position.pose.position.x = point.positions[0];
         position.pose.position.y = point.positions[1];
         position.pose.position.z = point.positions[2];
+        position.pose.orientation.x = point.positions[3];
+        position.pose.orientation.y = point.positions[4];
+        position.pose.orientation.z = point.positions[5];
+        position.pose.orientation.w = point.positions[6];
 
         velocity.linear.x = point.velocities[0];
         velocity.linear.y = point.velocities[1];

@@ -155,6 +155,10 @@ void MissionPlannerRos::publishPath(const ros::Publisher &pub_path, const std::v
     aux_pose.pose.position.x = state.pos(0);
     aux_pose.pose.position.y = state.pos(1);
     aux_pose.pose.position.z = state.pos(2);
+    aux_pose.pose.orientation.x = state.orientation.x();
+    aux_pose.pose.orientation.y = state.orientation.y();
+    aux_pose.pose.orientation.z = state.orientation.z();
+    aux_pose.pose.orientation.w = state.orientation.w();
     path_to_publish.poses.push_back(aux_pose);
   }
   try {
@@ -174,6 +178,10 @@ void MissionPlannerRos::publishTrajectoryJoint(const ros::Publisher &pub_path, c
     point_to_follow.positions.push_back(point.pos(0));
     point_to_follow.positions.push_back(point.pos(1));
     point_to_follow.positions.push_back(point.pos(2));
+    point_to_follow.positions.push_back(point.orientation.x());
+    point_to_follow.positions.push_back(point.orientation.y());
+    point_to_follow.positions.push_back(point.orientation.z());
+    point_to_follow.positions.push_back(point.orientation.w());
 
     point_to_follow.velocities.push_back(point.vel(0));
     point_to_follow.velocities.push_back(point.vel(1));

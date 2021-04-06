@@ -29,7 +29,7 @@ class MissionPlanner {
   const parameters param_;
   const ACADO::Grid my_grid_;
   std::vector<state> goals_;
-  Eigen::Vector3d point_to_inspect_;
+  Eigen::Vector3d point_to_inspect_ = Eigen::Vector3d::Zero();
 
 
  private:
@@ -38,4 +38,6 @@ class MissionPlanner {
   void checkWaypoints();
   virtual std::vector<state> initialTrajectory(const state &_initial_pose) = 0;
   virtual void optimalTrajectory(const std::vector<state> &_initial_traj) = 0;
+  void initialOrientation(std::vector<state> &traj);
+  void optimalOrientation(const std::vector<state> &traj_to_optimize);
 };

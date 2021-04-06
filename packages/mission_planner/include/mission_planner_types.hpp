@@ -16,7 +16,16 @@ struct state {
   Eigen::Vector3d pos = Eigen::Vector3d::Zero();
   Eigen::Vector3d vel = Eigen::Vector3d::Zero();
   Eigen::Vector3d acc = Eigen::Vector3d::Zero();
+  Eigen::Quaterniond orientation;
 };
+
+inline Eigen::Quaterniond eulerToQuat(const double roll, const double pitch, const double yaw) {
+  return Eigen::AngleAxisd(roll, Eigen::Vector3d::UnitX())* Eigen::AngleAxisd(pitch, Eigen::Vector3d::UnitY())* Eigen::AngleAxisd(yaw, Eigen::Vector3d::UnitZ());
+}
+
+inline Eigen::Vector3d quatToEuler(Eigen::Quaterniond q){
+  return q.toRotationMatrix().eulerAngles(0, 1, 2);
+}
 
 template <typename T>
 inline bool safeGetParam(ros::NodeHandle& _nh, std::string const& _param_name,
