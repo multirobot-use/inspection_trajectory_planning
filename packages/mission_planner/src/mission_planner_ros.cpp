@@ -59,6 +59,9 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh) : nh_(_nh) {
       this);
   service_waypoint = nh_.advertiseService(
       "add_waypoint", &MissionPlannerRos::addWaypointServiceCallback, this);
+  service_point_to_inspect = nh_.advertiseService(
+      "clear_waypoints", &MissionPlannerRos::pointToInspectServiceCallback,
+      this);
   clear_waypoints = nh_.advertiseService(
       "clear_waypoints", &MissionPlannerRos::clearWaypointsServiceCallback,
       this);
@@ -117,6 +120,10 @@ bool MissionPlannerRos::clearWaypointsServiceCallback(std_srvs::Empty::Request &
   mission_planner_ptr_->clearGoals();
   points_.points.clear(); 
   return 1;
+}
+
+void MissionPlannerRos::pointToInspectServiceCallback(mission_planner::pointToInspect::Request &req, mission_planner::pointToInspect::Response &res){
+  // TODO
 }
 
 void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
