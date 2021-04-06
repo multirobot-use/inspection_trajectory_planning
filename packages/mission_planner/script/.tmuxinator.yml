@@ -13,7 +13,7 @@ windows:
   - trajectory_follower:
       layout: even-vertical
       panes:
-        - sleep 15; roslaunch mission_planner trajectory_follower.launch
+        - sleep 15; roslaunch trajectory_follower trajectory_follower.launch
   - rviz:
       layout: even-vertical
       panes:

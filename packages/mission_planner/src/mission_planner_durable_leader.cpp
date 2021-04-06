@@ -58,12 +58,12 @@ void MissionPlannerDurableLeader::optimalTrajectory(
   ocp.subjectTo(ACADO::AT_START, px_ == initial_trajectory[0].pos(0));
   ocp.subjectTo(ACADO::AT_START, py_ == initial_trajectory[0].pos(1));
   ocp.subjectTo(ACADO::AT_START, pz_ == initial_trajectory[0].pos(2));
-  ocp.subjectTo(ACADO::AT_START, vx_ == initial_trajectory[0].vel(0));
-  ocp.subjectTo(ACADO::AT_START, vy_ == initial_trajectory[0].vel(1));
-  ocp.subjectTo(ACADO::AT_START, vz_ == initial_trajectory[0].vel(2));
-  ocp.subjectTo(ACADO::AT_START, ax_ == initial_trajectory[0].acc(0));
-  ocp.subjectTo(ACADO::AT_START, ay_ == initial_trajectory[0].acc(1));
-  ocp.subjectTo(ACADO::AT_START, az_ == initial_trajectory[0].acc(2));
+  ocp.subjectTo(ACADO::AT_START, vx_ == states_[param_.drone_id].vel(0));
+  ocp.subjectTo(ACADO::AT_START, vy_ == states_[param_.drone_id].vel(1));
+  ocp.subjectTo(ACADO::AT_START, vz_ == states_[param_.drone_id].vel(2));
+  // ocp.subjectTo(ACADO::AT_START, ax_ == initial_trajectory[0].acc(0));
+  // ocp.subjectTo(ACADO::AT_START, ay_ == initial_trajectory[0].acc(1));
+  // ocp.subjectTo(ACADO::AT_START, az_ == initial_trajectory[0].acc(2));
 
   // setup reference trajectory
   ACADO::VariablesGrid reference_trajectory(6, my_grid_);
@@ -99,7 +99,6 @@ void MissionPlannerDurableLeader::optimalTrajectory(
 
   solver.getDifferentialStates(output_states);
   solver.getControls(output_control);
-
   for (int k = 0; k < param_.horizon_length; k++) {
     last_trajectory_[k].pos(0) = output_states(k, 0);
     last_trajectory_[k].pos(1) = output_states(k, 1);
@@ -111,6 +110,7 @@ void MissionPlannerDurableLeader::optimalTrajectory(
     last_trajectory_[k].acc(1) = output_control(k, 1);
     last_trajectory_[k].acc(2) = output_control(k, 2);
   }
+  
 
   px_.clearStaticCounters();
   py_.clearStaticCounters();
