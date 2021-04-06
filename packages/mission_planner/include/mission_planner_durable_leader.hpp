@@ -1,9 +1,9 @@
 #pragma once
 #include "mission_planner.hpp"
-class MissionPlannerDurable : public MissionPlanner {
+class MissionPlannerDurableLeader : public MissionPlanner {
  public:
-  MissionPlannerDurable(parameters params);
-  ~MissionPlannerDurable();
+  MissionPlannerDurableLeader(parameters params);
+  ~MissionPlannerDurableLeader();
 
  private:
   std::vector<state> initialTrajectory(const state &_state);

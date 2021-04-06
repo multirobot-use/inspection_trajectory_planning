@@ -73,6 +73,6 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(${PROJECT_NAME}_node src/main.cpp src/mission_planner_ros.cpp src/mission_planner.cpp src/mission_planner_durable.cpp)
+add_executable(${PROJECT_NAME}_node src/main.cpp src/mission_planner_ros.cpp src/mission_planner.cpp src/mission_planner_durable_leader.cpp src/mission_planner_durable_follower.cpp)
 target_link_libraries(${PROJECT_NAME}_node ${catkin_LIBRARIES} ${ACADO_SHARED_LIBRARIES})
 add_dependencies(${PROJECT_NAME}_node ${catkin_EXPORTED_TARGETS} )

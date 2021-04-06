@@ -13,7 +13,7 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh) : nh_(_nh) {
   safeGetParam(nh_, "drone_id", param_.drone_id);
 
   // initialize mission planner
-  mission_planner_ptr_ = std::make_unique<MissionPlannerDurable>(param_);
+  mission_planner_ptr_ = std::make_unique<MissionPlannerDurableLeader>(param_);
 
   // Subscribers
   for (int drone = 1; drone <= param_.n_drones; drone++) {

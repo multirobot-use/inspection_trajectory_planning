@@ -1,10 +1,10 @@
-#include "mission_planner_durable.hpp"
+#include "mission_planner_durable_leader.hpp"
 
-MissionPlannerDurable::MissionPlannerDurable(parameters params)
+MissionPlannerDurableLeader::MissionPlannerDurableLeader(parameters params)
     : MissionPlanner(params){};
-MissionPlannerDurable::~MissionPlannerDurable(){};
+MissionPlannerDurableLeader::~MissionPlannerDurableLeader(){};
 
-std::vector<state> MissionPlannerDurable::initialTrajectory(
+std::vector<state> MissionPlannerDurableLeader::initialTrajectory(
     // check if the distance is reached
       // parametricTrajectory();
     //else 
@@ -30,7 +30,7 @@ std::vector<state> MissionPlannerDurable::initialTrajectory(
     return trajectory_to_optimize;
 }
 
-void MissionPlannerDurable::optimalTrajectory(
+void MissionPlannerDurableLeader::optimalTrajectory(
     const std::vector<state> &initial_trajectory) {
   ACADO::DifferentialState px_, py_, pz_, vx_, vy_, vz_;
   ACADO::Control ax_, ay_, az_;
