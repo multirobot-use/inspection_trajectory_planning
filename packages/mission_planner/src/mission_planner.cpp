@@ -71,6 +71,15 @@ void MissionPlanner::initialOrientation(std::vector<state> &traj){
   }
 }
 
+Eigen::Vector3d MissionPlanner::pointOnCircle(
+    const Eigen::Vector3d &_point){
+  // TODO
+  Eigen::Vector3d circle_point;
+  circle_point = _point;
+
+  return circle_point;
+}
+
 void MissionPlanner::optimalOrientation(const std::vector<state> &traj_to_optimize){
   // // DifferentialState heading, pitch, v_heading, v_pitch;
   // DifferentialState heading, v_heading;

@@ -12,6 +12,15 @@ void MissionPlannerDurableFollower::optimalTrajectory(
     // TODO
 }
 
+Eigen::Vector3d MissionPlannerDurableFollower::pointOnCircle(
+    const Eigen::Vector3d &_point){
+  // TODO
+  Eigen::Vector3d circle_point;
+  circle_point = _point;
+
+  return circle_point;
+}
+
 std::vector<state> MissionPlannerDurableFollower::initialTrajectory(
     // check if the distance is reached
       // parametricTrajectory();

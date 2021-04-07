@@ -47,6 +47,7 @@ class MissionPlanner {
   */
   bool waypointReached();
   virtual std::vector<state> initialTrajectory(const state &_initial_pose);
+  virtual Eigen::Vector3d pointOnCircle(const Eigen::Vector3d &_point);
   virtual void optimalTrajectory(const std::vector<state> &_initial_traj) = 0;
   void initialOrientation(std::vector<state> &traj);
   void optimalOrientation(const std::vector<state> &traj_to_optimize);
