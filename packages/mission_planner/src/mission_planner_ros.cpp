@@ -149,6 +149,7 @@ bool MissionPlannerRos::distanceToInspectServiceCallback(mission_planner::Distan
 
   mission_planner_ptr_->setDistanceToInspect(req.distance);
 
+  ROS_INFO("[%s]: Distance to inspection point changed successfully!  New distance:  %f meters", ros::this_node::getName().c_str(), req.distance);
   res.success = true;
 }
 
@@ -157,7 +158,7 @@ bool MissionPlannerRos::changeRelativeAngleServiceCallback(mission_planner::Angl
 
   mission_planner_ptr_->setRelativeAngle(req.angle);
 
-  ROS_INFO("[%s]: Relative angle changed successfully!  New angle:  %f", ros::this_node::getName().c_str(), req.angle);
+  ROS_INFO("[%s]: Relative angle changed successfully!  New angle:  %f radians", ros::this_node::getName().c_str(), req.angle);
   res.success = true;
 }
 

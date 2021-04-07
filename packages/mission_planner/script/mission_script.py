@@ -294,7 +294,7 @@ def change_relative_angle():
     
     else:
         print "Please, enter the desired relative angle between follower drones and the leader drone (Manual mode)\n"
-        relative_angle.angle = (pi/180)*float(raw_input("Angle (degrees): "))
+        relative_angle.angle = (3.1415/180)*float(raw_input("Angle (degrees): "))
     
     try:
         relative_angle_service(relative_angle)
