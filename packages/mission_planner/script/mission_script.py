@@ -40,10 +40,11 @@ global leader_start_point
 global follower_start_point
 global take_off_height
 global take_off_blocking
-global inspection_point
 global auto_inspection_point
 global n_waypoints
 global waypoint
+global r_inspect
+global relative_angle
 
 # Menu function
 def show_menu():
@@ -51,7 +52,6 @@ def show_menu():
     global follower_start_point
     global take_off_height
     global take_off_blocking
-    global inspection_point
     
     # Menu
     print "\n\nWelcome to the main menu. Put the number of the desired option:\n"
@@ -79,11 +79,11 @@ def show_menu():
     elif option == 5:
         clear_all_waypoints()
     elif option == 6:
-        relative_angle()
+        change_relative_angle()
     elif option == 7:
         distance_inspection()
     elif option == 8:
-        change_inspection_point(inspection_point)
+        change_inspection_point()
     else:
         print ("Option n " + str(option) + " does not exist!")
 
@@ -249,7 +249,7 @@ def add_one_waypoint(data):
             print("Failed calling add_waypoint service")
             
     else:
-        print("calling list")
+        print("Calling list...")
         # data are the waypoints
         for index in range(n_waypoints):
             add_waypoint_req = WaypointSrvRequest()
@@ -279,8 +279,14 @@ def clear_all_waypoints():
 # 6.        relative_angle function
 # Brief:    This function allows to change the relative angle between the leader and the followers
 # TODO
-def relative_angle():
-    pass
+def change_relative_angle():
+    global relative_angle
+    global auto
+    
+    if auto:
+        print "Relative angle took from config file (Auto mode)"
+        relative_angle = auto_relative_angle
+    
 
 
 # 7.        relative_angle function
@@ -292,21 +298,29 @@ def distance_inspection():
 
 # 8.        change_inspection_point function
 # Brief:    This function changes the desired point to inspect
-def change_inspection_point(height_to_inspect):
-    global inspection_point
+def change_inspection_point():
     global auto_inspection_point
     global auto
     
+    inspection_point = PointToInspectSrvRequest()
+    
     if auto:
         print "Selected inspection point from config file (Auto mode)\n"
-        inspection_point = auto_inspection_point
+        inspection_point.point.x = auto_inspection_point[0]
+        inspection_point.point.y = auto_inspection_point[1]
+        inspection_point.point.z = auto_inspection_point[2]
     else:
         print "Please, enter the desired inspection point (Manual mode):\n"
-        inspection_point[0] = float(raw_input("X: "))
-        inspection_point[1] = float(raw_input("Y: "))
-        inspection_point[2] = float(raw_input("Z: "))
+        inspection_point.point.x = float(raw_input("X: "))
+        inspection_point.point.y = float(raw_input("Y: "))
+        inspection_point.point.z = float(raw_input("Z: "))
     
-    print "Inspection point changed successfully!"
+    try:
+        point_to_inspect_service(inspection_point)
+        print "Inspection point changed successfully!"
+        
+    except:
+        print("Failed calling point_to_inspect service")
         
 
 
@@ -315,14 +329,13 @@ def automatic_function():
     global follower_start_point
     global take_off_height
     global take_off_blocking
-    global inspection_point
     global waypoint
     
     print "-------- TAKE OFF AND INITIAL POINT --------\n"
     preparing_drones(leader_start_point, follower_start_point, take_off_height, take_off_blocking)
     
-    print "-------- ADDING INSPECTION WAYPOINT --------\n"
-    change_inspection_point(inspection_point)
+    print "-------- ADDING INSPECTION POINT --------\n"
+    change_inspection_point()
     
     print "\n-------- ADDING WAYPOINTS --------\n"
     add_one_waypoint(waypoint)
@@ -382,6 +395,8 @@ def read_params(file_route):
     global auto_inspection_point
     global n_waypoints
     global waypoint
+    global auto_r_inspect
+    global auto_relative_angle
 
     # Read parameters in local function:
     yml_file    = open(file_route, 'r')
@@ -395,6 +410,8 @@ def read_params(file_route):
     auto_inspection_point[0]        = yml_content.get('x_inspect')
     auto_inspection_point[1]        = yml_content.get('y_inspect')
     auto_inspection_point[2]        = yml_content.get('z_inspect')
+    auto_r_inspect                       = yml_content.get('r_inspect')
+    relative_angle                  = yml_content.get('relative_angle')
     
     if auto:
         n_waypoints         = yml_content.get('n_waypoints')
@@ -421,7 +438,6 @@ if __name__ == "__main__":
     global add_waypoint_service
     global go_to_waypoint_service
     
-    global inspection_point
     global auto_inspection_point
     
     # Initialize
@@ -434,7 +450,6 @@ if __name__ == "__main__":
     go_to_waypoint_url      = [0, 0]
     go_to_waypoint_service  = [0, 0]
     
-    inspection_point        = [0, 0, 0]
     auto_inspection_point   = [0, 0, 0]
     
     uav_id  = ["drone_1", "drone_2"]
@@ -451,9 +466,10 @@ if __name__ == "__main__":
     rospy.Subscriber("/drone_2/ual/state", State, callbackStateFollower)
     
     # Mission planner services
-    activate_planner_url = ns[0] + "/mission_planner_ros/activate_planner" # Missing its functionality atm
+    activate_planner_url = ns[0] + "/mission_planner_ros/activate_planner"
     add_waypoint_url     = ns[0] + "/mission_planner_ros/add_waypoint"
     clear_waypoints_url  = ns[0] + "/mission_planner_ros/clear_waypoints"
+    point_to_inspect_url = ns[0] + "/mission_planner_ros/point_to_inspect"
     
     print "Waiting until services are available..."
     
@@ -465,6 +481,9 @@ if __name__ == "__main__":
     
     rospy.wait_for_service(clear_waypoints_url)
     clear_waypoints_service  = rospy.ServiceProxy(clear_waypoints_url, Empty)
+    
+    rospy.wait_for_service(point_to_inspect_url)
+    point_to_inspect_service = rospy.ServiceProxy(point_to_inspect_url, PointToInspectSrv)
     
     # TakeOff service --> make a for loop when necessary
     rospy.wait_for_service(ns[0]+"/ual/take_off")

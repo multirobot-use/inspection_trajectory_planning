@@ -6,6 +6,9 @@ take_off_blocking: False
 x_inspect: 8
 y_inspect: 12
 z_inspect: 10
+r_inspect: 15
+
+relative_angle: 0.4
 
 n_waypoints: 4
 waypoint1: [10, 12, 15]
