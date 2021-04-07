@@ -5,6 +5,7 @@ n_drones: 2        # drones
 step_size: 0.1     # seconds
 planning_rate: 1   # sec
 vel_max: 1         # m/s
-acc_max: 1        # m/s
+acc_max: 1         # m/s
+inspection_dist: 4 # m 
 
 frame: "map"
