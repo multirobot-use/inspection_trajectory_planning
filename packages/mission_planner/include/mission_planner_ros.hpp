@@ -22,6 +22,12 @@
 */
 
 class MissionPlannerRos {
+ public:
+  //! MissionPlannerRos constructor
+  MissionPlannerRos(ros::NodeHandle _nh, const bool leader);
+
+  //! MissionPlannerRos destructor
+  ~MissionPlannerRos();
  private:
   // Declarations
   ros::NodeHandle nh_;
@@ -101,11 +107,4 @@ class MissionPlannerRos {
   /*! \brief function to publish trajectory to the solver
   */
   void publishTrajectoryJoint(const ros::Publisher &pub_path, const std::vector<state> &trajectory);
-
- public:
-  //! MissionPlannerRos constructor
-  MissionPlannerRos(ros::NodeHandle _nh);
-
-  //! MissionPlannerRos destructor
-  ~MissionPlannerRos();
 };

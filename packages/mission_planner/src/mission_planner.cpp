@@ -43,7 +43,6 @@ void MissionPlanner::plan() {
   initialOrientation(last_trajectory_);
 
   planner_state_ = PlannerStatus::REPLANNED;
-  // optimalOrientation(last_trajectory_);
 }
 
 void MissionPlanner::initialOrientation(std::vector<state> &traj){

@@ -1,6 +1,6 @@
 #include "mission_planner_ros.hpp"
 
-MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh) : nh_(_nh) {
+MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader) : nh_(_nh) {
   // ros params
   safeGetParam(nh_, "horizon_length", param_.horizon_length);
   safeGetParam(nh_, "n_drones", param_.n_drones);
@@ -14,8 +14,8 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh) : nh_(_nh) {
   safeGetParam(nh_, "inspection_dist", param_.inspection_dist);
 
   // initialize mission planner
-  mission_planner_ptr_ = std::make_unique<MissionPlannerDurableLeader>(param_);
-
+  if(leader) mission_planner_ptr_ = std::make_unique<MissionPlannerDurableLeader>(param_);
+  else mission_planner_ptr_ = std::make_unique<MissionPlannerDurableFollower>(param_);
   // Subscribers
   for (int drone = 1; drone <= param_.n_drones; drone++) {
     cur_pose_sub_[drone] = nh_.subscribe<geometry_msgs::PoseStamped>(
