@@ -10,6 +10,7 @@ struct parameters {
   float vel_max = 0.0;
   float acc_max = 0.0;
   std::string frame;
+  float inspection_dist = 1; // meters
 };
 
 struct state {
