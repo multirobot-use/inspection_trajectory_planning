@@ -13,6 +13,7 @@
  */
 
 enum PlannerStatus { FIRST_PLAN = 0, REPLANNED = 2 };
+enum MissionStatus { GO_TO = 0, MISSION_ZONE = 1};
 
 class MissionPlanner {
  public:
@@ -30,13 +31,27 @@ class MissionPlanner {
   const parameters param_;
   const ACADO::Grid my_grid_;
   std::vector<state> goals_;
+<<<<<<< HEAD
   Eigen::Vector3d point_to_inspect_;
+=======
+  Eigen::Vector3d point_to_inspect_ = Eigen::Vector3d::Zero();
+>>>>>>> 4bfd5f266e38704a6191a77d1624fcedcbe1fc22
 
 
  private:
-
+  const float REACH_TOL = 1; //! tolerance to reach waypoints
   int planner_state_ = PlannerStatus::FIRST_PLAN;
-  void checkWaypoints();
+
+  /*! \brief this function check if the planned trajectory has already reach the waypoint to inspect
+  *   \return true if the last trajectory has reached the commanded waypoint
+  */
+  bool waypointReached();
   virtual std::vector<state> initialTrajectory(const state &_initial_pose) = 0;
   virtual void optimalTrajectory(const std::vector<state> &_initial_traj) = 0;
+  void initialOrientation(std::vector<state> &traj);
+  void optimalOrientation(const std::vector<state> &traj_to_optimize);
+
+  bool hasGoal(){return !goals_.empty();}
+  bool hasPose(){return (states_.count(param_.drone_id) != 0);}
+  bool waypointReached(const state &point, const state &waypoint) {return ((point.pos-waypoint.pos).norm() < REACH_TOL);}
 };

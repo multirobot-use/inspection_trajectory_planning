@@ -16,6 +16,8 @@ find_package(catkin REQUIRED COMPONENTS
   uav_abstraction_layer
   nav_msgs
   trajectory_msgs
+  handy_tools
+  tf2
 )
 find_package(PythonLibs 2.7)
 find_package(Eigen3 REQUIRED)

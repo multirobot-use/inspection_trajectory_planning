@@ -3,6 +3,7 @@
 #include <Eigen/Eigen>
 #include <geometry_msgs/TwistStamped.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/Quaternion.h>
 #include <uav_abstraction_layer/TakeOff.h>
 #include <uav_abstraction_layer/GoToWaypoint.h>
 #include <std_srvs/SetBool.h>
@@ -11,11 +12,14 @@
 #include <nav_msgs/Path.h>
 #include <fstream>
 #include <iostream>
+#include <handy_tools/pid_controller.h>
+#include <tf2/utils.h>     // to convert quaternion to roll-pitch-yaw
 
 bool debug = true;
 std::vector<geometry_msgs::Twist> velocities; //trajectory to follow
 std::vector<geometry_msgs::PoseStamped> positions;  //trajectory to follow
-Eigen::Vector3f current_pose;                 
+Eigen::Vector3f current_pose;
+geometry_msgs::Quaternion current_orientation;                 
 Eigen::Vector3f current_vel;                 
 const double look_ahead = 1.0;
 int pose_on_path = 0;
@@ -28,8 +32,20 @@ const float velocity_error = 0.1;
 std::ofstream csv_ual; // logging the pose
 std::ofstream csv_record; // logging the pose
 ros::Publisher tracking_pub_;
+const float rate = 0.1;
 
 int previous_pose_on_path = 0;
+
+const float YAW_PID_P = 0.4;
+const float YAW_PID_I = 0.02;
+const float YAW_PI_D = 0.0;
+
+float calculateYawDiff(float _desired_yaw, float _current_yaw){
+    float yaw_diff = _desired_yaw - _current_yaw;
+    while (yaw_diff < -M_PI) yaw_diff += 2*M_PI;
+    while (yaw_diff >  M_PI) yaw_diff -= 2*M_PI;
+    return yaw_diff;
+}
 
 /** ual velocity callback **/
 void ualVelCallback(const geometry_msgs::TwistStamped::ConstPtr &msg){
@@ -40,6 +56,10 @@ void ualVelCallback(const geometry_msgs::TwistStamped::ConstPtr &msg){
  */
 void ualPoseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg){
     current_pose = Eigen::Vector3f(msg->pose.position.x,msg->pose.position.y,msg->pose.position.z);
+    current_orientation.x = msg->pose.orientation.x;
+    current_orientation.y = msg->pose.orientation.y;
+    current_orientation.z = msg->pose.orientation.z;
+    current_orientation.w = msg->pose.orientation.w;
 }
 
 /** \brief Callback for trayectory to follow
@@ -60,6 +80,10 @@ void trajectoryCallback(const trajectory_msgs::JointTrajectory::ConstPtr &msg){
         position.pose.position.x = point.positions[0];
         position.pose.position.y = point.positions[1];
         position.pose.position.z = point.positions[2];
+        position.pose.orientation.x = point.positions[3];
+        position.pose.orientation.y = point.positions[4];
+        position.pose.orientation.z = point.positions[5];
+        position.pose.orientation.w = point.positions[6];
 
         velocity.linear.x = point.velocities[0];
         velocity.linear.y = point.velocities[1];
@@ -130,7 +154,7 @@ int main(int _argc, char **_argv)
     ros::Subscriber ual_vel_sub = nh.subscribe<geometry_msgs::TwistStamped>("ual/velocity", 1, ualVelCallback);
     ros::Publisher velocity_ual_pub = nh.advertise<geometry_msgs::TwistStamped>("ual/set_velocity",1);
     tracking_pub_   = nh.advertise<nav_msgs::Path>("/drone_"+std::to_string(drone_id)+"/follower/trajectory_to_follow", 1);
-
+    grvc::utils::PidController yaw_pid("yaw", YAW_PID_P, YAW_PID_I, YAW_PID_P);
    
     // if (ros::param::has("~drone_id")) {
     //     ros::param::get("~drone_id",drone_id);
@@ -162,18 +186,36 @@ int main(int _argc, char **_argv)
             Eigen::Vector3f pose_to_go =Eigen::Vector3f(positions[target_pose].pose.position.x,positions[target_pose].pose.position.y, positions[target_pose].pose.position.z);
             Eigen::Vector3f vel_to_go= Eigen::Vector3f(velocities[pose_on_path].linear.x,velocities[pose_on_path].linear.y, velocities[pose_on_path].linear.z);
             Eigen::Vector3f velocity_to_command = calculate_vel(pose_to_go, vel_to_go);
+
+            //yaw
+            tf2::Quaternion desired_q(positions[target_pose].pose.orientation.x,
+                       positions[target_pose].pose.orientation.y,
+                       positions[target_pose].pose.orientation.z,
+                       positions[target_pose].pose.orientation.w);
+            tf2::Quaternion current_q(current_orientation.x,
+                              current_orientation.y,
+                              current_orientation.z,
+                              current_orientation.w);
+
+            float current_yaw = tf2::getYaw(current_q);
+            float desired_yaw = tf2::getYaw(desired_q);
+            float yaw_diff = calculateYawDiff(desired_yaw, current_yaw);
+            float sampling_period = rate;
+
             // publish topic to ual
             geometry_msgs::TwistStamped vel;
             vel.header.frame_id = "map";
             vel.twist.linear.x = velocity_to_command.x();
             vel.twist.linear.y = velocity_to_command.y();
             vel.twist.linear.z = velocity_to_command.z();
+            vel.twist.angular.z = yaw_pid.control_signal(yaw_diff, sampling_period);
+
             velocity_ual_pub.publish(vel);
             ros::spinOnce();
-            ros::Duration(0.1).sleep();
+            ros::Duration(rate).sleep();
         }
         ros::spinOnce();
-       ros::Duration(1).sleep();
+        ros::Duration(1).sleep();
     }
 
     return 0;
