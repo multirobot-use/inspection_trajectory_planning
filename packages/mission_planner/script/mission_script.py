@@ -41,7 +41,7 @@ global follower_start_point
 global take_off_height
 global take_off_blocking
 global inspection_point
-global config_inspection_point
+global auto_inspection_point
 global n_waypoints
 global waypoint
 
@@ -291,18 +291,17 @@ def distance_inspection():
 
 
 # 8.        change_inspection_point function
-# Brief:    This function changes the desired height to inspect
-# TODO
+# Brief:    This function changes the desired point to inspect
 def change_inspection_point(height_to_inspect):
     global inspection_point
-    global config_inspection_point
+    global auto_inspection_point
     global auto
     
     if auto:
         print "Selected inspection point from config file (Auto mode)\n"
-        inspection_point = config_inspection_point
+        inspection_point = auto_inspection_point
     else:
-        print "Select the desired inspection point (Manual mode):\n"
+        print "Please, enter the desired inspection point (Manual mode):\n"
         inspection_point[0] = float(raw_input("X: "))
         inspection_point[1] = float(raw_input("Y: "))
         inspection_point[2] = float(raw_input("Z: "))
@@ -380,7 +379,7 @@ def read_params(file_route):
     global follower_start_point
     global take_off_height
     global take_off_blocking
-    global config_inspection_point
+    global auto_inspection_point
     global n_waypoints
     global waypoint
 
@@ -393,9 +392,9 @@ def read_params(file_route):
     follower_start_point            = yml_content.get('follower_start_point')
     take_off_height                 = yml_content.get('take_off_height')
     take_off_blocking               = yml_content.get('take_off_blocking')
-    config_inspection_point[0]      = yml_content.get('x_inspect')
-    config_inspection_point[1]      = yml_content.get('y_inspect')
-    config_inspection_point[2]      = yml_content.get('z_inspect')
+    auto_inspection_point[0]        = yml_content.get('x_inspect')
+    auto_inspection_point[1]        = yml_content.get('y_inspect')
+    auto_inspection_point[2]        = yml_content.get('z_inspect')
     
     if auto:
         n_waypoints         = yml_content.get('n_waypoints')
@@ -423,7 +422,7 @@ if __name__ == "__main__":
     global go_to_waypoint_service
     
     global inspection_point
-    global config_inspection_point
+    global auto_inspection_point
     
     # Initialize
     leader_ready        = False
@@ -436,7 +435,7 @@ if __name__ == "__main__":
     go_to_waypoint_service  = [0, 0]
     
     inspection_point        = [0, 0, 0]
-    config_inspection_point = [0, 0, 0]
+    auto_inspection_point   = [0, 0, 0]
     
     uav_id  = ["drone_1", "drone_2"]
     ns      = ["/drone_1", "/drone_2"]

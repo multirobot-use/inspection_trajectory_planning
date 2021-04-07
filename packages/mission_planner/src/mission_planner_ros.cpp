@@ -133,7 +133,7 @@ bool MissionPlannerRos::pointToInspectServiceCallback(mission_planner::PointToIn
   
   mission_planner_ptr_->setPointToInspect(point);
 
-  ROS_INFO("[%s]: Point to inspect changed successfully!.", ros::this_node::getName().c_str());
+  ROS_INFO("[%s]: Point to inspect changed successfully!   [X,  Y,  Z] = [%f,  %f,  %f]", ros::this_node::getName().c_str(), point[0], point[1], point[2]);
   res.success = true;
 
 }
