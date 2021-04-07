@@ -9,6 +9,8 @@
 #include <nav_msgs/Path.h>
 #include <mission_planner/WaypointSrv.h>
 #include <mission_planner/PointToInspectSrv.h>
+#include <mission_planner/DistanceSrv.h>
+#include <mission_planner/AngleSrv.h>
 #include <nav_msgs/Odometry.h>
 #include <std_srvs/Empty.h>
 #include <std_srvs/SetBool.h>
@@ -47,6 +49,8 @@ class MissionPlannerRos {
   ros::ServiceServer service_waypoint;
   ros::ServiceServer clear_waypoints;
   ros::ServiceServer service_point_to_inspect;
+  ros::ServiceServer service_distance_to_inspect;
+  ros::ServiceServer service_relative_angle;
 
   // markers
   visualization_msgs::Marker points_;
@@ -76,12 +80,24 @@ class MissionPlannerRos {
   bool clearWaypointsServiceCallback(std_srvs::Empty::Request &req,
                                      std_srvs::Empty::Response &res);
   
-  /*! \brief Callback for the waypoint service. It adds a desired waypoint
+  /*! \brief Callback for inspection point service. It changes the inspection point
    *   \param req point to inspect (XYZ)
    *   \param res success
    */
   bool pointToInspectServiceCallback(mission_planner::PointToInspectSrv::Request &req, mission_planner::PointToInspectSrv::Response &res);
   
+  /*! \brief Callback for the distance to inspect service. It changes the distance between the drones and the inspection point
+   *   \param req distance (float)
+   *   \param res success
+   */
+  bool distanceToInspectServiceCallback(mission_planner::DistanceSrv::Request &req, mission_planner::DistanceSrv::Response &res);
+
+  /*! \brief Callback for the change the relative angle service. It changes the relative angles between the leader drone and the followers
+   *   \param req angle (float)
+   *   \param res success
+   */
+  bool changeRelativeAngleServiceCallback(mission_planner::AngleSrv::Request &req, mission_planner::AngleSrv::Response &res);
+
   /*! \brief Callback for timer that publishes rviz markers
   * \param TimerEvent structure passed to callback invoked by ros::Timer
   */

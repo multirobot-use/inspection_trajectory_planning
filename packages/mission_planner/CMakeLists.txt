@@ -32,6 +32,8 @@ add_service_files(
   FILES
   WaypointSrv.srv
   PointToInspectSrv.srv
+  DistanceSrv.srv
+  AngleSrv.srv
 )
 
 generate_messages(

@@ -12,9 +12,21 @@ void MissionPlanner::appendGoal(const state &_new_goal) {
   goals_.push_back(_new_goal);
 }
 
-void MissionPlanner::setPointToInspect(const Eigen::Vector3d &point){
-  point_to_inspect_ = point;
+void MissionPlanner::setPointToInspect(const Eigen::Vector3d &_point){
+  point_to_inspect_ = _point;
   std::cout << "New point to inspect added!";
+}
+
+void MissionPlanner::setDistanceToInspect(const float &_distance) {
+  distance_to_inspect_point_ = _distance;
+
+  std::cout << "Distance to inspect changed!";
+}
+
+void MissionPlanner::setRelativeAngle(const float &_angle) {
+  relative_angle_ = _angle;
+
+  std::cout << "Relative angle changed!";
 }
 
 void MissionPlanner::clearGoals() { goals_.clear(); }

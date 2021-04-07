@@ -21,6 +21,10 @@ from mission_planner.srv import WaypointSrvRequest
 from mission_planner.srv import WaypointSrv
 from mission_planner.srv import PointToInspectSrvRequest
 from mission_planner.srv import PointToInspectSrv
+from mission_planner.srv import DistanceSrvRequest
+from mission_planner.srv import DistanceSrv
+from mission_planner.srv import AngleSrvRequest
+from mission_planner.srv import AngleSrv
 import signal
 import sys
 
@@ -55,11 +59,11 @@ def show_menu():
     
     # Menu
     print "\n\nWelcome to the main menu. Put the number of the desired option:\n"
-    print "\t1. Take off and send the drones to their initial points (WORKING)"
-    print "\t2. Start the mission (WORKING)"
-    print "\t3. Stop the mission (WORKING)"
-    print "\t4. Add waypoint (WORKING)"
-    print "\t5. Clear all the waypoints (WORKING)"
+    print "\t1. Take off and send the drones to their initial points"
+    print "\t2. Start the mission"
+    print "\t3. Stop the mission"
+    print "\t4. Add waypoint"
+    print "\t5. Clear all the waypoints"
     print "\t6. Change relative angles between followers and leader"
     print "\t7. Change distance to inspection point"
     print "\t8. Change inspection point\n"
@@ -223,13 +227,13 @@ def add_one_waypoint(data):
     global n_waypoints
     # Not auto mode
     if(auto == False):
-        px = float(raw_input("X pose: "))
-        py = float(raw_input("Y pose: "))
-        pz = float(raw_input("Z pose: "))
+        px = float(raw_input("X pose (meters): "))
+        py = float(raw_input("Y pose (meters): "))
+        pz = float(raw_input("Z pose (meters): "))
         
-        tx = float(raw_input("X linear velocity: "))
-        ty = float(raw_input("Y linear velocity: "))
-        tz = float(raw_input("Z linear velocity: "))
+        tx = float(raw_input("X linear velocity (meters/second): "))
+        ty = float(raw_input("Y linear velocity (meters/second): "))
+        tz = float(raw_input("Z linear velocity (meters/second): "))
         
         add_waypoint_req = WaypointSrvRequest()
         
@@ -278,22 +282,51 @@ def clear_all_waypoints():
 
 # 6.        relative_angle function
 # Brief:    This function allows to change the relative angle between the leader and the followers
-# TODO
 def change_relative_angle():
-    global relative_angle
+    global auto_relative_angle
     global auto
+    
+    relative_angle = AngleSrvRequest()
     
     if auto:
         print "Relative angle took from config file (Auto mode)"
-        relative_angle = auto_relative_angle
+        relative_angle.angle = auto_relative_angle
+    
+    else:
+        print "Please, enter the desired relative angle between follower drones and the leader drone (Manual mode)\n"
+        relative_angle.angle = (pi/180)*float(raw_input("Angle (degrees): "))
+    
+    try:
+        relative_angle_service(relative_angle)
+        print "Relative angle changed successfully!"
+        
+    except:
+        print("Failed calling change_relative_angle service")
     
 
 
-# 7.        relative_angle function
+# 7.        distance_inspection function
 # Brief:    This function changes the distance between the inspection point and the drones
-# TODO
 def distance_inspection():
-    pass
+    global auto_r_inspect
+    global auto
+    
+    r_inspect = DistanceSrvRequest()
+    
+    if auto:
+        print "Relative angle took from config file (Auto mode)"
+        r_inspect.distance = auto_r_inspect
+    
+    else:
+        print "Please, enter the desired relative angle between follower drones and the leader drone (Manual mode)\n"
+        r_inspect.distance = float(raw_input("Distance (meters): "))
+    
+    try:
+        distance_service(r_inspect)
+        print "Distance to the inspection point changed successfully!"
+        
+    except:
+        print("Failed calling distance_to_inspect service")
 
 
 # 8.        change_inspection_point function
@@ -311,9 +344,9 @@ def change_inspection_point():
         inspection_point.point.z = auto_inspection_point[2]
     else:
         print "Please, enter the desired inspection point (Manual mode):\n"
-        inspection_point.point.x = float(raw_input("X: "))
-        inspection_point.point.y = float(raw_input("Y: "))
-        inspection_point.point.z = float(raw_input("Z: "))
+        inspection_point.point.x = float(raw_input("X (meters): "))
+        inspection_point.point.y = float(raw_input("Y (meters): "))
+        inspection_point.point.z = float(raw_input("Z (meters): "))
     
     try:
         point_to_inspect_service(inspection_point)
@@ -333,6 +366,12 @@ def automatic_function():
     
     print "-------- TAKE OFF AND INITIAL POINT --------\n"
     preparing_drones(leader_start_point, follower_start_point, take_off_height, take_off_blocking)
+    
+    print "-------- ADDING DISTANCE TO INSPECTION POINT --------\n"
+    distance_inspection()
+    
+    print "-------- ADDING RELATIVE ANGLES --------\n"
+    change_relative_angle()
     
     print "-------- ADDING INSPECTION POINT --------\n"
     change_inspection_point()
@@ -410,8 +449,8 @@ def read_params(file_route):
     auto_inspection_point[0]        = yml_content.get('x_inspect')
     auto_inspection_point[1]        = yml_content.get('y_inspect')
     auto_inspection_point[2]        = yml_content.get('z_inspect')
-    auto_r_inspect                       = yml_content.get('r_inspect')
-    relative_angle                  = yml_content.get('relative_angle')
+    auto_r_inspect                  = yml_content.get('r_inspect')
+    auto_relative_angle             = yml_content.get('relative_angle')
     
     if auto:
         n_waypoints         = yml_content.get('n_waypoints')
@@ -470,6 +509,8 @@ if __name__ == "__main__":
     add_waypoint_url     = ns[0] + "/mission_planner_ros/add_waypoint"
     clear_waypoints_url  = ns[0] + "/mission_planner_ros/clear_waypoints"
     point_to_inspect_url = ns[0] + "/mission_planner_ros/point_to_inspect"
+    distance_url         = ns[0] + "/mission_planner_ros/distance_to_inspect"
+    relative_angle_url   = ns[0] + "/mission_planner_ros/change_relative_angle"
     
     print "Waiting until services are available..."
     
@@ -484,6 +525,12 @@ if __name__ == "__main__":
     
     rospy.wait_for_service(point_to_inspect_url)
     point_to_inspect_service = rospy.ServiceProxy(point_to_inspect_url, PointToInspectSrv)
+    
+    rospy.wait_for_service(distance_url)
+    distance_service = rospy.ServiceProxy(distance_url, DistanceSrv)
+    
+    rospy.wait_for_service(relative_angle_url)
+    relative_angle_service = rospy.ServiceProxy(relative_angle_url, AngleSrv)
     
     # TakeOff service --> make a for loop when necessary
     rospy.wait_for_service(ns[0]+"/ual/take_off")
