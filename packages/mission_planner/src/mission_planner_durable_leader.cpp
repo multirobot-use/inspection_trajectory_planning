@@ -5,28 +5,8 @@ MissionPlannerDurableLeader::MissionPlannerDurableLeader(parameters params)
 MissionPlannerDurableLeader::~MissionPlannerDurableLeader(){};
 
 std::vector<state> MissionPlannerDurableLeader::initialTrajectory(
-    // check if the distance is reached
-      // parametricTrajectory();
-    //else 
-      // stdTrajectroy();
-    // fake implementation
     const state &_state){
-      std::vector<state> trajectory_to_optimize;
-      state aux_point;
-      Eigen::Vector3d vel = Eigen::Vector3d::Zero();
-      try{
-        vel = (goals_.at(0).pos-states_[param_.drone_id].pos)/(goals_.at(0).pos-states_[param_.drone_id].pos).norm();
-      }catch(std::out_of_range& e)
-      {
-        std::cerr << e.what() << std::endl;
-      }
-      
-      for(int i = 0; i<param_.horizon_length; i++){
-        aux_point.pos(0) = _state.pos(0)+i*vel(0)*param_.vel_max*param_.step_size;
-        aux_point.pos(1) = _state.pos(1)+i*vel(1)*param_.vel_max*param_.step_size;
-        aux_point.pos(2) = _state.pos(2)+i*vel(2)*param_.vel_max*param_.step_size;
-        trajectory_to_optimize.push_back(aux_point);
-      }
+    std::vector<state> trajectory_to_optimize;
     return trajectory_to_optimize;
 }
 

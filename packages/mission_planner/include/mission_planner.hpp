@@ -41,7 +41,7 @@ class MissionPlanner {
   *   \return true if the last trajectory has reached the commanded waypoint
   */
   bool waypointReached();
-  virtual std::vector<state> initialTrajectory(const state &_initial_pose) = 0;
+  virtual std::vector<state> initialTrajectory(const state &_initial_pose);
   virtual void optimalTrajectory(const std::vector<state> &_initial_traj) = 0;
   void initialOrientation(std::vector<state> &traj);
   void optimalOrientation(const std::vector<state> &traj_to_optimize);
