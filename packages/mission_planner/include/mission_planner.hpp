@@ -30,7 +30,8 @@ class MissionPlanner {
   float getDistanceToInspect(){ return distance_to_inspect_point_;}
   void setRelativeAngle(const float &_angle){ relative_angle_ = _angle;}
   void plan();
-
+  void setSolvedTrajectories(const std::vector<Eigen::Vector3d> &solved_trajectory, int _drone_id){solved_trajectories_[_drone_id]=solved_trajectory;}
+  
   
  protected:
   const parameters param_;
@@ -39,7 +40,7 @@ class MissionPlanner {
   Eigen::Vector3d point_to_inspect_ = Eigen::Vector3d::Zero();
   float distance_to_inspect_point_  = 3;
   float relative_angle_             = 0.4;
-
+  std::map<int,std::vector<Eigen::Vector3d>> solved_trajectories_;
 
  private:
   const float REACH_TOL = 1; //! tolerance to reach waypoints

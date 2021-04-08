@@ -48,6 +48,7 @@ class MissionPlannerRos {
   // Subscriptions
   std::map<int, ros::Subscriber> cur_pose_sub_;
   std::map<int, ros::Subscriber> cur_vel_sub_;
+  std::map<int, ros::Subscriber> solved_trajectories_sub_;
 
   // Publishers
   ros::Publisher points_pub_;
@@ -66,6 +67,14 @@ class MissionPlannerRos {
   ros::ServiceServer service_relative_angle;
 
   //! Callback prototypes
+
+  /**
+   * @brief Callback for the solved trajectories from others
+   * 
+   * @param msg trajectory
+   * @param id drone id
+   */
+  void solvedTrajCallback(const nav_msgs::Path::ConstPtr &msg, int id);
 
   /*! \brief Callback for the activate planner service.
    *   \param req structure of the request message

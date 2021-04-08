@@ -28,6 +28,12 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader) : n
         "/drone_" + std::to_string(drone) + "/ual/velocity", 1,
         std::bind(&MissionPlannerRos::uavVelocityCallback, this,
                   std::placeholders::_1, drone));
+    if(drone!=param_.drone_id){
+      solved_trajectories_sub_[drone] = nh_.subscribe<nav_msgs::Path>(
+        "/drone_" + std::to_string(drone) + "/mission_planner_node/solved_traj", 1,
+        std::bind(&MissionPlannerRos::solvedTrajCallback, this,
+                  std::placeholders::_1, drone));
+    }
   }
 
   // create timer
@@ -45,7 +51,6 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader) : n
   pub_path_   = nh_.advertise<nav_msgs::Path>("solved_traj", 1);
   tracking_pub_   = nh_.advertise<nav_msgs::Path>("/drone_"+std::to_string(param_.drone_id)+"/upat_follower/follower/trajectory_to_follow", 1);
   tracking_pub_trajectory_   = nh_.advertise<trajectory_msgs::JointTrajectory>("/drone_"+std::to_string(param_.drone_id)+"/trajectory_follower_node/trajectory_to_follow", 1);
-
   // Services
   service_activate_planner = nh_.advertiseService(
       "activate_planner", &MissionPlannerRos::activationPlannerServiceCallback,
@@ -175,7 +180,18 @@ void MissionPlannerRos::pubVisCB(const ros::TimerEvent &e) {
     publishPoints(points_trans_pub_, points, Colors::BLUE );
     publishSphere(sphere_pub_, Colors::YELLOW);
 }
-
+void MissionPlannerRos::solvedTrajCallback(
+  const nav_msgs::Path::ConstPtr &msg, int id){
+    Eigen::Vector3d aux;
+    std::vector<Eigen::Vector3d> path;
+    for(auto pose : msg->poses){
+      aux(0) = pose.pose.position.x;
+      aux(1) = pose.pose.position.y;
+      aux(2) = pose.pose.position.z;
+      path.push_back(aux);
+    }
+    mission_planner_ptr_->setSolvedTrajectories(path, id);
+}
 void MissionPlannerRos::uavPoseCallback(
     const geometry_msgs::PoseStamped::ConstPtr &msg, int id) {
   mission_planner_ptr_->states_[id].pos[0] = msg->pose.position.x;
