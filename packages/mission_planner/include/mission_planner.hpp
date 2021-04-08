@@ -23,6 +23,9 @@ class MissionPlanner {
   virtual ~MissionPlanner();
   void appendGoal(const state &);
   void clearGoals();
+  void setPointToInspect(const Eigen::Vector3d &);
+  void setDistanceToInspect(const float &);
+  void setRelativeAngle(const float &);
   void plan();
 
   
@@ -31,6 +34,8 @@ class MissionPlanner {
   const ACADO::Grid my_grid_;
   std::vector<state> goals_;
   Eigen::Vector3d point_to_inspect_ = Eigen::Vector3d::Zero();
+  float distance_to_inspect_point_  = 50;
+  float relative_angle_             = 0.4;
 
 
  private:

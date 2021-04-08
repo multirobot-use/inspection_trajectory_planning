@@ -1,4 +1,3 @@
-#pragma once
 #include "mission_planner.hpp"
 class MissionPlannerDurableLeader : public MissionPlanner {
  public:

@@ -60,8 +60,17 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader) : n
       this);
   service_waypoint = nh_.advertiseService(
       "add_waypoint", &MissionPlannerRos::addWaypointServiceCallback, this);
+  service_point_to_inspect = nh_.advertiseService(
+      "point_to_inspect", &MissionPlannerRos::pointToInspectServiceCallback,
+      this);
   clear_waypoints = nh_.advertiseService(
       "clear_waypoints", &MissionPlannerRos::clearWaypointsServiceCallback,
+      this);
+  service_distance_to_inspect = nh_.advertiseService(
+      "distance_to_inspect", &MissionPlannerRos::distanceToInspectServiceCallback,
+      this);
+  service_relative_angle = nh_.advertiseService(
+      "change_relative_angle", &MissionPlannerRos::changeRelativeAngleServiceCallback,
       this);
 }
 
@@ -117,7 +126,41 @@ bool MissionPlannerRos::clearWaypointsServiceCallback(std_srvs::Empty::Request &
 
   mission_planner_ptr_->clearGoals();
   points_.points.clear(); 
-  return 1;
+  
+}
+
+bool MissionPlannerRos::pointToInspectServiceCallback(mission_planner::PointToInspectSrv::Request &req, mission_planner::PointToInspectSrv::Response &res){
+  ROS_INFO("[%s]: Point to inspect service called.", ros::this_node::getName().c_str());
+
+  Eigen::Vector3d point;
+
+  point[0] = req.point.x;
+  point[1] = req.point.y;
+  point[2] = req.point.z;
+  
+  mission_planner_ptr_->setPointToInspect(point);
+
+  ROS_INFO("[%s]: Point to inspect changed successfully!   [X,  Y,  Z] = [%f,  %f,  %f]", ros::this_node::getName().c_str(), point[0], point[1], point[2]);
+  res.success = true;
+
+}
+
+bool MissionPlannerRos::distanceToInspectServiceCallback(mission_planner::DistanceSrv::Request &req, mission_planner::DistanceSrv::Response &res){
+  ROS_INFO("[%s]: Distance to inspect service called.", ros::this_node::getName().c_str());
+
+  mission_planner_ptr_->setDistanceToInspect(req.distance);
+
+  ROS_INFO("[%s]: Distance to inspection point changed successfully!  New distance:  %f meters", ros::this_node::getName().c_str(), req.distance);
+  res.success = true;
+}
+
+bool MissionPlannerRos::changeRelativeAngleServiceCallback(mission_planner::AngleSrv::Request &req, mission_planner::AngleSrv::Response &res){
+  ROS_INFO("[%s]: Change relative angle service called.", ros::this_node::getName().c_str());
+
+  mission_planner_ptr_->setRelativeAngle(req.angle);
+
+  ROS_INFO("[%s]: Relative angle changed successfully!  New angle:  %f radians", ros::this_node::getName().c_str(), req.angle);
+  res.success = true;
 }
 
 void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
