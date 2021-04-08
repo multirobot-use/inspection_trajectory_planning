@@ -1,5 +1,6 @@
 #include "mission_planner_ros.hpp"
 
+
 MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader) : nh_(_nh) {
   // ros params
   safeGetParam(nh_, "horizon_length", param_.horizon_length);
@@ -12,6 +13,7 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader) : n
   safeGetParam(nh_, "frame", param_.frame);
   safeGetParam(nh_, "drone_id", param_.drone_id);
   safeGetParam(nh_, "inspection_dist", param_.inspection_dist);
+  safeGetParam(nh_, "visualization_rate", param_.visualization_rate);
 
   // initialize mission planner
   if(leader) mission_planner_ptr_ = std::make_unique<MissionPlannerDurableLeader>(param_);
@@ -28,28 +30,18 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader) : n
                   std::placeholders::_1, drone));
   }
 
-  // markers config
-  points_.header.frame_id = param_.frame;
-  points_.header.stamp = ros::Time::now();
-  points_.action = visualization_msgs::Marker::ADD;
-  points_.pose.orientation.w =  1.0;
-  points_.id = 0;
-  points_.type = visualization_msgs::Marker::POINTS;
-  points_.scale.x = 0.2;
-  points_.scale.y = 0.2;
-  points_.color.g = 1.0f;
-  points_.color.a = 1.0;
-
   // create timer
   planTimer_ = nh_.createTimer(ros::Duration(param_.planning_rate),
                                &MissionPlannerRos::replanCB, this);
-  pubVis_ = nh_.createTimer(ros::Duration(param_.planning_rate),
+  pubVis_ = nh_.createTimer(ros::Duration(param_.visualization_rate),
                                &MissionPlannerRos::pubVisCB, this);
   planTimer_.stop();
   pubVis_.start();
 
   // publishers
   points_pub_ = nh_.advertise<visualization_msgs::Marker>("points_to_inspect",1);
+  points_trans_pub_ = nh_.advertise<visualization_msgs::Marker>("points_to_inspect_transformed",1);
+  sphere_pub_ = nh_.advertise<visualization_msgs::Marker>("inspection_sphere",1);
   pub_path_   = nh_.advertise<nav_msgs::Path>("solved_traj", 1);
   tracking_pub_   = nh_.advertise<nav_msgs::Path>("/drone_"+std::to_string(param_.drone_id)+"/upat_follower/follower/trajectory_to_follow", 1);
   tracking_pub_trajectory_   = nh_.advertise<trajectory_msgs::JointTrajectory>("/drone_"+std::to_string(param_.drone_id)+"/trajectory_follower_node/trajectory_to_follow", 1);
@@ -99,34 +91,30 @@ bool MissionPlannerRos::activationPlannerServiceCallback(
 
 bool MissionPlannerRos::addWaypointServiceCallback(mission_planner::WaypointSrv::Request &req, mission_planner::WaypointSrv::Response &res){
   ROS_INFO("[%s]: Add waypoint service called.", ros::this_node::getName().c_str());
-  state aux_goal;
   geometry_msgs::Point point;
+  point.x = req.waypoint.pose.pose.position.x;
+  point.y = req.waypoint.pose.pose.position.y;
+  point.z = req.waypoint.pose.pose.position.z;
+  points_.push_back(point);
 
+  // append goal
+  state aux_goal;
 
   aux_goal.pos[0]   = req.waypoint.pose.pose.position.x;
   aux_goal.pos[1]   = req.waypoint.pose.pose.position.y;
   aux_goal.pos[2]   = req.waypoint.pose.pose.position.z;
-
-  point.x = req.waypoint.pose.pose.position.x;
-  point.y = req.waypoint.pose.pose.position.y;
-  point.z = req.waypoint.pose.pose.position.z;
 
   aux_goal.vel[0]   = req.waypoint.twist.twist.linear.x;
   aux_goal.vel[1]   = req.waypoint.twist.twist.linear.y;
   aux_goal.vel[2]   = req.waypoint.twist.twist.linear.z;
 
   mission_planner_ptr_->appendGoal(aux_goal);
-  points_.points.push_back(point); 
-
-  res.success = true;
 }
 
 bool MissionPlannerRos::clearWaypointsServiceCallback(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res){
   ROS_INFO("[%s]: Clear waypoints service called.", ros::this_node::getName().c_str());
 
-  mission_planner_ptr_->clearGoals();
-  points_.points.clear(); 
-  
+  mission_planner_ptr_->clearGoals();  
 }
 
 bool MissionPlannerRos::pointToInspectServiceCallback(mission_planner::PointToInspectSrv::Request &req, mission_planner::PointToInspectSrv::Response &res){
@@ -172,8 +160,20 @@ void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
 }
 
 void MissionPlannerRos::pubVisCB(const ros::TimerEvent &e) {
-  ROS_INFO("Planning markers");
-  points_pub_.publish(points_);
+    // publish commanded waypoint
+    publishPoints(points_pub_, points_, Colors::RED );
+    // publish transformed waypoints
+    std::vector<state> goals = mission_planner_ptr_->getGoals();
+    geometry_msgs::Point point;
+    std::vector<geometry_msgs::Point> points;
+    for(auto const &goal : goals){
+      point.x = goal.pos(0);
+      point.y = goal.pos(1);
+      point.z = goal.pos(2);
+      points.push_back(point);
+    }
+    publishPoints(points_trans_pub_, points, Colors::BLUE );
+    publishSphere(sphere_pub_, Colors::YELLOW);
 }
 
 void MissionPlannerRos::uavPoseCallback(
@@ -188,6 +188,77 @@ void MissionPlannerRos::uavVelocityCallback(
   mission_planner_ptr_->states_[id].vel[0] = msg->twist.linear.x;
   mission_planner_ptr_->states_[id].vel[1] = msg->twist.linear.y;
   mission_planner_ptr_->states_[id].vel[2] = msg->twist.linear.z;
+}
+
+void MissionPlannerRos::setMarkerColor(visualization_msgs::Marker &marker, const Colors &color){
+  switch (color)
+  {
+  case Colors::RED:
+    marker.color.r = 1.0;
+    marker.color.g = 0.0;
+    marker.color.b = 0.0;
+    break;
+  case Colors::BLUE:
+    marker.color.r = 0.0;
+    marker.color.g = 0.0;
+    marker.color.b = 1.0;
+    break;
+  case Colors::YELLOW:
+    marker.color.r = 1.0;
+    marker.color.g = 0.0;
+    marker.color.b = 1.0;
+    break;
+  default:
+    break;
+  }
+}
+
+void MissionPlannerRos::publishSphere(const ros::Publisher &pub_sphere, const Colors &color){
+  visualization_msgs::Marker marker;
+   marker.header.frame_id = param_.frame;
+   marker.header.stamp = ros::Time();
+   marker.ns = "my_namespace";
+   marker.id = 0;
+   marker.type = visualization_msgs::Marker::CYLINDER;
+   marker.action = visualization_msgs::Marker::ADD;
+   // set position
+   Eigen::Vector3d point_to_inspect = mission_planner_ptr_->getPointToInspect();
+   marker.pose.position.x = point_to_inspect(0);
+   marker.pose.position.y = point_to_inspect(1);
+   marker.pose.position.z = point_to_inspect(2);
+   marker.pose.orientation.x = 0.0;
+   marker.pose.orientation.y = 0.0;
+   marker.pose.orientation.z = 0.0;
+   marker.pose.orientation.w = 1.0;
+   marker.scale.x = mission_planner_ptr_->getDistanceToInspect();;
+   marker.scale.y = mission_planner_ptr_->getDistanceToInspect();;
+   marker.scale.z = 15;
+   marker.color.a = 0.4;
+   // inspection distance
+  setMarkerColor(marker,Colors::YELLOW);
+   //only if using a MESH_RESOURCE marker type:
+   marker.mesh_resource = "package://pr2_description/meshes/base_v0/base.dae";
+   pub_sphere.publish( marker );
+}
+
+void MissionPlannerRos::publishPoints(const ros::Publisher &pub_points, const std::vector<geometry_msgs::Point> &_points, Colors color){
+  visualization_msgs::Marker points;
+
+  // markers config
+  points.header.frame_id = param_.frame;
+  points.header.stamp = ros::Time::now();
+  points.action = visualization_msgs::Marker::ADD;
+  points.pose.orientation.w =  1.0;
+  points.id = 0;
+  points.type = visualization_msgs::Marker::POINTS;
+  points.scale.x = 0.2;
+  points.scale.y = 0.2;
+  setMarkerColor(points, color);
+  points.color.g = 1.0f;
+  points.color.a = 1.0;
+
+  points.points = _points;
+  pub_points.publish(points);
 }
 
 void MissionPlannerRos::publishPath(const ros::Publisher &pub_path, const std::vector<state> &trajectory){

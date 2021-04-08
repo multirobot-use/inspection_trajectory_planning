@@ -23,8 +23,11 @@ class MissionPlanner {
   virtual ~MissionPlanner();
   virtual void appendGoal(const state &_goal){ goals_.push_back(_goal);}
   void clearGoals() { goals_.clear(); }
+  std::vector<state> getGoals(){return goals_;}
   void setPointToInspect(const Eigen::Vector3d &_point){  point_to_inspect_ = _point;}
+  Eigen::Vector3d getPointToInspect(){ return point_to_inspect_;}
   void setDistanceToInspect(const float &_distance){ distance_to_inspect_point_ = _distance;}
+  float getDistanceToInspect(){ return distance_to_inspect_point_;}
   void setRelativeAngle(const float &_angle){ relative_angle_ = _angle;}
   void plan();
 
@@ -34,7 +37,7 @@ class MissionPlanner {
   const ACADO::Grid my_grid_;
   std::vector<state> goals_;
   Eigen::Vector3d point_to_inspect_ = Eigen::Vector3d::Zero();
-  float distance_to_inspect_point_  = 50;
+  float distance_to_inspect_point_  = 3;
   float relative_angle_             = 0.4;
 
 

@@ -22,7 +22,7 @@ windows:
   - rviz:
       layout: even-vertical
       panes:
-        - sleep 15; roslaunch mission_planner rviz.launch
+        - sleep 8; roslaunch mission_planner rviz.launch
   - python script:  
       layout: even-vertical
       panes:

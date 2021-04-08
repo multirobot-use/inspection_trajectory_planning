@@ -19,6 +19,8 @@
 #include <visualization_msgs/Marker.h>
 #include <trajectory_msgs/JointTrajectory.h>
 
+enum Colors { RED = 0, BLUE = 2, YELLOW = 3};
+
 
 //!  MissionPlannerRos class.
 /*!
@@ -33,6 +35,7 @@ class MissionPlannerRos {
   //! MissionPlannerRos destructor
   ~MissionPlannerRos();
  private:
+
   // Declarations
   ros::NodeHandle nh_;
   parameters param_;
@@ -40,15 +43,19 @@ class MissionPlannerRos {
   ros::Timer planTimer_;
   ros::Timer pubVis_;
 
+  std::vector<geometry_msgs::Point> points_;
+
   // Subscriptions
   std::map<int, ros::Subscriber> cur_pose_sub_;
   std::map<int, ros::Subscriber> cur_vel_sub_;
 
   // Publishers
   ros::Publisher points_pub_;
+  ros::Publisher points_trans_pub_;
   ros::Publisher pub_path_;
   ros::Publisher tracking_pub_;
   ros::Publisher tracking_pub_trajectory_;
+  ros::Publisher sphere_pub_;
   
   // Services
   ros::ServiceServer service_activate_planner;
@@ -57,10 +64,6 @@ class MissionPlannerRos {
   ros::ServiceServer service_point_to_inspect;
   ros::ServiceServer service_distance_to_inspect;
   ros::ServiceServer service_relative_angle;
-
-  // markers
-  visualization_msgs::Marker points_;
-
 
   //! Callback prototypes
 
@@ -133,4 +136,14 @@ class MissionPlannerRos {
   /*! \brief function to publish trajectory to the solver
   */
   void publishTrajectoryJoint(const ros::Publisher &pub_path, const std::vector<state> &trajectory);
+
+  /*!
+  */
+  void publishPoints(const ros::Publisher &pub_points, const std::vector<geometry_msgs::Point> &_points, Colors color);
+
+  void publishSphere(const ros::Publisher &pub_sphere, const Colors &color);
+
+  void setMarkerColor(visualization_msgs::Marker &marker, const Colors &color);
+
+
 };

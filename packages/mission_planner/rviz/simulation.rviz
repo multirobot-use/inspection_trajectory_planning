@@ -135,6 +135,22 @@ Visualization Manager:
       Topic: /drone_1/upat_follower/follower/debug_point_look_ahead
       Unreliable: false
       Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /drone_1/mission_planner_ros/points_to_inspect_transformed
+      Name: Marker
+      Namespaces:
+        "": true
+      Queue Size: 100
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /drone_1/mission_planner_ros/inspection_sphere
+      Name: Marker
+      Namespaces:
+        my_namespace: true
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -163,25 +179,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 17.292390823364258
+      Distance: 39.14054870605469
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 5.833751678466797
-        Y: 5.1187744140625
-        Z: 3.7282280921936035
+        X: 6.984823226928711
+        Y: 0.6182325482368469
+        Z: 7.493736267089844
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.8803985118865967
+      Pitch: 0.7547966241836548
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.9454116821289062
+      Yaw: 3.3504083156585693
     Saved: ~
 Window Geometry:
   Displays:

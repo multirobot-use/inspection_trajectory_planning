@@ -13,7 +13,7 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectory(
 void MissionPlannerDurableLeader::appendGoal(const state &_new_goal) {
   state goal;
   goal.pos = pointOnCircle(_new_goal.pos,point_to_inspect_, distance_to_inspect_point_);
-  goals_.push_back(_new_goal);
+  goals_.push_back(goal);
 }
 
 void MissionPlannerDurableLeader::optimalTrajectory(

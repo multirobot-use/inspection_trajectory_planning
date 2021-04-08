@@ -3,10 +3,10 @@ leader_start_point: [3, 3, 3]
 follower_start_point: [3, 3, 3]
 take_off_height: 2
 take_off_blocking: False
-x_inspect: 8
-y_inspect: 12
+x_inspect: 0
+y_inspect: 0
 z_inspect: 10
-r_inspect: 15
+r_inspect: 5
 
 relative_angle: 0.4
 

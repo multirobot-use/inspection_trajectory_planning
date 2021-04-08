@@ -6,6 +6,7 @@ struct parameters {
   int n_drones = 1;           // number of drones
   float step_size = 0.1;      // seconds
   float planning_rate = 0.0;  // sec
+  float visualization_rate = 0.0;  // sec
   int drone_id = 0;
   float vel_max = 0.0;
   float acc_max = 0.0;
