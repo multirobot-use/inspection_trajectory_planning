@@ -1,5 +1,3 @@
-#pragma once
-
 #include <mission_planner_durable_follower.hpp>
 
 MissionPlannerDurableFollower::MissionPlannerDurableFollower(parameters params) : MissionPlanner(params)

@@ -28,7 +28,7 @@ inline Eigen::Vector3d quatToEuler(Eigen::Quaterniond q){
   return q.toRotationMatrix().eulerAngles(0, 1, 2);
 }
 
-inline Eigen::Vector3d pointOnCircle(Eigen::Vector3d point, Eigen::Vector3d inspection_point, float R){
+inline Eigen::Vector3d pointOnCircle(const Eigen::Vector3d point, const Eigen::Vector3d inspection_point, const float R){
   return (R*(point - inspection_point)/((point - inspection_point).norm()) + inspection_point);
 }
 

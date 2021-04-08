@@ -21,11 +21,11 @@ class MissionPlanner {
   std::map<int, state> states_;
   MissionPlanner(const parameters _param);
   virtual ~MissionPlanner();
-  void appendGoal(const state &);
-  void clearGoals();
-  void setPointToInspect(const Eigen::Vector3d &);
-  void setDistanceToInspect(const float &);
-  void setRelativeAngle(const float &);
+  virtual void appendGoal(const state &_goal){ goals_.push_back(_goal);}
+  void clearGoals() { goals_.clear(); }
+  void setPointToInspect(const Eigen::Vector3d &_point){  point_to_inspect_ = _point;}
+  void setDistanceToInspect(const float &_distance){ distance_to_inspect_point_ = _distance;}
+  void setRelativeAngle(const float &_angle){ relative_angle_ = _angle;}
   void plan();
 
   
