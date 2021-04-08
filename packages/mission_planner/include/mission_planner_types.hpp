@@ -28,6 +28,10 @@ inline Eigen::Vector3d quatToEuler(Eigen::Quaterniond q){
   return q.toRotationMatrix().eulerAngles(0, 1, 2);
 }
 
+inline Eigen::Vector3d pointOnCircle(Eigen::Vector3d point, Eigen::Vector3d inspection_point, float R){
+  return (R*(point - inspection_point)/((point - inspection_point).norm()) + inspection_point);
+}
+
 template <typename T>
 inline bool safeGetParam(ros::NodeHandle& _nh, std::string const& _param_name,
                          T& _param_value) {

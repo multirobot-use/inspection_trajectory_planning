@@ -10,15 +10,6 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectory(
     return trajectory_to_optimize;
 }
 
-Eigen::Vector3d MissionPlannerDurableLeader::pointOnCircle(
-    const Eigen::Vector3d &_point){
-  // TODO
-  Eigen::Vector3d circle_point;
-  circle_point = _point;
-
-  return circle_point;
-}
-
 void MissionPlannerDurableLeader::optimalTrajectory(
     const std::vector<state> &initial_trajectory) {
   ACADO::DifferentialState px_, py_, pz_, vx_, vy_, vz_;
