@@ -9,6 +9,7 @@ MissionPlanner::MissionPlanner(const parameters _param)
 MissionPlanner::~MissionPlanner() {}
 
 void MissionPlanner::appendGoal(const state &_new_goal) {
+  
   goals_.push_back(_new_goal);
 }
 

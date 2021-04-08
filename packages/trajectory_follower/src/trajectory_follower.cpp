@@ -153,9 +153,9 @@ int main(int _argc, char **_argv)
     ros::Subscriber ual_pose_sub = nh.subscribe<geometry_msgs::PoseStamped>("ual/pose", 1, ualPoseCallback);
     ros::Subscriber ual_vel_sub = nh.subscribe<geometry_msgs::TwistStamped>("ual/velocity", 1, ualVelCallback);
     ros::Publisher velocity_ual_pub = nh.advertise<geometry_msgs::TwistStamped>("ual/set_velocity",1);
-    tracking_pub_   = nh.advertise<nav_msgs::Path>("/drone_"+std::to_string(drone_id)+"/follower/trajectory_to_follow", 1);
+    tracking_pub_   = nh.advertise<nav_msgs::Path>("follower/trajectory_to_follow", 1);
     grvc::utils::PidController yaw_pid("yaw", YAW_PID_P, YAW_PID_I, YAW_PID_P);
-   
+    nh.getParam("trajectory_follower_node/drone_id", drone_id);
     // if (ros::param::has("~drone_id")) {
     //     ros::param::get("~drone_id",drone_id);
     // }
