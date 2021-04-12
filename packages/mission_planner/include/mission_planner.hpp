@@ -21,10 +21,10 @@ class MissionPlanner {
   std::map<int, state> states_;
   MissionPlanner(const parameters _param);
   virtual ~MissionPlanner();
-  virtual void appendGoal(const state &_goal){ goals_.push_back(_goal);}
+  virtual void appendGoal(const state &_goal){ goals_.push_back(std::move(_goal));}
   void clearGoals() { goals_.clear(); }
   std::vector<state> getGoals(){return goals_;}
-  void setPointToInspect(const Eigen::Vector3d &_point){  point_to_inspect_ = _point;}
+  void setPointToInspect(const Eigen::Vector3d &_point){  point_to_inspect_ = std::move(_point);}
   Eigen::Vector3d getPointToInspect(){ return point_to_inspect_;}
   void setDistanceToInspect(const float &_distance){ distance_to_inspect_point_ = _distance;}
   float getDistanceToInspect(){ return distance_to_inspect_point_;}

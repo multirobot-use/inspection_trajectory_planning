@@ -11,14 +11,14 @@ void MissionPlannerDurableFollower::optimalTrajectory(
 }
 
 std::vector<state> MissionPlannerDurableFollower::initialTrajectory(
-    // check if the distance is reached
-      // parametricTrajectory();
-    //else 
-      // stdTrajectroy();
-    // fake implementation
     const state &_state){
+    state aux;
     std::vector<state> trajectory_to_optimize;
-      
-    // TODO
+    Eigen::Quaterniond rotation = eulerToQuat(0,0,formation_angle_);
+    Eigen::Matrix3d rotMat = rotation.toRotationMatrix();
+    for(auto const &pose : solved_trajectories_[param_.leader_id]){
+      aux.pos = rotMat*(pose - point_to_inspect_);
+      trajectory_to_optimize.push_back(std::move(aux));
+    }
     return trajectory_to_optimize;
 }

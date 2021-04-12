@@ -12,6 +12,7 @@ struct parameters {
   float acc_max = 0.0;
   std::string frame;
   float inspection_dist = 1; // meters
+  int leader_id = 1;
 };
 
 struct state {

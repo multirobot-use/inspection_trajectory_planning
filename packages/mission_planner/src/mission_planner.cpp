@@ -30,7 +30,7 @@ void MissionPlanner::plan() {
     if(goals_.empty()) return;
   } 
   // calculate initial trajectory
-  std::vector<state> initial_traj = MissionPlanner::initialTrajectory(initial_pose);
+  std::vector<state> initial_traj = initialTrajectory(initial_pose);
   // calculate optimal trajectory
   optimalTrajectory(initial_traj);
   // calculate orientation
