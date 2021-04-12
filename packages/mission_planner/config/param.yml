@@ -6,12 +6,12 @@ take_off_blocking: False
 x_inspect: 0
 y_inspect: 0
 z_inspect: 10
-r_inspect: 5
+r_inspect: 8
 
 relative_angle: 0.4
 
 n_waypoints: 4
-waypoint1: [10, 12, 15]
-waypoint2: [18, 5, 12]
-waypoint3: [30, 22, 5]
-waypoint4: [27, 11, 9]
+waypoint1: [0, 5, 15]
+waypoint2: [5, 0, 12]
+waypoint3: [0, -5, 5]
+waypoint4: [-5, 0, 9]
