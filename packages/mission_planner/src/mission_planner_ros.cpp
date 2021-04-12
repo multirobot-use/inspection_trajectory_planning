@@ -14,6 +14,7 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader) : n
   safeGetParam(nh_, "drone_id", param_.drone_id);
   safeGetParam(nh_, "inspection_dist", param_.inspection_dist);
   safeGetParam(nh_, "visualization_rate", param_.visualization_rate);
+  safeGetParam(nh_, "leader_id", param_.leader_id);
 
   // initialize mission planner
   if(leader) mission_planner_ptr_ = std::make_unique<MissionPlannerDurableLeader>(param_);
@@ -100,7 +101,7 @@ bool MissionPlannerRos::addWaypointServiceCallback(mission_planner::WaypointSrv:
   point.x = req.waypoint.pose.pose.position.x;
   point.y = req.waypoint.pose.pose.position.y;
   point.z = req.waypoint.pose.pose.position.z;
-  points_.push_back(point);
+  points_.push_back(std::move(point));
 
   // append goal
   state aux_goal;
