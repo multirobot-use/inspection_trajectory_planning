@@ -54,10 +54,15 @@ void MissionPlannerDurableLeader::optimalTrajectory(
   // setup reference trajectory
   ACADO::VariablesGrid reference_trajectory(6, my_grid_);
   ACADO::DVector reference_point(6);
+  Eigen::Vector3d aux_point, point_on_circle;
   for (int k = 0; k < param_.horizon_length; k++) {
-    reference_point(0) = initial_trajectory[k].pos(0);
-    reference_point(1) = initial_trajectory[k].pos(1);
-    reference_point(2) = initial_trajectory[k].pos(2);
+    aux_point(0)       = initial_trajectory[k].pos(0);
+    aux_point(1)       = initial_trajectory[k].pos(1);
+    aux_point(2)       = initial_trajectory[k].pos(2);
+    point_on_circle    = pointOnCircle(aux_point, point_to_inspect_, distance_to_inspect_point_);
+    reference_point(0) = point_on_circle(0);
+    reference_point(1) = point_on_circle(1);
+    reference_point(2) = point_on_circle(2);
     reference_point(3) = 0.0;
     reference_point(4) = 0.0;
     reference_point(5) = 0.0;
