@@ -366,9 +366,6 @@ def automatic_function():
     global take_off_blocking
     global waypoint
     
-    print "-------- TAKE OFF AND INITIAL POINT --------\n"
-    preparing_drones(leader_start_point, follower_start_point, take_off_height, take_off_blocking)
-    
     print "-------- ADDING DISTANCE TO INSPECTION POINT --------\n"
     distance_inspection()
     
@@ -377,6 +374,9 @@ def automatic_function():
     
     print "-------- ADDING INSPECTION POINT --------\n"
     change_inspection_point()
+    
+    print "-------- TAKE OFF AND INITIAL POINT --------\n"
+    preparing_drones(leader_start_point, follower_start_point, take_off_height, take_off_blocking)
     
     print "\n-------- ADDING WAYPOINTS --------\n"
     add_one_waypoint(waypoint)

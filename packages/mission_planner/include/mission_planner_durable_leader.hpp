@@ -8,4 +8,5 @@ class MissionPlannerDurableLeader : public MissionPlanner {
 
  private:
   bool checks();
+  std::vector<state> initialTrajectory(const state &_initial_pose);
 };
