@@ -5,8 +5,8 @@ class MissionPlannerDurableFollower : public MissionPlanner {
         MissionPlannerDurableFollower(parameters params);
         ~MissionPlannerDurableFollower();
     private:
-        float formation_angle_; // radians
+        float formation_angle_ = 0.78; // radians
         std::vector<state> initialTrajectory(const state &_state);
-        void optimalTrajectory(const std::vector<state> &initial_trajectory);
+        bool checks();
 
 };

@@ -200,6 +200,7 @@ def start_mission():
         req = SetBoolRequest()
         req.data = True
         activate_planner_service(req)
+        activate_planner_service_follower(req)
         print "Mission has started!"
         
     except rospy.ServiceException, e:
@@ -213,6 +214,7 @@ def stop_mission():
         req = SetBoolRequest()
         req.data = False
         activate_planner_service(req)
+        activate_planner_service_follower(req)
         print "Mission has been stopped!"
         
     except rospy.ServiceException, e:
@@ -516,6 +518,7 @@ if __name__ == "__main__":
     
     rospy.wait_for_service(activate_planner_url)
     activate_planner_service = rospy.ServiceProxy(activate_planner_url, SetBool)
+    activate_planner_service_follower = rospy.ServiceProxy(ns[1] + "/mission_planner_ros/activate_planner", SetBool)
     
     rospy.wait_for_service(add_waypoint_url)
     add_waypoint_service     = rospy.ServiceProxy(add_waypoint_url, WaypointSrv)

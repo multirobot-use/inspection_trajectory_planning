@@ -5,9 +5,13 @@ MissionPlannerDurableFollower::MissionPlannerDurableFollower(parameters params) 
 
 MissionPlannerDurableFollower::~MissionPlannerDurableFollower(){}
 
-void MissionPlannerDurableFollower::optimalTrajectory(
-    const std::vector<state> &initial_trajectory){
-    // TODO
+
+bool MissionPlannerDurableFollower::checks(){
+  if(!hasPose()){
+    std::cout<<"Mission Planner "<<param_.drone_id<<" does not have all poses"<<std::endl;
+    return false;
+  }
+  return true;
 }
 
 std::vector<state> MissionPlannerDurableFollower::initialTrajectory(

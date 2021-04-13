@@ -17,8 +17,14 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader) : n
   safeGetParam(nh_, "leader_id", param_.leader_id);
 
   // initialize mission planner
-  if(leader) mission_planner_ptr_ = std::make_unique<MissionPlannerDurableLeader>(param_);
-  else mission_planner_ptr_ = std::make_unique<MissionPlannerDurableFollower>(param_);
+  if(leader){
+    ROS_INFO("I'm a leader");
+    mission_planner_ptr_ = std::make_unique<MissionPlannerDurableLeader>(param_);
+  } 
+  else{
+    ROS_INFO("I'm a follower");
+    mission_planner_ptr_ = std::make_unique<MissionPlannerDurableFollower>(param_);
+  } 
   // Subscribers
   for (int drone = 1; drone <= param_.n_drones; drone++) {
     cur_pose_sub_[drone] = nh_.subscribe<geometry_msgs::PoseStamped>(
@@ -31,7 +37,7 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader) : n
                   std::placeholders::_1, drone));
     if(drone!=param_.drone_id){
       solved_trajectories_sub_[drone] = nh_.subscribe<nav_msgs::Path>(
-        "/drone_" + std::to_string(drone) + "/mission_planner_node/solved_traj", 1,
+        "/drone_" + std::to_string(drone) + "/mission_planner_ros/solved_traj", 1,
         std::bind(&MissionPlannerRos::solvedTrajCallback, this,
                   std::placeholders::_1, drone));
     }

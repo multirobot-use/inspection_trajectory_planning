@@ -41,21 +41,37 @@ class MissionPlanner {
   float distance_to_inspect_point_  = 3;
   float relative_angle_             = 0.4;
   std::map<int,std::vector<Eigen::Vector3d>> solved_trajectories_;
+  int planner_state_ = PlannerStatus::FIRST_PLAN;
+
+    /**
+   * @brief check formation poses
+   * 
+   * @return true if all poses are received
+   * @return false 
+   */
+  bool hasPose(){return (states_.size() == param_.n_drones);}
+  bool hasGoal(){return !goals_.empty();}
+  bool waypointReached(const state &point, const state &waypoint) {return ((point.pos-waypoint.pos).norm() < REACH_TOL);}
+
+
+
 
  private:
   const float REACH_TOL = 1; //! tolerance to reach waypoints
-  int planner_state_ = PlannerStatus::FIRST_PLAN;
 
   /*! \brief this function check if the planned trajectory has already reach the waypoint to inspect
   *   \return true if the last trajectory has reached the commanded waypoint
   */
   bool waypointReached();
   virtual std::vector<state> initialTrajectory(const state &_initial_pose);
-  virtual void optimalTrajectory(const std::vector<state> &_initial_traj) = 0;
+  virtual void optimalTrajectory(const std::vector<state> &initial_trajectory);
+  /**
+   * @brief virtual function that makes the following checks
+   * 
+   * @return true if all checks are passed
+   * @return false if any ot the check is not passed
+   */
+  virtual bool checks(){}
   void initialOrientation(std::vector<state> &traj);
   void optimalOrientation(const std::vector<state> &traj_to_optimize);
-
-  bool hasGoal(){return !goals_.empty();}
-  bool hasPose(){return (states_.count(param_.drone_id) != 0);}
-  bool waypointReached(const state &point, const state &waypoint) {return ((point.pos-waypoint.pos).norm() < REACH_TOL);}
 };

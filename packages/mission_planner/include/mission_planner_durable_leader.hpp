@@ -7,6 +7,5 @@ class MissionPlannerDurableLeader : public MissionPlanner {
 
 
  private:
-  std::vector<state> initialTrajectory(const state &_state);
-  void optimalTrajectory(const std::vector<state> &initial_trajectory);
+  bool checks();
 };
