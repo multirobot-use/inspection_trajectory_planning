@@ -19,9 +19,13 @@ void MissionPlanner::plan() {
   // } else if (planner_state_ == PlannerStatus::REPLANNED) {
   //   initial_pose = last_trajectory_[param_.planning_rate];
   // }
-
+  std::vector<state> initial_traj;
   // calculate initial trajectory
-  std::vector<state> initial_traj = initialTrajectory(initial_pose);
+  if(isInspectionZone(states_[param_.drone_id].pos)){
+    initial_traj = initialTrajectory(initial_pose);
+  }else{
+    initial_traj = MissionPlanner::initialTrajectory(initial_pose);
+  }
   if(initial_traj.empty()){
     std::cout<<"Initial trajectory empty...breaking"<<std::endl;
   }else{
@@ -136,19 +140,13 @@ std::vector<state> MissionPlanner::initialTrajectory(
     const state &_state){
       std::vector<state> trajectory_to_optimize;
       state aux_point;
-      Eigen::Vector3d vel = Eigen::Vector3d::Zero();
-      try{
-        vel = (goals_.at(0).pos-states_[param_.drone_id].pos)/(goals_.at(0).pos-states_[param_.drone_id].pos).norm();
-      }catch(std::out_of_range& e)
-      {
-        std::cerr << e.what() << std::endl;
-      }
+      const Eigen::Vector3d vel((goals_[0].pos-_state.pos)/(goals_[0].pos-_state.pos).norm());
       
       for(int i = 0; i<param_.horizon_length; i++){
         aux_point.pos(0) = _state.pos(0)+i*vel(0)*param_.vel_max*param_.step_size;
         aux_point.pos(1) = _state.pos(1)+i*vel(1)*param_.vel_max*param_.step_size;
         aux_point.pos(2) = _state.pos(2)+i*vel(2)*param_.vel_max*param_.step_size;
-        trajectory_to_optimize.push_back(aux_point);
+        trajectory_to_optimize.push_back(std::move(aux_point));
       }
     return trajectory_to_optimize;
 }
@@ -242,4 +240,10 @@ void MissionPlanner::optimalTrajectory(const std::vector<state> &initial_traject
   ay_.clearStaticCounters();
   az_.clearStaticCounters();
 };
+
+bool MissionPlanner::isInspectionZone(const Eigen::Vector3d &drone_pose){
+  if((drone_pose- point_to_inspect_).norm()>distance_to_inspect_point_+REACH_TOL)return false;
+  else return true;
+}
+
 
