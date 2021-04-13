@@ -28,3 +28,7 @@ bool MissionPlannerDurableLeader::checks(){
   }
   return true;
 }
+
+  std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(){
+    
+  }

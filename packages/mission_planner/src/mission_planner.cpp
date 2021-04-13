@@ -22,13 +22,20 @@ void MissionPlanner::plan() {
   std::vector<state> initial_traj;
   // calculate initial trajectory
   if(isInspectionZone(states_[param_.drone_id].pos)){
-    initial_traj = initialTrajectory(initial_pose);
+    std::cout<<"TODO: implement trajectory to Inspect"<<std::endl;
+    return;
+    initial_traj = initialTrajectoryToInspect();
   }else{
-    initial_traj = MissionPlanner::initialTrajectory(initial_pose);
+    initial_traj = initialTrajectory(initial_pose);
   }
+
   if(initial_traj.empty()){
     std::cout<<"Initial trajectory empty...breaking"<<std::endl;
   }else{
+    if(trajectoryHasNan(initial_traj)){
+      std::cout<<"Initial trajectory has nan"<<std::endl;
+      return;
+    }
   // calculate optimal trajectory
   optimalTrajectory(initial_traj);
   }
@@ -136,19 +143,15 @@ void MissionPlanner::optimalOrientation(const std::vector<state> &traj_to_optimi
   // return success_value;
 }
 
-std::vector<state> MissionPlanner::initialTrajectory(
-    const state &_state){
-      std::vector<state> trajectory_to_optimize;
-      state aux_point;
-      const Eigen::Vector3d vel((goals_[0].pos-_state.pos)/(goals_[0].pos-_state.pos).norm());
-      
-      for(int i = 0; i<param_.horizon_length; i++){
-        aux_point.pos(0) = _state.pos(0)+i*vel(0)*param_.vel_max*param_.step_size;
-        aux_point.pos(1) = _state.pos(1)+i*vel(1)*param_.vel_max*param_.step_size;
-        aux_point.pos(2) = _state.pos(2)+i*vel(2)*param_.vel_max*param_.step_size;
-        trajectory_to_optimize.push_back(std::move(aux_point));
-      }
-    return trajectory_to_optimize;
+std::vector<state> MissionPlanner::pathFromPointToAnother(const Eigen::Vector3d &initial, const Eigen::Vector3d &final){
+  std::vector<state> trajectory_to_optimize;
+  state aux_point;
+  const Eigen::Vector3d vel((final-initial)/(final-initial).norm());
+  for(int i = 0; i<param_.horizon_length; i++){
+    aux_point.pos =initial+  i*vel*param_.vel_max*param_.step_size;
+    trajectory_to_optimize.push_back(std::move(aux_point));
+  }
+  return trajectory_to_optimize;
 }
 
 void MissionPlanner::optimalTrajectory(const std::vector<state> &initial_trajectory){
