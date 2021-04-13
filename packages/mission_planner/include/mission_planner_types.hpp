@@ -43,4 +43,17 @@ inline bool safeGetParam(ros::NodeHandle& _nh, std::string const& _param_name,
     exit(1);
   }
   return true;
+} 
+
+inline bool trajectoryHasNan(std::vector<state> &trajectory){
+  for(const auto &pose : trajectory){
+    if(std::isnan(pose.pos(0)) || std::isinf(pose.pos(0)) ||
+       std::isnan(pose.pos(1)) || std::isinf(pose.pos(1)) ||
+       std::isnan(pose.pos(2)) || std::isinf(pose.pos(2)) ||
+       std::isnan(pose.vel(0)) || std::isinf(pose.vel(0)) ||
+       std::isnan(pose.vel(1)) || std::isinf(pose.vel(1)) ||
+       std::isnan(pose.vel(2)) || std::isinf(pose.vel(2))) {
+      return true;}
+  }
+  return false;
 }

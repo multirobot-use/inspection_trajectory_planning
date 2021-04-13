@@ -74,4 +74,9 @@ class MissionPlanner {
   virtual bool checks(){}
   void initialOrientation(std::vector<state> &traj);
   void optimalOrientation(const std::vector<state> &traj_to_optimize);
+  /**
+   * @brief Utility function that checks if the drone is near the inspection zone
+   * 
+   */
+  bool isInspectionZone(const Eigen::Vector3d &drone_pose);
 };
