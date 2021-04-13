@@ -140,7 +140,7 @@ std::vector<state> MissionPlanner::initialTrajectory(
     const state &_state){
       std::vector<state> trajectory_to_optimize;
       state aux_point;
-      Eigen::Vector3d vel((goals_[0].pos-_state.pos)/(goals_[0].pos-_state.pos).norm());
+      const Eigen::Vector3d vel((goals_[0].pos-_state.pos)/(goals_[0].pos-_state.pos).norm());
       
       for(int i = 0; i<param_.horizon_length; i++){
         aux_point.pos(0) = _state.pos(0)+i*vel(0)*param_.vel_max*param_.step_size;
