@@ -22,8 +22,8 @@ void MissionPlanner::plan() {
   std::vector<state> initial_traj;
   // calculate initial trajectory
   if(isInspectionZone(states_[param_.drone_id].pos)){
-    std::cout<<"TODO: implement trajectory to Inspect"<<std::endl;
-    return;
+    // std::cout<<"TODO: implement trajectory to Inspect"<<std::endl;
+    // return;
     initial_traj = initialTrajectoryToInspect();
   }else{
     initial_traj = initialTrajectory(initial_pose);
