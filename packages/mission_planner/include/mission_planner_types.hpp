@@ -57,3 +57,9 @@ inline bool trajectoryHasNan(std::vector<state> &trajectory){
   }
   return false;
 }
+
+inline Eigen::Vector3d rotateEig(const Eigen::Vector3d &eigen_to_rotate, const float angle){
+  Eigen::Quaterniond rotation = eulerToQuat(0,0,angle);
+  Eigen::Matrix3d rotMat = rotation.toRotationMatrix();
+  return rotMat*eigen_to_rotate;
+}

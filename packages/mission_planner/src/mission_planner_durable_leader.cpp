@@ -4,39 +4,38 @@ MissionPlannerDurableLeader::MissionPlannerDurableLeader(parameters params)
     : MissionPlanner(params){};
 MissionPlannerDurableLeader::~MissionPlannerDurableLeader(){};
 
-std::vector<state> MissionPlannerDurableLeader::initialTrajectory(const state &_initial_pose){
+std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(){
   std::vector<state> traj;
-  state state_point_on_circle;
-  Eigen::Vector3d aux_point2, point_on_circle;
+  state point_on_circle;
+  Eigen::Vector3d aux_point, vel, previous_point, next_point;
+  int i; // goals
+  int j; // points
 
+  for (i = 0; i < (goals_.size()-1); i++){
+    if (i == 0){
+      previous_point(0) = states_[param_.drone_id].pos(0);
+      previous_point(1) = states_[param_.drone_id].pos(1);
+      previous_point(2) = states_[param_.drone_id].pos(2);
+    }
+    else{
+      previous_point(0) = goals_.at(i-1).pos(0);
+      previous_point(1) = goals_.at(i-1).pos(1);
+      previous_point(2) = goals_.at(i-1).pos(2);
+    }
 
-  for (int j = 1; j < param_.horizon_length; j++){
-    aux_point2(0)  = (goals_.at(0).pos(0) - _initial_pose.pos(0))*((j-1)/(param_.horizon_length)) + _initial_pose.pos(0);
-    aux_point2(1)  = (goals_.at(0).pos(1) - _initial_pose.pos(1))*((j-1)/(param_.horizon_length)) + _initial_pose.pos(1);
-    aux_point2(2)  = (goals_.at(0).pos(2) - _initial_pose.pos(2))*((j-1)/(param_.horizon_length)) + _initial_pose.pos(2);
+    next_point(0) = goals_.at(i).pos(0);
+    next_point(1) = goals_.at(i).pos(1);
+    next_point(2) = goals_.at(i).pos(2);
 
-    point_on_circle   = pointOnCircle(aux_point2, point_to_inspect_, distance_to_inspect_point_);
+    vel = (next_point - previous_point)/(next_point - previous_point).norm();
 
-    state_point_on_circle.pos(0) = point_on_circle(0);
-    state_point_on_circle.pos(1) = point_on_circle(1);
-    state_point_on_circle.pos(2) = point_on_circle(2);
-
-    traj.push_back(state_point_on_circle);
-  }
-
-  for(int i = 0; i < (goals_.size() - 1); i++){
-    for (int j = 1; j <= param_.horizon_length; j++){
-      aux_point2(0)  = (goals_.at(i+1).pos(0) - goals_.at(i).pos(0))*((j-1)/(param_.horizon_length)) + goals_.at(i).pos(0);
-      aux_point2(1)  = (goals_.at(i+1).pos(1) - goals_.at(i).pos(1))*((j-1)/(param_.horizon_length)) + goals_.at(i).pos(1);
-      aux_point2(2)  = (goals_.at(i+1).pos(2) - goals_.at(i).pos(2))*((j-1)/(param_.horizon_length)) + goals_.at(i).pos(2);
-
-      point_on_circle   = pointOnCircle(aux_point2, point_to_inspect_, distance_to_inspect_point_);
-
-      state_point_on_circle.pos(0) = point_on_circle(0);
-      state_point_on_circle.pos(1) = point_on_circle(1);
-      state_point_on_circle.pos(2) = point_on_circle(2);
-
-      traj.push_back(state_point_on_circle);
+    for (j = 0; j < param_.horizon_length; j++){
+      aux_point = previous_point +  j*vel*param_.vel_max*param_.step_size;
+    
+      point_on_circle.pos = pointOnCircle(aux_point, point_to_inspect_, distance_to_inspect_point_);
+      // point_on_circle.vel = vel;
+      traj.push_back(std::move(point_on_circle));
+    
     }
   }
 

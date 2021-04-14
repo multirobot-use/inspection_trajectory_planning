@@ -43,6 +43,15 @@ class MissionPlanner {
   std::map<int,std::vector<Eigen::Vector3d>> solved_trajectories_;
   int planner_state_ = PlannerStatus::FIRST_PLAN;
 
+  /**
+   * @brief Calculate a path from one point to another at cte velocity
+   * 
+   * @param initial point
+   * @param final point
+   * @return std::vector<state> path
+   */
+  std::vector<state> pathFromPointToAnother(const Eigen::Vector3d &initial, const Eigen::Vector3d &final);
+
     /**
    * @brief check formation poses
    * 
@@ -53,9 +62,6 @@ class MissionPlanner {
   bool hasGoal(){return !goals_.empty();}
   bool waypointReached(const state &point, const state &waypoint) {return ((point.pos-waypoint.pos).norm() < REACH_TOL);}
 
-
-
-
  private:
   const float REACH_TOL = 1; //! tolerance to reach waypoints
 
@@ -63,8 +69,10 @@ class MissionPlanner {
   *   \return true if the last trajectory has reached the commanded waypoint
   */
   bool waypointReached();
-  virtual std::vector<state> initialTrajectory(const state &_initial_pose);
+  virtual std::vector<state> initialTrajectory(const state &_initial_pose){return pathFromPointToAnother(states_[param_.drone_id].pos, goals_[0].pos);}
+  virtual std::vector<state> initialTrajectoryToInspect(){}
   virtual void optimalTrajectory(const std::vector<state> &initial_trajectory);
+  virtual state nextGoal(){return goals_[0];}
   /**
    * @brief virtual function that makes the following checks
    * 
