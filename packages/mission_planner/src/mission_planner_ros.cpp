@@ -111,16 +111,31 @@ bool MissionPlannerRos::addWaypointServiceCallback(mission_planner::WaypointSrv:
 
   // append goal
   state aux_goal;
+  Eigen::Vector2d point_req, point_to_inspect;
 
-  aux_goal.pos[0]   = req.waypoint.pose.pose.position.x;
-  aux_goal.pos[1]   = req.waypoint.pose.pose.position.y;
-  aux_goal.pos[2]   = req.waypoint.pose.pose.position.z;
+  point_req(0)   = req.waypoint.pose.pose.position.x;
+  point_req(1)   = req.waypoint.pose.pose.position.y;
+
+  Eigen::Vector3d point_to_inspect3d    = mission_planner_ptr_->getPointToInspect();
+  point_to_inspect(0) = point_to_inspect3d(0);
+  point_to_inspect(1) = point_to_inspect3d(1);
+
+  float distance_to_inspection_point  = mission_planner_ptr_->getDistanceToInspect();
+  Eigen::Vector2d point_on_circle     = pointOnCircle2d(point_req, point_to_inspect, distance_to_inspection_point);
+
+  // ROS_INFO("POINT ON CIRCLE:\nX: %f\nY: %f\nZ: %f\n", point_on_circle(0), point_on_circle(1), point_on_circle(2));
+
+  aux_goal.pos[0]     = point_on_circle(0);
+  aux_goal.pos[1]     = point_on_circle(1);
+  aux_goal.pos[2]     = req.waypoint.pose.pose.position.z;
 
   aux_goal.vel[0]   = req.waypoint.twist.twist.linear.x;
   aux_goal.vel[1]   = req.waypoint.twist.twist.linear.y;
   aux_goal.vel[2]   = req.waypoint.twist.twist.linear.z;
 
   mission_planner_ptr_->appendGoal(aux_goal);
+
+  res.success = true;
 }
 
 bool MissionPlannerRos::clearWaypointsServiceCallback(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res){
@@ -253,8 +268,8 @@ void MissionPlannerRos::publishSphere(const ros::Publisher &pub_sphere, const Co
    marker.pose.orientation.y = 0.0;
    marker.pose.orientation.z = 0.0;
    marker.pose.orientation.w = 1.0;
-   marker.scale.x = mission_planner_ptr_->getDistanceToInspect();;
-   marker.scale.y = mission_planner_ptr_->getDistanceToInspect();;
+   marker.scale.x = mission_planner_ptr_->getDistanceToInspect();
+   marker.scale.y = mission_planner_ptr_->getDistanceToInspect();
    marker.scale.z = 15;
    marker.color.a = 0.4;
    // inspection distance
@@ -271,7 +286,10 @@ void MissionPlannerRos::publishPoints(const ros::Publisher &pub_points, const st
   points.header.frame_id = param_.frame;
   points.header.stamp = ros::Time::now();
   points.action = visualization_msgs::Marker::ADD;
-  points.pose.orientation.w =  1.0;
+  points.pose.orientation.x = 0.0;
+  points.pose.orientation.y = 0.0;
+  points.pose.orientation.z = 0.0;
+  points.pose.orientation.w = 1.0;
   points.id = 0;
   points.type = visualization_msgs::Marker::POINTS;
   points.scale.x = 0.2;

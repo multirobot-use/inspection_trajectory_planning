@@ -34,6 +34,10 @@ inline Eigen::Vector3d pointOnCircle(const Eigen::Vector3d point, const Eigen::V
   return (R*(point - inspection_point)/((point - inspection_point).norm()) + inspection_point);
 }
 
+inline Eigen::Vector2d pointOnCircle2d(const Eigen::Vector2d point, const Eigen::Vector2d inspection_point, const float R){
+  return (R*(point - inspection_point)/((point - inspection_point).norm()) + inspection_point);
+}
+
 template <typename T>
 inline bool safeGetParam(ros::NodeHandle& _nh, std::string const& _param_name,
                          T& _param_value) {
