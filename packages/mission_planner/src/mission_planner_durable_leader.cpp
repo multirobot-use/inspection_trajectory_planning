@@ -5,38 +5,20 @@ MissionPlannerDurableLeader::MissionPlannerDurableLeader(parameters params)
 MissionPlannerDurableLeader::~MissionPlannerDurableLeader(){};
 
 std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(){
+  // TODO
   std::vector<state> traj;
-  state point_on_circle;
-  Eigen::Vector3d traj_point, vel, previous_point, next_point;
-  int i; // goals
-  int j; // points
+  // int goal = 0;
+  // Eigen::Vector3d pose(states_[param_.drone_id].pos(0), states_[param_.drone_id].pos(1), states_[param_.drone_id].pos(2));
+  // traj.push_back(std::move(pose));
 
-  for (i = 0; i < (goals_.size()-1); i++){
-    if (i == 0){
-      previous_point(0) = states_[param_.drone_id].pos(0);
-      previous_point(1) = states_[param_.drone_id].pos(1);
-      previous_point(2) = states_[param_.drone_id].pos(2);
-    }
-    else{
-      previous_point(0) = goals_.at(i-1).pos(0);
-      previous_point(1) = goals_.at(i-1).pos(1);
-      previous_point(2) = goals_.at(i-1).pos(2);
-    }
+  // for(int i = 1; i < param_.horizon_length-1; i++){
+  //   pose = pose+vel*param_.vel_max*param_.step_size;
+  //   traj.push_back(pointOnCircle(pose);
 
-    next_point(0) = goals_.at(i).pos(0);
-    next_point(1) = goals_.at(i).pos(1);
-    next_point(2) = goals_.at(i).pos(2);
+  //   if((pose-goals_(goal)).norm<0.2){goal++;}
 
-    vel = (next_point - previous_point)/(next_point - previous_point).norm();
-
-    for (j = 0; j < param_.horizon_length; j++){
-      traj_point = previous_point +  j*vel*param_.vel_max*param_.step_size;
-    
-      point_on_circle.pos = pointOnCircle(traj_point);
-      // point_on_circle.vel = vel;
-      traj.push_back(std::move(point_on_circle));
-    }
-  }
+  //   if(goal==goals_.size()-1) while(i < (param_.horizon_length - 1)) {traj.push_back(pose);}
+  // }
 
   return traj;
 }
