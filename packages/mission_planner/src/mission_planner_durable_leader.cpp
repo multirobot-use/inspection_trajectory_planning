@@ -8,12 +8,8 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(){
   std::vector<state> traj;
   state point_on_circle;
   Eigen::Vector3d traj_point, vel, previous_point, next_point;
-  Eigen::Vector2d traj_point2d, point_on_circle2d, point_to_inspect_2d;
   int i; // goals
   int j; // points
-
-  point_to_inspect_2d(0) = point_to_inspect_(0);
-  point_to_inspect_2d(1) = point_to_inspect_(1);
 
   for (i = 0; i < (goals_.size()-1); i++){
     if (i == 0){
@@ -35,18 +31,10 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(){
 
     for (j = 0; j < param_.horizon_length; j++){
       traj_point = previous_point +  j*vel*param_.vel_max*param_.step_size;
-
-      traj_point2d(0) = traj_point(0);
-      traj_point2d(1) = traj_point(1);
     
-      point_on_circle2d = pointOnCircle(traj_point2d, point_to_inspect_2d, distance_to_inspect_point_);
-
-      point_on_circle.pos(0) = point_on_circle2d(0);
-      point_on_circle.pos(1) = point_on_circle2d(1);
-      point_on_circle.pos(2) = traj_point(2);
+      point_on_circle.pos = pointOnCircle(traj_point);
       // point_on_circle.vel = vel;
       traj.push_back(std::move(point_on_circle));
-    
     }
   }
 
@@ -55,19 +43,10 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(){
 
 void MissionPlannerDurableLeader::appendGoal(const state &_new_goal) {
   state goal;
-  Eigen::Vector2d goal_2d, point_to_inspect2d, point_on_circle_2d;
 
-  goal_2d(0) = _new_goal.pos(0);
-  goal_2d(1) = _new_goal.pos(1);
+  Eigen::Vector3d goal_vector = _new_goal.pos;
 
-  point_to_inspect2d(0) = point_to_inspect_(0);
-  point_to_inspect2d(1) = point_to_inspect_(1);
-
-  point_on_circle_2d = pointOnCircle(goal_2d, point_to_inspect2d, distance_to_inspect_point_);
-
-  goal.pos(0) = point_on_circle_2d(0);
-  goal.pos(1) = point_on_circle_2d(1);
-  goal.pos(2) = _new_goal.pos(2);
+  goal.pos = pointOnCircle(goal_vector);
 
   goals_.push_back(goal);
 }

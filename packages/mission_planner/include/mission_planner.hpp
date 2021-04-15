@@ -31,7 +31,7 @@ class MissionPlanner {
   void setRelativeAngle(const float &_angle){ relative_angle_ = _angle;}
   void plan();
   void setSolvedTrajectories(const std::vector<Eigen::Vector3d> &solved_trajectory, int _drone_id){solved_trajectories_[_drone_id]=solved_trajectory;}
-  
+  Eigen::Vector3d pointOnCircle(const Eigen::Vector3d point);
   
  protected:
   const parameters param_;
@@ -58,6 +58,7 @@ class MissionPlanner {
    * @return true if all poses are received
    * @return false 
    */
+  
   bool hasPose(){return (states_.size() == param_.n_drones);}
   bool hasGoal(){return !goals_.empty();}
   bool waypointReached(const state &point, const state &waypoint) {return ((point.pos-waypoint.pos).norm() < REACH_TOL);}

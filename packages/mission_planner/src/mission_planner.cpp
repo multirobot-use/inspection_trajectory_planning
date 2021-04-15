@@ -143,6 +143,25 @@ void MissionPlanner::optimalOrientation(const std::vector<state> &traj_to_optimi
   // return success_value;
 }
 
+Eigen::Vector3d MissionPlanner::pointOnCircle(const Eigen::Vector3d point){
+  Eigen::Vector2d point_2D, inspection_point_2D, point_on_circle_2D;
+  Eigen::Vector3d point_on_circle_3D;
+
+  point_2D(0)   = point(0);
+  point_2D(1)   = point(1);
+
+  inspection_point_2D(0) = point_to_inspect_(0);
+  inspection_point_2D(1) = point_to_inspect_(1);
+
+  point_on_circle_2D = distance_to_inspect_point_*(point_2D - inspection_point_2D)/((point_2D - inspection_point_2D).norm()) + inspection_point_2D;
+
+  point_on_circle_3D(0) = point_on_circle_2D(0);
+  point_on_circle_3D(1) = point_on_circle_2D(1);
+  point_on_circle_3D(2) = point(2);
+
+  return point_on_circle_3D;
+}
+
 std::vector<state> MissionPlanner::pathFromPointToAnother(const Eigen::Vector3d &initial, const Eigen::Vector3d &final){
   std::vector<state> trajectory_to_optimize;
   state aux_point;

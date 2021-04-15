@@ -111,27 +111,21 @@ bool MissionPlannerRos::addWaypointServiceCallback(mission_planner::WaypointSrv:
 
   // append goal
   state aux_goal;
-  Eigen::Vector2d point_req, point_to_inspect;
+  Eigen::Vector3d point_req;
 
   point_req(0)   = req.waypoint.pose.pose.position.x;
   point_req(1)   = req.waypoint.pose.pose.position.y;
+  point_req(2)   = req.waypoint.pose.pose.position.z;
 
-  Eigen::Vector3d point_to_inspect3d    = mission_planner_ptr_->getPointToInspect();
-  point_to_inspect(0) = point_to_inspect3d(0);
-  point_to_inspect(1) = point_to_inspect3d(1);
+  Eigen::Vector3d point_to_inspect    = mission_planner_ptr_->getPointToInspect();
 
   float distance_to_inspection_point  = mission_planner_ptr_->getDistanceToInspect();
-  Eigen::Vector2d point_on_circle     = pointOnCircle(point_req, point_to_inspect, distance_to_inspection_point);
 
-  // ROS_INFO("POINT ON CIRCLE:\nX: %f\nY: %f\nZ: %f\n", point_on_circle(0), point_on_circle(1), point_on_circle(2));
+  aux_goal.pos     = mission_planner_ptr_->pointOnCircle(point_req);
 
-  aux_goal.pos[0]     = point_on_circle(0);
-  aux_goal.pos[1]     = point_on_circle(1);
-  aux_goal.pos[2]     = req.waypoint.pose.pose.position.z;
-
-  aux_goal.vel[0]   = req.waypoint.twist.twist.linear.x;
-  aux_goal.vel[1]   = req.waypoint.twist.twist.linear.y;
-  aux_goal.vel[2]   = req.waypoint.twist.twist.linear.z;
+  aux_goal.vel[0]  = req.waypoint.twist.twist.linear.x;
+  aux_goal.vel[1]  = req.waypoint.twist.twist.linear.y;
+  aux_goal.vel[2]  = req.waypoint.twist.twist.linear.z;
 
   mission_planner_ptr_->appendGoal(aux_goal);
 
