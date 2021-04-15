@@ -121,7 +121,7 @@ bool MissionPlannerRos::addWaypointServiceCallback(mission_planner::WaypointSrv:
   point_to_inspect(1) = point_to_inspect3d(1);
 
   float distance_to_inspection_point  = mission_planner_ptr_->getDistanceToInspect();
-  Eigen::Vector2d point_on_circle     = pointOnCircle2d(point_req, point_to_inspect, distance_to_inspection_point);
+  Eigen::Vector2d point_on_circle     = pointOnCircle(point_req, point_to_inspect, distance_to_inspection_point);
 
   // ROS_INFO("POINT ON CIRCLE:\nX: %f\nY: %f\nZ: %f\n", point_on_circle(0), point_on_circle(1), point_on_circle(2));
 
