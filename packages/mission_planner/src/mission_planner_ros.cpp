@@ -268,8 +268,8 @@ void MissionPlannerRos::publishSphere(const ros::Publisher &pub_sphere, const Co
    marker.pose.orientation.y = 0.0;
    marker.pose.orientation.z = 0.0;
    marker.pose.orientation.w = 1.0;
-   marker.scale.x = mission_planner_ptr_->getDistanceToInspect();
-   marker.scale.y = mission_planner_ptr_->getDistanceToInspect();
+   marker.scale.x = mission_planner_ptr_->getDistanceToInspect() * 2;
+   marker.scale.y = mission_planner_ptr_->getDistanceToInspect() * 2;
    marker.scale.z = 15;
    marker.color.a = 0.4;
    // inspection distance
