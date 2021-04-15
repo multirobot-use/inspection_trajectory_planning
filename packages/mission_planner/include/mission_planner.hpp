@@ -17,6 +17,7 @@ enum MissionStatus { GO_TO = 0, MISSION_ZONE = 1};
 
 class MissionPlanner {
  public:
+  std::vector<state> reference_traj;
   std::vector<state> last_trajectory_;
   std::map<int, state> states_;
   MissionPlanner(const parameters _param);
@@ -24,6 +25,7 @@ class MissionPlanner {
   virtual void appendGoal(const state &_goal){ goals_.push_back(std::move(_goal));}
   void clearGoals() { goals_.clear(); }
   std::vector<state> getGoals(){return goals_;}
+  std::vector<state> getReferenceTrajectory(){return reference_traj;}
   void setPointToInspect(const Eigen::Vector3d &_point){  point_to_inspect_ = std::move(_point);}
   Eigen::Vector3d getPointToInspect(){ return point_to_inspect_;}
   void setDistanceToInspect(const float &_distance){ distance_to_inspect_point_ = _distance;}
@@ -66,10 +68,6 @@ class MissionPlanner {
  private:
   const float REACH_TOL = 1; //! tolerance to reach waypoints
 
-  /*! \brief this function check if the planned trajectory has already reach the waypoint to inspect
-  *   \return true if the last trajectory has reached the commanded waypoint
-  */
-  bool waypointReached();
   virtual std::vector<state> initialTrajectory(const state &_initial_pose){return pathFromPointToAnother(states_[param_.drone_id].pos, goals_[0].pos);}
   virtual std::vector<state> initialTrajectoryToInspect(){}
   virtual void optimalTrajectory(const std::vector<state> &initial_trajectory);
@@ -80,7 +78,7 @@ class MissionPlanner {
    * @return true if all checks are passed
    * @return false if any ot the check is not passed
    */
-  virtual bool checks(){}
+  virtual bool checks(){std::cout<<"check mission planner abstract"<<std::endl;}
   void initialOrientation(std::vector<state> &traj);
   void optimalOrientation(const std::vector<state> &traj_to_optimize);
   /**

@@ -56,6 +56,7 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader) : n
   points_trans_pub_ = nh_.advertise<visualization_msgs::Marker>("points_to_inspect_transformed",1);
   sphere_pub_ = nh_.advertise<visualization_msgs::Marker>("inspection_sphere",1);
   pub_path_   = nh_.advertise<nav_msgs::Path>("solved_traj", 1);
+  pub_ref_path_   = nh_.advertise<nav_msgs::Path>("ref_traj", 1);
   tracking_pub_   = nh_.advertise<nav_msgs::Path>("/drone_"+std::to_string(param_.drone_id)+"/upat_follower/follower/trajectory_to_follow", 1);
   tracking_pub_trajectory_   = nh_.advertise<trajectory_msgs::JointTrajectory>("/drone_"+std::to_string(param_.drone_id)+"/trajectory_follower_node/trajectory_to_follow", 1);
   // Services
@@ -109,25 +110,16 @@ bool MissionPlannerRos::addWaypointServiceCallback(mission_planner::WaypointSrv:
   point.z = req.waypoint.pose.pose.position.z;
   points_.push_back(std::move(point));
 
-  // append goal
-  state aux_goal;
-  Eigen::Vector3d point_req;
+  state state_req;
 
-  point_req(0)   = req.waypoint.pose.pose.position.x;
-  point_req(1)   = req.waypoint.pose.pose.position.y;
-  point_req(2)   = req.waypoint.pose.pose.position.z;
+  state_req.pos(0)   = req.waypoint.pose.pose.position.x;
+  state_req.pos(1)   = req.waypoint.pose.pose.position.y;
+  state_req.pos(2)   = req.waypoint.pose.pose.position.z;
+  state_req.vel[0]  = req.waypoint.twist.twist.linear.x;
+  state_req.vel[1]  = req.waypoint.twist.twist.linear.y;
+  state_req.vel[2]  = req.waypoint.twist.twist.linear.z;
 
-  Eigen::Vector3d point_to_inspect    = mission_planner_ptr_->getPointToInspect();
-
-  float distance_to_inspection_point  = mission_planner_ptr_->getDistanceToInspect();
-
-  aux_goal.pos     = mission_planner_ptr_->pointOnCircle(point_req);
-
-  aux_goal.vel[0]  = req.waypoint.twist.twist.linear.x;
-  aux_goal.vel[1]  = req.waypoint.twist.twist.linear.y;
-  aux_goal.vel[2]  = req.waypoint.twist.twist.linear.z;
-
-  mission_planner_ptr_->appendGoal(aux_goal);
+  mission_planner_ptr_->appendGoal(state_req);
 
   res.success = true;
 }
@@ -178,6 +170,7 @@ void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
   publishTrajectoryJoint(tracking_pub_trajectory_, mission_planner_ptr_->last_trajectory_);
   // publishPath(tracking_pub_, mission_planner_ptr_->last_trajectory_);
   publishPath(pub_path_, mission_planner_ptr_->last_trajectory_);
+  publishPath(pub_ref_path_, mission_planner_ptr_->getReferenceTrajectory());
 }
 
 void MissionPlannerRos::pubVisCB(const ros::TimerEvent &e) {

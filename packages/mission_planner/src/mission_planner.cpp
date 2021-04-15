@@ -11,33 +11,29 @@ MissionPlanner::~MissionPlanner() {}
 void MissionPlanner::plan() {
   
   if(!checks()) return;
+  reference_traj.clear();
+  
 
   state initial_pose = states_[param_.drone_id];
 
-  // if (planner_state_ == PlannerStatus::FIRST_PLAN) {
-  //   initial_pose = states_[param_.drone_id];
-  // } else if (planner_state_ == PlannerStatus::REPLANNED) {
-  //   initial_pose = last_trajectory_[param_.planning_rate];
-  // }
-  std::vector<state> initial_traj;
   // calculate initial trajectory
   if(isInspectionZone(states_[param_.drone_id].pos)){
     // std::cout<<"TODO: implement trajectory to Inspect"<<std::endl;
     // return;
-    initial_traj = initialTrajectoryToInspect();
+    reference_traj = initialTrajectoryToInspect();
   }else{
-    initial_traj = initialTrajectory(initial_pose);
+    reference_traj = initialTrajectory(initial_pose);
   }
 
-  if(initial_traj.empty()){
+  if(reference_traj.empty()){
     std::cout<<"Initial trajectory empty...breaking"<<std::endl;
   }else{
-    if(trajectoryHasNan(initial_traj)){
+    if(trajectoryHasNan(reference_traj)){
       std::cout<<"Initial trajectory has nan"<<std::endl;
       return;
     }
-  // calculate optimal trajectory
-  optimalTrajectory(initial_traj);
+    // calculate optimal trajectory
+    optimalTrajectory(reference_traj);
   }
   // calculate orientation
   initialOrientation(last_trajectory_);
@@ -174,6 +170,7 @@ std::vector<state> MissionPlanner::pathFromPointToAnother(const Eigen::Vector3d 
 }
 
 void MissionPlanner::optimalTrajectory(const std::vector<state> &initial_trajectory){
+  if(initial_trajectory.size()!=param_.horizon_length) return;
   ACADO::DifferentialState px_, py_, pz_, vx_, vy_, vz_;
   ACADO::Control ax_, ay_, az_;
   
@@ -197,12 +194,12 @@ void MissionPlanner::optimalTrajectory(const std::vector<state> &initial_traject
   ocp.subjectTo(  -param_.vel_max <= vy_ <= param_.vel_max   );
   ocp.subjectTo(  -param_.vel_max <= vz_ <= param_.vel_max   );
 
-  ocp.subjectTo(ACADO::AT_START, px_ == states_[param_.drone_id].pos(0));
-  ocp.subjectTo(ACADO::AT_START, py_ == states_[param_.drone_id].pos(1));
-  ocp.subjectTo(ACADO::AT_START, pz_ == states_[param_.drone_id].pos(2));
-  ocp.subjectTo(ACADO::AT_START, vx_ == states_[param_.drone_id].vel(0));
-  ocp.subjectTo(ACADO::AT_START, vy_ == states_[param_.drone_id].vel(1));
-  ocp.subjectTo(ACADO::AT_START, vz_ == states_[param_.drone_id].vel(2));
+  // ocp.subjectTo(ACADO::AT_START, px_ == states_[param_.drone_id].pos(0));
+  // ocp.subjectTo(ACADO::AT_START, py_ == states_[param_.drone_id].pos(1));
+  // ocp.subjectTo(ACADO::AT_START, pz_ == states_[param_.drone_id].pos(2));
+  // ocp.subjectTo(ACADO::AT_START, vx_ == states_[param_.drone_id].vel(0));
+  // ocp.subjectTo(ACADO::AT_START, vy_ == states_[param_.drone_id].vel(1));
+  // ocp.subjectTo(ACADO::AT_START, vz_ == states_[param_.drone_id].vel(2));
   // ocp.subjectTo(ACADO::AT_START, ax_ == initial_trajectory[0].acc(0));
   // ocp.subjectTo(ACADO::AT_START, ay_ == initial_trajectory[0].acc(1));
   // ocp.subjectTo(ACADO::AT_START, az_ == initial_trajectory[0].acc(2));

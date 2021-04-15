@@ -54,6 +54,7 @@ class MissionPlannerRos {
   ros::Publisher points_pub_;
   ros::Publisher points_trans_pub_;
   ros::Publisher pub_path_;
+  ros::Publisher pub_ref_path_;
   ros::Publisher tracking_pub_;
   ros::Publisher tracking_pub_trajectory_;
   ros::Publisher sphere_pub_;
