@@ -56,6 +56,7 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader) : n
   points_trans_pub_ = nh_.advertise<visualization_msgs::Marker>("points_to_inspect_transformed",1);
   sphere_pub_ = nh_.advertise<visualization_msgs::Marker>("inspection_sphere",1);
   pub_path_   = nh_.advertise<nav_msgs::Path>("solved_traj", 1);
+  pub_ref_path_   = nh_.advertise<nav_msgs::Path>("ref_traj", 1);
   tracking_pub_   = nh_.advertise<nav_msgs::Path>("/drone_"+std::to_string(param_.drone_id)+"/upat_follower/follower/trajectory_to_follow", 1);
   tracking_pub_trajectory_   = nh_.advertise<trajectory_msgs::JointTrajectory>("/drone_"+std::to_string(param_.drone_id)+"/trajectory_follower_node/trajectory_to_follow", 1);
   // Services
@@ -109,18 +110,18 @@ bool MissionPlannerRos::addWaypointServiceCallback(mission_planner::WaypointSrv:
   point.z = req.waypoint.pose.pose.position.z;
   points_.push_back(std::move(point));
 
-  // append goal
-  state aux_goal;
+  state state_req;
 
-  aux_goal.pos[0]   = req.waypoint.pose.pose.position.x;
-  aux_goal.pos[1]   = req.waypoint.pose.pose.position.y;
-  aux_goal.pos[2]   = req.waypoint.pose.pose.position.z;
+  state_req.pos(0)   = req.waypoint.pose.pose.position.x;
+  state_req.pos(1)   = req.waypoint.pose.pose.position.y;
+  state_req.pos(2)   = req.waypoint.pose.pose.position.z;
+  state_req.vel[0]  = req.waypoint.twist.twist.linear.x;
+  state_req.vel[1]  = req.waypoint.twist.twist.linear.y;
+  state_req.vel[2]  = req.waypoint.twist.twist.linear.z;
 
-  aux_goal.vel[0]   = req.waypoint.twist.twist.linear.x;
-  aux_goal.vel[1]   = req.waypoint.twist.twist.linear.y;
-  aux_goal.vel[2]   = req.waypoint.twist.twist.linear.z;
+  mission_planner_ptr_->appendGoal(state_req);
 
-  mission_planner_ptr_->appendGoal(aux_goal);
+  res.success = true;
 }
 
 bool MissionPlannerRos::clearWaypointsServiceCallback(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res){
@@ -169,6 +170,7 @@ void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
   publishTrajectoryJoint(tracking_pub_trajectory_, mission_planner_ptr_->last_trajectory_);
   // publishPath(tracking_pub_, mission_planner_ptr_->last_trajectory_);
   publishPath(pub_path_, mission_planner_ptr_->last_trajectory_);
+  publishPath(pub_ref_path_, mission_planner_ptr_->getReferenceTrajectory());
 }
 
 void MissionPlannerRos::pubVisCB(const ros::TimerEvent &e) {
@@ -253,8 +255,8 @@ void MissionPlannerRos::publishSphere(const ros::Publisher &pub_sphere, const Co
    marker.pose.orientation.y = 0.0;
    marker.pose.orientation.z = 0.0;
    marker.pose.orientation.w = 1.0;
-   marker.scale.x = mission_planner_ptr_->getDistanceToInspect();;
-   marker.scale.y = mission_planner_ptr_->getDistanceToInspect();;
+   marker.scale.x = mission_planner_ptr_->getDistanceToInspect() * 2;
+   marker.scale.y = mission_planner_ptr_->getDistanceToInspect() * 2;
    marker.scale.z = 15;
    marker.color.a = 0.4;
    // inspection distance
@@ -271,7 +273,10 @@ void MissionPlannerRos::publishPoints(const ros::Publisher &pub_points, const st
   points.header.frame_id = param_.frame;
   points.header.stamp = ros::Time::now();
   points.action = visualization_msgs::Marker::ADD;
-  points.pose.orientation.w =  1.0;
+  points.pose.orientation.x = 0.0;
+  points.pose.orientation.y = 0.0;
+  points.pose.orientation.z = 0.0;
+  points.pose.orientation.w = 1.0;
   points.id = 0;
   points.type = visualization_msgs::Marker::POINTS;
   points.scale.x = 0.2;
