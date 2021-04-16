@@ -12,15 +12,19 @@ void MissionPlanner::plan() {
   
   if(!checks()) return;
   reference_traj.clear();
-  
+  state initial_pose;
+  if(planner_state_== PlannerStatus::FIRST_PLAN){
+    initial_pose = states_[param_.drone_id];
+  }else{
+    initial_pose = last_trajectory_[param_.planning_rate/param_.step_size];
+  }
 
-  state initial_pose = states_[param_.drone_id];
 
   // calculate initial trajectory
   if(isInspectionZone(states_[param_.drone_id].pos)){
     // std::cout<<"TODO: implement trajectory to Inspect"<<std::endl;
     // return;
-    reference_traj = initialTrajectoryToInspect();
+    reference_traj = initialTrajectoryToInspect(initial_pose);
   }else{
     reference_traj = initialTrajectory(initial_pose);
   }

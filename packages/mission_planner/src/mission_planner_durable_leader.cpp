@@ -4,11 +4,11 @@ MissionPlannerDurableLeader::MissionPlannerDurableLeader(parameters params)
     : MissionPlanner(params){};
 MissionPlannerDurableLeader::~MissionPlannerDurableLeader(){};
 
-std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(){
+std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(const state &initial_pose){
   std::vector<state> traj;
   state state_in_circle;
   int goal = 0;
-  state_in_circle.pos = pointOnCircle(states_[param_.drone_id].pos);
+  state_in_circle.pos = pointOnCircle(initial_pose.pos);
   traj.push_back(state_in_circle);
   Eigen::Vector3d vel_unitary(0,0,0);
   for(int i = 1; i < param_.horizon_length; i++){

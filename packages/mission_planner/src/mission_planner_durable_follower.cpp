@@ -18,7 +18,7 @@ std::vector<state> MissionPlannerDurableFollower::initialTrajectory(const state 
   return pathFromPointToAnother(states_[param_.drone_id].pos, goal);
 }
 
-std::vector<state> MissionPlannerDurableFollower::initialTrajectoryToInspect(){
+std::vector<state> MissionPlannerDurableFollower::initialTrajectoryToInspect(const state &initial_pose){
     state aux;
     std::vector<state> trajectory_to_optimize;
     Eigen::Quaterniond rotation = eulerToQuat(0,0,formation_angle_);

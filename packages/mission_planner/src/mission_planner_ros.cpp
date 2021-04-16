@@ -166,11 +166,14 @@ bool MissionPlannerRos::changeRelativeAngleServiceCallback(mission_planner::Angl
 
 void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
   ROS_INFO("Planning loop");
+  if(mission_planner_ptr_->getStatus()!=PlannerStatus::FIRST_PLAN){
+    publishTrajectoryJoint(tracking_pub_trajectory_, mission_planner_ptr_->last_trajectory_);
+    // publishPath(tracking_pub_, mission_planner_ptr_->last_trajectory_);
+    publishPath(pub_path_, mission_planner_ptr_->last_trajectory_);
+    publishPath(pub_ref_path_, mission_planner_ptr_->getReferenceTrajectory());
+  }
   mission_planner_ptr_->plan();
-  publishTrajectoryJoint(tracking_pub_trajectory_, mission_planner_ptr_->last_trajectory_);
-  // publishPath(tracking_pub_, mission_planner_ptr_->last_trajectory_);
-  publishPath(pub_path_, mission_planner_ptr_->last_trajectory_);
-  publishPath(pub_ref_path_, mission_planner_ptr_->getReferenceTrajectory());
+  
 }
 
 void MissionPlannerRos::pubVisCB(const ros::TimerEvent &e) {

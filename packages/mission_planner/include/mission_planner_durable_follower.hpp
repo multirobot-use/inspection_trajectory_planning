@@ -8,5 +8,5 @@ class MissionPlannerDurableFollower : public MissionPlanner {
         float formation_angle_ = 0.78; // radians
         std::vector<state> initialTrajectory(const state &_state);
         bool checks();
-        std::vector<state> initialTrajectoryToInspect();
+        std::vector<state> initialTrajectoryToInspect(const state &initial_pose);
 };

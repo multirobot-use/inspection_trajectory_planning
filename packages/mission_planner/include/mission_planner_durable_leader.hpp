@@ -6,6 +6,6 @@ class MissionPlannerDurableLeader : public MissionPlanner {
   void appendGoal(const state &_new_goal);
  private:
   bool checks();
-  std::vector<state> initialTrajectoryToInspect();
+  std::vector<state> initialTrajectoryToInspect(const state &initial_pose);
 
 };
