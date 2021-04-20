@@ -10,7 +10,7 @@ class MissionPlannerDurableLeader : public MissionPlanner {
  private:
   bool checks();
   float getAngle(const state &_state);
-  bool isClockWise(const Eigen::Vector3d &_vector, float angle);
+  bool isClockWise(const Eigen::Vector3d &_vector, const state &_state);
   std::vector<state> initialTrajectoryToInspect();
 
 };

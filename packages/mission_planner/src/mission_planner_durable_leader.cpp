@@ -7,7 +7,7 @@ MissionPlannerDurableLeader::~MissionPlannerDurableLeader(){};
 std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(){
   std::vector<state> traj;
   state state_in_circle;
-  static int goal = 0;
+  int goal = 0;
   float angle;
   bool clockwise;
   state_in_circle.pos = pointOnCircle(states_[param_.drone_id].pos);
@@ -22,8 +22,7 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(){
     traj.push_back(state_in_circle);
 
     if (i == 1){
-      angle     = getAngle(state_in_circle);
-      clockwise = isClockWise(vel_unitary, angle);
+      clockwise = isClockWise(vel_unitary, state_in_circle);
 
       if (clockwise)  std::cout << std::endl << std::endl << std::endl << "-------- The path between the current point and the goal point " << std::to_string(goal) << " is clockwise" << std::endl;
       else            std::cout << std::endl << std::endl << std::endl << "-------- The path between the current point and the goal point " << std::to_string(goal) << " is anticlockwise" << std::endl;
@@ -70,7 +69,8 @@ float MissionPlannerDurableLeader::getAngle(const state &_state){
   return _angle;
 }
 
-bool MissionPlannerDurableLeader::isClockWise(const Eigen::Vector3d &_vector, float angle){
+bool MissionPlannerDurableLeader::isClockWise(const Eigen::Vector3d &_vector, const state &_state){
+  float angle = getAngle(_state);
   int quadrant;
 
   if ((angle >= -M_PI)   && (angle < -M_PI/2))     quadrant = 3;
