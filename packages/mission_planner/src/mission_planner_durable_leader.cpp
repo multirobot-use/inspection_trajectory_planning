@@ -8,7 +8,7 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(){
   std::vector<state> traj;
   state state_in_circle;
   int goal = 0;
-  float angle;
+  float angle, clockwise_counter = 0;
   bool clockwise;
   state_in_circle.pos = pointOnCircle(states_[param_.drone_id].pos);
   traj.push_back(state_in_circle);
@@ -21,14 +21,17 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(){
     state_in_circle.pos = pointOnCircle(state_in_circle.pos + vel_unitary*param_.vel_max*param_.step_size);
     traj.push_back(state_in_circle);
 
-    if (i == 1){
-      clockwise = isClockWise(vel_unitary, state_in_circle);
+    clockwise = isClockWise(vel_unitary, state_in_circle);
 
-      if (clockwise)  std::cout << std::endl << std::endl << std::endl << "-------- The path between the current point and the goal point " << std::to_string(goal) << " is clockwise" << std::endl;
-      else            std::cout << std::endl << std::endl << std::endl << "-------- The path between the current point and the goal point " << std::to_string(goal) << " is anticlockwise" << std::endl;
+    if (clockwise)  clockwise_counter++;
+
+
+    if((state_in_circle.pos-goals_[goal].pos).norm() < 0.5){
+      goal++;
+      clockwise_counter = clockwise_counter/i;
+      if (clockwise_counter >= 0.5)   std::cout << std::endl << "-------- The last path done is clockwise. " << std::endl << std::to_string(clockwise_counter) << std::endl;
+      else                            std::cout << std::endl << "-------- The last path done is anticlockwise. " << std::endl << std::to_string(clockwise_counter) << std::endl;
     }
-
-    if((state_in_circle.pos-goals_[goal].pos).norm() < 0.5){goal++;}
 
     if(goal == goals_.size()){
 
@@ -78,8 +81,8 @@ bool MissionPlannerDurableLeader::isClockWise(const Eigen::Vector3d &_vector, co
   if ((angle >= 0)       && (angle < M_PI/2))      quadrant = 1;
   if ((angle >= M_PI/2)  && (angle <= M_PI))       quadrant = 2;
 
-  std::cout << std::endl << "QUADRANT: " << std::to_string(quadrant) << std::endl;
-  std::cout << std::endl << "ANGLE (rad): " << angle << std::endl;
+  // std::cout << std::endl << "QUADRANT: " << std::to_string(quadrant) << std::endl;
+  // std::cout << std::endl << "ANGLE (rad): " << angle << std::endl;
 
   // true if clockwise, false if anticlockwise
   switch (quadrant){
