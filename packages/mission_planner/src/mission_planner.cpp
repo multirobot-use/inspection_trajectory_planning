@@ -231,6 +231,11 @@ void MissionPlanner::optimalTrajectory(const std::vector<state> &initial_traject
   ACADO::OptimizationAlgorithm solver(ocp);
 
   solver.set(ACADO::MAX_TIME, 2.0); // TODO: have it as parameter
+  // solver.set(ACADO::PRINT_INTEGRATOR_PROFILE, false);    	
+  // solver.set(ACADO::CONIC_SOLVER_PRINT_LEVEL, ACADO::NONE);
+  solver.set(ACADO::PRINTLEVEL, ACADO::NONE);
+  solver.set(ACADO::PRINT_COPYRIGHT, ACADO::NONE);
+  solver.set(ACADO::INTEGRATOR_PRINTLEVEL, ACADO::NONE);
   
   bool solver_success = solver.solve();
   
