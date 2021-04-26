@@ -4,6 +4,7 @@
 #include <Eigen/StdVector>
 #include <acado/acado_optimal_control.hpp>
 #include <acado_toolkit.hpp>
+#include <math.h>
 #include <map>
 #include "mission_planner_types.hpp"
 
