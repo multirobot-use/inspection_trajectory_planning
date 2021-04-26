@@ -161,8 +161,8 @@ def preparing_drones(leader_start_point, follower_start_point, height, blocking)
         print "Sending each drone to its initial point"
         resp = 'y'
     
-    # LEADER
-    # Send to the initial point
+    # # LEADER
+    # # Send to the initial point
     # if (leader_ready and follower_ready) and resp == 'y':
     #     try:
     #         waypoint              = GoToWaypointRequest()
@@ -542,7 +542,7 @@ if __name__ == "__main__":
     rospy.wait_for_service(ns[1]+"/ual/take_off")
     take_off_service[1] = rospy.ServiceProxy(ns[1]+"/ual/take_off", TakeOff)
     
-    # GoToWaypoint service
+    # # GoToWaypoint service
     go_to_waypoint_url[0]      = ns[0] + "/ual/go_to_waypoint"
     rospy.wait_for_service(go_to_waypoint_url[0])
     go_to_waypoint_service[0]  = rospy.ServiceProxy(go_to_waypoint_url[0], GoToWaypoint)
