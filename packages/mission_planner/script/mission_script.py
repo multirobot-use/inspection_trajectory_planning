@@ -163,33 +163,33 @@ def preparing_drones(leader_start_point, follower_start_point, height, blocking)
     
     # LEADER
     # Send to the initial point
-    if (leader_ready and follower_ready) and resp == 'y':
-        try:
-            waypoint              = GoToWaypointRequest()
-            waypoint.blocking     = False
-            waypoint.waypoint.pose.position.x     = leader_start_point[0]
-            waypoint.waypoint.pose.position.y     = leader_start_point[1]
-            waypoint.waypoint.pose.position.z     = leader_start_point[2]
+    # if (leader_ready and follower_ready) and resp == 'y':
+    #     try:
+    #         waypoint              = GoToWaypointRequest()
+    #         waypoint.blocking     = False
+    #         waypoint.waypoint.pose.position.x     = leader_start_point[0]
+    #         waypoint.waypoint.pose.position.y     = leader_start_point[1]
+    #         waypoint.waypoint.pose.position.z     = leader_start_point[2]
             
-            go_to_waypoint_service[0](waypoint)
-            print "LEADER: Going to initial waypoint"
+    #         go_to_waypoint_service[0](waypoint)
+    #         print "LEADER: Going to initial waypoint"
         
-        except rospy.ServiceException, e:
-            print "Service call failed: %s" %e
+    #     except rospy.ServiceException, e:
+    #         print "Service call failed: %s" %e
     
-    # FOLLOWER
-        try:
-            waypoint              = GoToWaypointRequest()
-            waypoint.blocking     = False
-            waypoint.waypoint.pose.position.x     = follower_start_point[0]
-            waypoint.waypoint.pose.position.y     = follower_start_point[1]
-            waypoint.waypoint.pose.position.z     = follower_start_point[2]
+    # # FOLLOWER
+    #     try:
+    #         waypoint              = GoToWaypointRequest()
+    #         waypoint.blocking     = False
+    #         waypoint.waypoint.pose.position.x     = follower_start_point[0]
+    #         waypoint.waypoint.pose.position.y     = follower_start_point[1]
+    #         waypoint.waypoint.pose.position.z     = follower_start_point[2]
             
-            go_to_waypoint_service[1](waypoint)
-            print "FOLLOWER: Going to initial waypoint"
+    #         go_to_waypoint_service[1](waypoint)
+    #         print "FOLLOWER: Going to initial waypoint"
         
-        except rospy.ServiceException, e:
-            print "Service call failed: %s" %e
+    #     except rospy.ServiceException, e:
+    #         print "Service call failed: %s" %e
 
 
 # 2.        start_mission function

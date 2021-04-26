@@ -87,4 +87,5 @@ class MissionPlanner {
    * 
    */
   bool isInspectionZone(const Eigen::Vector3d &drone_pose);
+  int closestPoint(const std::vector<state> &initial_trajectory, const state point);
 };
