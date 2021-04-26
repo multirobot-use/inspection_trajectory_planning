@@ -16,13 +16,15 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(){
   traj.push_back(state_in_circle);
   Eigen::Vector3d vel_unitary(0,0,0);
 
+  // Temporary fix: if we do not consider the rest state, all the sections will go always in the same direction
+  vel_unitary     = (goals_[goal].pos - state_in_circle.pos)/(goals_[goal].pos - state_in_circle.pos).norm(); 
+  clockwise       = isClockWise(vel_unitary, state_in_circle);
+
   for(int i = 1; i < param_.horizon_length; i++){
 
     // Temporary fix: if we do not consider the rest state, all the sections will go always in the same direction
     if (initial_point_of_section){
-      vel_unitary     = (goals_[goal].pos - state_in_circle.pos)/(goals_[goal].pos - state_in_circle.pos).norm(); 
-      clockwise       = isClockWise(vel_unitary, state_in_circle);
-      pass_angle      = getPassAngle(state_in_circle, goals_[goal]);
+      pass_angle = getPassAngle(state_in_circle, goals_[goal]);
       
       total_section_steps = getSectionSteps(state_in_circle, goals_[goal], clockwise);
 
@@ -30,12 +32,15 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(){
     }
 
     section_point       = getSectionPoint(state_in_circle, clockwise, pass_angle, total_section_steps, j);
-    state_in_circle.pos = pointOnCircle(section_point.pos); // Maybe it is superfluous
+    state_in_circle     = section_point; // Superfluous
+    // state_in_circle.pos = pointOnCircle(section_point.pos); // Maybe it is superfluous
+    // std::cout << std::endl << "Section point    X: " << std::to_string(state_in_circle.pos(0)) << "   Y: " << std::to_string(state_in_circle.pos(1)) << "   Z: " << std::to_string(state_in_circle.pos(2));
     traj.push_back(state_in_circle);
 
     j++;
 
     if((state_in_circle.pos - goals_[goal].pos).norm() < 0.5){
+      std::cout << std::endl << "Reached a goal!" << std::endl;
       goal++;
       j = 0;
       initial_point_of_section = true;   // Check the next waypoint
@@ -69,6 +74,12 @@ state MissionPlannerDurableLeader::getSectionPoint(const state &_state, const bo
   section_point.pos(1) = point_to_inspect_(1) + distance_to_inspect_point_*sin(current_angle);
   section_point.pos(2) = _state.pos(2)        + (goals_[0].pos(2) - _state.pos(2))*(_iteration/_total_section_steps);     // Check z
 
+  section_point.vel(0) = 0;
+  section_point.vel(1) = 0;
+  section_point.vel(2) = 0;
+
+  // std::cout << std::endl << "Section point    X: " << std::to_string(section_point.pos(0)) << "   Y: " << std::to_string(section_point.pos(1)) << "   Z: " << std::to_string(section_point.pos(2));
+  // std::cout << "   X: " << std::to_string(section_point.pos(0));
   return section_point;
 
 }
@@ -122,9 +133,9 @@ int MissionPlannerDurableLeader::getSectionSteps(const state &_initial_point, co
 
     // It is easier to do these operations if they are done before the saturation/adjust of the angle
     if (_clockwise){
-      if ((current_angle < final_angle) && (current_angle > (final_angle - angle_pass)))        return total_steps;
+      if ((current_angle < final_angle) && (current_angle > (final_angle - angle_pass)))        break;
     }
-    else if ((current_angle > final_angle) && (current_angle < (final_angle + angle_pass)))     return total_steps;
+    else if ((current_angle > final_angle) && (current_angle < (final_angle + angle_pass)))     break;
 
     // The angle is currently defined between [-M_PI, M_PI]
     if (current_angle < -M_PI)    current_angle = current_angle + 2*M_PI;
@@ -132,6 +143,9 @@ int MissionPlannerDurableLeader::getSectionSteps(const state &_initial_point, co
 
   }
 
+  std::cout << "Total steps: " << std::to_string(total_steps) << std::endl;
+
+  return total_steps;
 }
 
 bool MissionPlannerDurableLeader::isClockWise(const Eigen::Vector3d &_vector, const state &_state){
