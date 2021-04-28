@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ros/ros.h"
+
 struct parameters {
   float horizon_length = 0;   // number of steps
   int n_drones = 1;           // number of drones
@@ -33,6 +34,10 @@ inline Eigen::Vector3d quatToEuler(Eigen::Quaterniond q){
 
 inline Eigen::Vector3d pointOnSphere(const Eigen::Vector3d point, const Eigen::Vector3d inspection_point, const float R){
   return (R*(point - inspection_point)/((point - inspection_point).norm()) + inspection_point);
+}
+
+inline float getAngle(const Eigen::Vector3d _state, const Eigen::Vector3d _inspection_point){
+  return atan2(_state(1) - _inspection_point(1), _state(0) - _inspection_point(0));
 }
 
 template <typename T>
