@@ -8,9 +8,8 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(){
   std::vector<state> traj;
   state state_in_circle, section_point;
   int goal = 0;
-  static int total_section_steps;
-  static float pass_angle;
-  static bool clockwise, initial_point_of_section = true, init = true;
+  int total_section_steps;
+  float pass_angle;
   state_in_circle.pos = pointOnCircle(states_[param_.drone_id].pos);
   traj.push_back(state_in_circle);
   Eigen::Vector3d vel_unitary(0,0,0);
@@ -19,31 +18,28 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(){
   vel_unitary     = (goals_[goal].pos - state_in_circle.pos)/(goals_[goal].pos - state_in_circle.pos).norm();
 
   // Not changing, at least for now
-  if (init)   clockwise = isClockWise(vel_unitary, state_in_circle);  init = false;
+  if (PlannerStatus::FIRST_PLAN)   clockwise = isClockWise(vel_unitary, state_in_circle);
+
+  pass_angle = getPassAngle(state_in_circle, goals_[goal]);
+  // total_section_steps = getSectionSteps(state_in_circle, goals_[goal], clockwise);
 
   for(int i = 1; i < param_.horizon_length; i++){
 
     // Temporary fix: if we do not consider the rest state, all the sections will go always in the same direction
-    if (initial_point_of_section){
-      pass_angle = getPassAngle(state_in_circle, goals_[goal]);
-      
-      total_section_steps = getSectionSteps(state_in_circle, goals_[goal], clockwise);
-
-      initial_point_of_section = false;
-    }
-
     vel_unitary     = (goals_[goal].pos - state_in_circle.pos)/(goals_[goal].pos - state_in_circle.pos).norm(); 
 
-    section_point       = getSectionPoint(state_in_circle, clockwise, pass_angle, total_section_steps, vel_unitary);
+    // if (i == 1)     std::cout << "Inside the for loop" << std::endl;
+
+    // section_point       = getSectionPoint(state_in_circle, clockwise, pass_angle);
+    state_in_circle       = getSectionPoint(state_in_circle, clockwise, pass_angle);
     // state_in_circle     = section_point; // Superfluous
-    state_in_circle.pos = pointOnCircle(section_point.pos); // Maybe it is superfluous
-    // std::cout << std::endl << "Section point    X: " << std::to_string(state_in_circle.pos(0)) << "   Y: " << std::to_string(state_in_circle.pos(1)) << "   Z: " << std::to_string(state_in_circle.pos(2));
+    // state_in_circle.pos = pointOnCircle(section_point.pos); // Maybe it is superfluous
+    // if (i==1)   std::cout << std::endl << "Section point    X: " << std::to_string(state_in_circle.pos(0)) << "   Y: " << std::to_string(state_in_circle.pos(1)) << "   Z: " << std::to_string(state_in_circle.pos(2));
     traj.push_back(state_in_circle);
 
     if((state_in_circle.pos - goals_[goal].pos).norm() < 0.5){
       std::cout << std::endl << "Reached a goal!" << std::endl;
       goal++;
-      initial_point_of_section = true;   // Check the next waypoint
     }
 
     if(goal == goals_.size()){
@@ -59,7 +55,7 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(){
   return traj;
 }
 
-state MissionPlannerDurableLeader::getSectionPoint(const state &_state, const bool &_clockwise, const float &_angle_pass, const int &_total_section_steps, const Eigen::Vector3d &_vel){
+state MissionPlannerDurableLeader::getSectionPoint(const state &_state, const bool &_clockwise, const float &_angle_pass){
   state section_point;
   float current_angle = getAngle(_state);
 

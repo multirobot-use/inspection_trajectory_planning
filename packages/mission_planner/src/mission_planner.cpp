@@ -266,7 +266,16 @@ void MissionPlanner::optimalTrajectory(const std::vector<state> &initial_traject
 };
 
 bool MissionPlanner::isInspectionZone(const Eigen::Vector3d &drone_pose){
-  if((drone_pose- point_to_inspect_).norm()>distance_to_inspect_point_+REACH_TOL)return false;
+
+  Eigen::Vector2d drone_pose2d, point_to_inspect2d;
+
+  drone_pose2d(0) = drone_pose(0);
+  drone_pose2d(1) = drone_pose(1);
+
+  point_to_inspect2d(0) = point_to_inspect_(0);
+  point_to_inspect2d(1) = point_to_inspect_(1);
+
+  if((drone_pose2d - point_to_inspect2d).norm()>distance_to_inspect_point_+REACH_TOL)return false;
   else return true;
 }
 
