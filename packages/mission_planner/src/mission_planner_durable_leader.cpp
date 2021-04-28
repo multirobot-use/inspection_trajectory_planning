@@ -18,7 +18,10 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(){
   vel_unitary     = (goals_[goal].pos - state_in_circle.pos)/(goals_[goal].pos - state_in_circle.pos).norm();
 
   // Not changing, at least for now
-  if (PlannerStatus::FIRST_PLAN)   clockwise = isClockWise(vel_unitary, state_in_circle);
+  if (PlannerStatus::FIRST_PLAN){
+    clockwise = isClockWise(vel_unitary, state_in_circle);
+    initial_angle_of_section = getAngle(state_in_circle);
+  }
 
   pass_angle = getPassAngle(state_in_circle, goals_[goal]);
   // total_section_steps = getSectionSteps(state_in_circle, goals_[goal], clockwise);
@@ -26,19 +29,13 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(){
   for(int i = 1; i < param_.horizon_length; i++){
 
     // Temporary fix: if we do not consider the rest state, all the sections will go always in the same direction
-    vel_unitary     = (goals_[goal].pos - state_in_circle.pos)/(goals_[goal].pos - state_in_circle.pos).norm(); 
-
-    // if (i == 1)     std::cout << "Inside the for loop" << std::endl;
-
-    // section_point       = getSectionPoint(state_in_circle, clockwise, pass_angle);
-    state_in_circle       = getSectionPoint(state_in_circle, clockwise, pass_angle);
-    // state_in_circle     = section_point; // Superfluous
-    // state_in_circle.pos = pointOnCircle(section_point.pos); // Maybe it is superfluous
-    // if (i==1)   std::cout << std::endl << "Section point    X: " << std::to_string(state_in_circle.pos(0)) << "   Y: " << std::to_string(state_in_circle.pos(1)) << "   Z: " << std::to_string(state_in_circle.pos(2));
+    vel_unitary       = (goals_[goal].pos - state_in_circle.pos)/(goals_[goal].pos - state_in_circle.pos).norm(); 
+    state_in_circle   = getSectionPoint(state_in_circle, clockwise, pass_angle, goal, vel_unitary);
     traj.push_back(state_in_circle);
 
     if((state_in_circle.pos - goals_[goal].pos).norm() < 0.5){
       std::cout << std::endl << "Reached a goal!" << std::endl;
+      initial_angle_of_section = getAngle(goals_[goal]);
       goal++;
     }
 
@@ -47,7 +44,6 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(){
       while(i < (param_.horizon_length - 1)) {
         traj.push_back(state_in_circle);
         i++;}
-
       break;
     }
   }
@@ -55,9 +51,16 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(){
   return traj;
 }
 
-state MissionPlannerDurableLeader::getSectionPoint(const state &_state, const bool &_clockwise, const float &_angle_pass){
+state MissionPlannerDurableLeader::getSectionPoint(const state &_state, const bool &_clockwise, const float &_angle_pass, const int &_goal, const Eigen::Vector3d &_vel){
   state section_point;
   float current_angle = getAngle(_state);
+  float final_angle   = getAngle(goals_[_goal]);
+
+  float total_angle_of_section = getTotalAngleOfSection(initial_angle_of_section, final_angle, clockwise) + 0.00001;
+
+  float angle_travelled  = getTotalAngleOfSection(initial_angle_of_section, current_angle, clockwise);
+
+  std::cout << "Total angle of section: " << std::to_string(total_angle_of_section) << "    Angle_travelled: " << std::to_string(angle_travelled) << std::endl;
 
   if (_clockwise)   current_angle = current_angle - _angle_pass;
   else              current_angle = current_angle + _angle_pass;
@@ -67,14 +70,11 @@ state MissionPlannerDurableLeader::getSectionPoint(const state &_state, const bo
 
   section_point.pos(0) = point_to_inspect_(0) + distance_to_inspect_point_*cos(current_angle);
   section_point.pos(1) = point_to_inspect_(1) + distance_to_inspect_point_*sin(current_angle);
-  section_point.pos(2) = 5;     // Check z --> get it using vel_unitary or in function of angles
+  section_point.pos(2) = _state.pos(2)        + _vel(2)*param_.step_size;     // Check z --> get it using vel_unitary or in function of angles
 
   section_point.vel(0) = 0;
   section_point.vel(1) = 0;
   section_point.vel(2) = 0;
-
-  // std::cout << std::endl << "Section point    X: " << std::to_string(section_point.pos(0)) << "   Y: " << std::to_string(section_point.pos(1)) << "   Z: " << std::to_string(section_point.pos(2));
-  // std::cout << "   X: " << std::to_string(section_point.pos(0));
 
   return section_point;
 
@@ -106,6 +106,26 @@ float MissionPlannerDurableLeader::getPassAngle(const state &_initial_point, con
   std::cout << "Pass angle: " << std::to_string(pass_angle) << std::endl;
 
   return pass_angle;
+}
+
+float MissionPlannerDurableLeader::getTotalAngleOfSection(const float &_initial_angle, const float &_final_angle, const bool &_clockwise){
+  float total_angle, initial_angle, final_angle;
+
+  if (_initial_angle < 0)         initial_angle  = _initial_angle  + 2*M_PI;
+  else                            initial_angle  = _initial_angle;
+  if (_final_angle < 0)           final_angle    = _final_angle    + 2*M_PI;
+  else                            final_angle    = _final_angle;
+
+  if (_clockwise){
+    if (initial_angle < final_angle)    total_angle = initial_angle + (2*M_PI - final_angle);
+    else                                total_angle = final_angle - initial_angle;
+  }
+  else{
+    if (initial_angle > final_angle)    total_angle = final_angle + (2*M_PI - initial_angle);
+    else                                total_angle = initial_angle - final_angle;
+  }
+
+  return total_angle;
 }
 
 // Need to know for the z increase in each section point

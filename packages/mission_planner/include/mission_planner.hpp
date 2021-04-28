@@ -44,6 +44,7 @@ class MissionPlanner {
   float distance_to_inspect_point_  = 3;
   float relative_angle_             = 0.4;
   bool clockwise                    = true;
+  float initial_angle_of_section    = 0;
   std::map<int,std::vector<Eigen::Vector3d>> solved_trajectories_;
   int planner_state_ = PlannerStatus::FIRST_PLAN;
 
