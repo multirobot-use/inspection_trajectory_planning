@@ -102,10 +102,8 @@ float MissionPlannerDurableLeader::getAngle(const state &_state){
 
 float MissionPlannerDurableLeader::getPassAngle(const state &_initial_point, const state &_final_point){
 
-  // Z variation between points increases total_linear_distance. It is important to take it into account
-  float Z_diff = _final_point.pos(2) - _initial_point.pos(2);
-  float total_linear_distance = sqrt(pow(distance_to_inspect_point_*2*M_PI,2) + pow(Z_diff,2)); // sqrt from math.h
-  float step_linear_distance  = param_.vel_max*param_.step_size;
+  float total_linear_distance = distance_to_inspect_point_*2*M_PI;
+  float step_linear_distance  = param_.vel_max_xy*param_.step_size;
 
   float pass_angle = (step_linear_distance/total_linear_distance)*2*M_PI;
 

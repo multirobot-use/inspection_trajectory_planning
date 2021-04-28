@@ -163,7 +163,7 @@ std::vector<state> MissionPlanner::pathFromPointToAnother(const Eigen::Vector3d 
   state aux_point;
   const Eigen::Vector3d vel((final-initial)/(final-initial).norm());
   for(int i = 0; i<param_.horizon_length; i++){
-    aux_point.pos =initial+  i*vel*param_.vel_max*param_.step_size;
+    aux_point.pos =initial+  i*vel*param_.vel_max_xy*param_.step_size;
     trajectory_to_optimize.push_back(std::move(aux_point));
   }
   return trajectory_to_optimize;
@@ -190,9 +190,9 @@ void MissionPlanner::optimalTrajectory(const std::vector<state> &initial_traject
   ocp.subjectTo(  -param_.acc_max <= ax_ <= param_.acc_max   );  
   ocp.subjectTo(  -param_.acc_max <= ay_ <= param_.acc_max   );
   ocp.subjectTo(  -param_.acc_max <= az_ <= param_.acc_max   );
-  ocp.subjectTo(  -param_.vel_max <= vx_ <= param_.vel_max   );
-  ocp.subjectTo(  -param_.vel_max <= vy_ <= param_.vel_max   );
-  ocp.subjectTo(  -param_.vel_max <= vz_ <= param_.vel_max   );
+  ocp.subjectTo(  -param_.vel_max_xy <= vx_ <= param_.vel_max_xy   );
+  ocp.subjectTo(  -param_.vel_max_xy <= vy_ <= param_.vel_max_xy   );
+  ocp.subjectTo(  -param_.vel_max_z  <= vz_ <= param_.vel_max_z   );
 
   // ocp.subjectTo(ACADO::AT_START, px_ == states_[param_.drone_id].pos(0));
   // ocp.subjectTo(ACADO::AT_START, py_ == states_[param_.drone_id].pos(1));
