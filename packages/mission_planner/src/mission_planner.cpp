@@ -235,16 +235,11 @@ void MissionPlanner::optimalTrajectory(const std::vector<state> &initial_traject
   ACADO::OptimizationAlgorithm solver(ocp);
 
   solver.set(ACADO::MAX_TIME, 2.0); // TODO: have it as parameter
-<<<<<<< HEAD
   // solver.set(ACADO::PRINT_INTEGRATOR_PROFILE, false);    	
   // solver.set(ACADO::CONIC_SOLVER_PRINT_LEVEL, ACADO::NONE);
   solver.set(ACADO::PRINTLEVEL, ACADO::NONE);
   solver.set(ACADO::PRINT_COPYRIGHT, ACADO::NONE);
   solver.set(ACADO::INTEGRATOR_PRINTLEVEL, ACADO::NONE);
-=======
-  solver.set(ACADO::PRINTLEVEL, ACADO::NONE);
-  solver.set(ACADO::PRINT_COPYRIGHT, ACADO::NONE);
->>>>>>> db7c76dc0f1653db4aac82f13456e6864f4c9c86
   
   bool solver_success = solver.solve();
   
@@ -286,7 +281,7 @@ bool MissionPlanner::isInspectionZone(const Eigen::Vector3d &drone_pose){
   point_to_inspect2d(0) = point_to_inspect_(0);
   point_to_inspect2d(1) = point_to_inspect_(1);
 
-  if((drone_pose2d - point_to_inspect2d).norm()>distance_to_inspect_point_+REACH_TOL)return false;
+  if((drone_pose2d - point_to_inspect2d).norm() > distance_to_inspect_point_+REACH_TOL)   return false;
   else return true;
 }
 
