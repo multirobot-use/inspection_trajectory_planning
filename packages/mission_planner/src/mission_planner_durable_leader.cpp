@@ -20,11 +20,9 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(const
   // Not changing, at least for now
   if (PlannerStatus::FIRST_PLAN){
     clockwise = isClockWise(vel_unitary, state_in_circle);
-    // initial_angle_of_section = getAngle(state_in_circle.pos, point_to_inspect_);
   }
 
   vel_polar_angle = velmaxToPolar();
-  // total_section_steps = getSectionSteps(state_in_circle, goals_[goal], clockwise);
 
   for(int i = 1; i < param_.horizon_length; i++){
 
@@ -35,7 +33,6 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(const
 
     if((state_in_circle.pos - goals_[goal].pos).norm() < 0.5){
       std::cout << std::endl << "Reached a goal during interpolation!" << std::endl;
-      // initial_angle_of_section = getAngle(goals_[goal].pos, point_to_inspect_);
       goal++;
     }
 
@@ -53,14 +50,7 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(const
 
 state MissionPlannerDurableLeader::calcNextPoint(const state &_state, const bool &_clockwise, const float &_angle_pass, const int &_goal, const Eigen::Vector3d &_vel){
   state next_point;
-  float current_angle = getAngle(_state.pos, point_to_inspect_); 
-  // float final_angle   = getAngle(goals_[_goal].pos, point_to_inspect_);
-
-  // float total_angle_of_section = getTotalAngleOfSection(initial_angle_of_section, final_angle, clockwise) + 0.00001;
-
-  // float angle_travelled  = getTotalAngleOfSection(initial_angle_of_section, current_angle, clockwise);
-
-  // std::cout << "Total angle of section: " << std::to_string(total_angle_of_section) << "    Angle_travelled: " << std::to_string(angle_travelled) << std::endl;
+  float current_angle = getNormalizedAngle(_state.pos, point_to_inspect_);
 
   if (_clockwise)   current_angle = current_angle - _angle_pass;
   else              current_angle = current_angle + _angle_pass;

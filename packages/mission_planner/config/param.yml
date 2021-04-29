@@ -6,11 +6,11 @@ take_off_blocking: False
 x_inspect: 0
 y_inspect: 0
 z_inspect: 10
-r_inspect: 8
+r_inspect: 5
 
 relative_angle: 0.4
 
-n_waypoints: 7
+n_waypoints: 9
 waypoint1: [0, 5, 7]
 waypoint2: [5, 0, 12]
 waypoint3: [0, -5, 5]
@@ -18,3 +18,5 @@ waypoint4: [-5, 0, 9]
 waypoint5: [0, -5, 4]
 waypoint6: [5, 0, 10]
 waypoint7: [0, 5, 3]
+waypoint8: [2, 3, 13]
+waypoint9: [4, 1, 4]
