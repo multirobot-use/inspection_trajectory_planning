@@ -10,7 +10,7 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(const
   int goal = 0;
   // int total_section_steps;
   float vel_polar_angle;
-  state_in_circle.pos = pointOnCircle(initial_pose.pos);
+  state_in_circle.pos = pointOnCircle(states_[param_.drone_id].pos);
   traj.push_back(state_in_circle);
   Eigen::Vector3d vel_unitary(0,0,0);
 

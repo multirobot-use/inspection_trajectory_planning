@@ -6,7 +6,7 @@ take_off_blocking: False
 x_inspect: 0
 y_inspect: 0
 z_inspect: 10
-r_inspect: 5
+r_inspect: 6.5
 
 relative_angle: 0.4
 
