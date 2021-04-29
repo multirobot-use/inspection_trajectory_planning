@@ -167,7 +167,7 @@ std::vector<state> MissionPlanner::pathFromPointToAnother(const Eigen::Vector3d 
   state aux_point;
   const Eigen::Vector3d vel((final-initial)/(final-initial).norm());
   for(int i = 0; i<param_.horizon_length; i++){
-    aux_point.pos =initial+  i*vel*param_.vel_max*param_.step_size;
+    aux_point.pos =initial+  i*vel*param_.vel_max_xy*param_.step_size;
     trajectory_to_optimize.push_back(std::move(aux_point));
   }
   return trajectory_to_optimize;
@@ -194,9 +194,9 @@ void MissionPlanner::optimalTrajectory(const std::vector<state> &initial_traject
   ocp.subjectTo(  -param_.acc_max <= ax_ <= param_.acc_max   );  
   ocp.subjectTo(  -param_.acc_max <= ay_ <= param_.acc_max   );
   ocp.subjectTo(  -param_.acc_max <= az_ <= param_.acc_max   );
-  ocp.subjectTo(  -param_.vel_max <= vx_ <= param_.vel_max   );
-  ocp.subjectTo(  -param_.vel_max <= vy_ <= param_.vel_max   );
-  ocp.subjectTo(  -param_.vel_max <= vz_ <= param_.vel_max   );
+  ocp.subjectTo(  -param_.vel_max_xy <= vx_ <= param_.vel_max_xy   );
+  ocp.subjectTo(  -param_.vel_max_xy <= vy_ <= param_.vel_max_xy   );
+  ocp.subjectTo(  -param_.vel_max_z  <= vz_ <= param_.vel_max_z   );
 
   // ocp.subjectTo(ACADO::AT_START, px_ == initial_trajectory[0].pos(0));
   // ocp.subjectTo(ACADO::AT_START, py_ == initial_trajectory[0].pos(1));
@@ -235,8 +235,11 @@ void MissionPlanner::optimalTrajectory(const std::vector<state> &initial_traject
   ACADO::OptimizationAlgorithm solver(ocp);
 
   solver.set(ACADO::MAX_TIME, 2.0); // TODO: have it as parameter
+  // solver.set(ACADO::PRINT_INTEGRATOR_PROFILE, false);    	
+  // solver.set(ACADO::CONIC_SOLVER_PRINT_LEVEL, ACADO::NONE);
   solver.set(ACADO::PRINTLEVEL, ACADO::NONE);
   solver.set(ACADO::PRINT_COPYRIGHT, ACADO::NONE);
+  solver.set(ACADO::INTEGRATOR_PRINTLEVEL, ACADO::NONE);
   
   bool solver_success = solver.solve();
   
@@ -269,7 +272,16 @@ void MissionPlanner::optimalTrajectory(const std::vector<state> &initial_traject
 };
 
 bool MissionPlanner::isInspectionZone(const Eigen::Vector3d &drone_pose){
-  if((drone_pose- point_to_inspect_).norm()>distance_to_inspect_point_+REACH_TOL)return false;
+
+  Eigen::Vector2d drone_pose2d, point_to_inspect2d;
+
+  drone_pose2d(0) = drone_pose(0);
+  drone_pose2d(1) = drone_pose(1);
+
+  point_to_inspect2d(0) = point_to_inspect_(0);
+  point_to_inspect2d(1) = point_to_inspect_(1);
+
+  if((drone_pose2d - point_to_inspect2d).norm() > distance_to_inspect_point_+REACH_TOL)   return false;
   else return true;
 }
 

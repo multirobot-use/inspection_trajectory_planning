@@ -4,6 +4,7 @@
 #include <Eigen/StdVector>
 #include <acado/acado_optimal_control.hpp>
 #include <acado_toolkit.hpp>
+#include <math.h>
 #include <map>
 #include "mission_planner_types.hpp"
 
@@ -43,6 +44,8 @@ class MissionPlanner {
   Eigen::Vector3d point_to_inspect_ = Eigen::Vector3d::Zero();
   float distance_to_inspect_point_  = 3;
   float relative_angle_             = 0.4;
+  bool clockwise                    = true;
+  // float initial_angle_of_section    = 0.0;
   std::map<int,std::vector<Eigen::Vector3d>> solved_trajectories_;
   int planner_state_ = PlannerStatus::FIRST_PLAN;
 

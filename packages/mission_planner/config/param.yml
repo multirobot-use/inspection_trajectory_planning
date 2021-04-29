@@ -10,8 +10,11 @@ r_inspect: 8
 
 relative_angle: 0.4
 
-n_waypoints: 4
-waypoint1: [0, 5, 15]
+n_waypoints: 7
+waypoint1: [0, 5, 7]
 waypoint2: [5, 0, 12]
 waypoint3: [0, -5, 5]
 waypoint4: [-5, 0, 9]
+waypoint5: [0, -5, 4]
+waypoint6: [5, 0, 10]
+waypoint7: [0, 5, 3]
