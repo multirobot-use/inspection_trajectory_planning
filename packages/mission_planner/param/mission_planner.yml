@@ -3,7 +3,7 @@
 horizon_length: 40 # steps
 n_drones: 2        # drones
 leader_id: 1        #drone_id
-step_size: 0.1     # seconds
+step_size: 0.2     # seconds
 planning_rate: 1   # sec
 visualization_rate: 3   # sec
 vel_max_xy: 1         # m/s

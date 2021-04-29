@@ -31,6 +31,7 @@ class MissionPlanner {
   Eigen::Vector3d getPointToInspect(){ return point_to_inspect_;}
   void setDistanceToInspect(const float &_distance){ distance_to_inspect_point_ = _distance;}
   float getDistanceToInspect(){ return distance_to_inspect_point_;}
+  int getStatus(){return planner_state_;}
   void setRelativeAngle(const float &_angle){ relative_angle_ = _angle;}
   void plan();
   void setSolvedTrajectories(const std::vector<Eigen::Vector3d> &solved_trajectory, int _drone_id){solved_trajectories_[_drone_id]=solved_trajectory;}
@@ -72,7 +73,7 @@ class MissionPlanner {
   const float REACH_TOL = 1; //! tolerance to reach waypoints
 
   virtual std::vector<state> initialTrajectory(const state &_initial_pose){return pathFromPointToAnother(states_[param_.drone_id].pos, goals_[0].pos);}
-  virtual std::vector<state> initialTrajectoryToInspect(){}
+  virtual std::vector<state> initialTrajectoryToInspect(const state &initial_pose){}
   virtual void optimalTrajectory(const std::vector<state> &initial_trajectory);
   virtual state nextGoal(){return goals_[0];}
   /**
@@ -89,4 +90,5 @@ class MissionPlanner {
    * 
    */
   bool isInspectionZone(const Eigen::Vector3d &drone_pose);
+  int closestPoint(const std::vector<state> &initial_trajectory, const state point);
 };

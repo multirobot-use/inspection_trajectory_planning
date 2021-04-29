@@ -12,15 +12,19 @@ void MissionPlanner::plan() {
   
   if(!checks()) return;
   reference_traj.clear();
-  
-
-  state initial_pose = states_[param_.drone_id];
-
+  state initial_pose;
+  if(planner_state_== PlannerStatus::FIRST_PLAN){
+    initial_pose = states_[param_.drone_id];
+  }else{
+    int shift = closestPoint(last_trajectory_,states_[param_.drone_id]);
+    initial_pose = last_trajectory_[param_.planning_rate/param_.step_size+shift];
+    std::cout<<"i: "<<param_.planning_rate/param_.step_size+shift<<std::endl;
+  }
   // calculate initial trajectory
   if(isInspectionZone(states_[param_.drone_id].pos)){
     // std::cout<<"TODO: implement trajectory to Inspect"<<std::endl;
     // return;
-    reference_traj = initialTrajectoryToInspect();
+    reference_traj = initialTrajectoryToInspect(initial_pose);
   }else{
     reference_traj = initialTrajectory(initial_pose);
   }
@@ -194,12 +198,12 @@ void MissionPlanner::optimalTrajectory(const std::vector<state> &initial_traject
   ocp.subjectTo(  -param_.vel_max_xy <= vy_ <= param_.vel_max_xy   );
   ocp.subjectTo(  -param_.vel_max_z  <= vz_ <= param_.vel_max_z   );
 
-  // ocp.subjectTo(ACADO::AT_START, px_ == states_[param_.drone_id].pos(0));
-  // ocp.subjectTo(ACADO::AT_START, py_ == states_[param_.drone_id].pos(1));
-  // ocp.subjectTo(ACADO::AT_START, pz_ == states_[param_.drone_id].pos(2));
-  // ocp.subjectTo(ACADO::AT_START, vx_ == states_[param_.drone_id].vel(0));
-  // ocp.subjectTo(ACADO::AT_START, vy_ == states_[param_.drone_id].vel(1));
-  // ocp.subjectTo(ACADO::AT_START, vz_ == states_[param_.drone_id].vel(2));
+  // ocp.subjectTo(ACADO::AT_START, px_ == initial_trajectory[0].pos(0));
+  // ocp.subjectTo(ACADO::AT_START, py_ == initial_trajectory[0].pos(1));
+  // ocp.subjectTo(ACADO::AT_START, pz_ == initial_trajectory[0].pos(2));
+  // ocp.subjectTo(ACADO::AT_START, vx_ == initial_trajectory[0].vel(0));
+  // ocp.subjectTo(ACADO::AT_START, vy_ == initial_trajectory[0].vel(1));
+  // ocp.subjectTo(ACADO::AT_START, vz_ == initial_trajectory[0].vel(2));
   // ocp.subjectTo(ACADO::AT_START, ax_ == initial_trajectory[0].acc(0));
   // ocp.subjectTo(ACADO::AT_START, ay_ == initial_trajectory[0].acc(1));
   // ocp.subjectTo(ACADO::AT_START, az_ == initial_trajectory[0].acc(2));
@@ -231,11 +235,16 @@ void MissionPlanner::optimalTrajectory(const std::vector<state> &initial_traject
   ACADO::OptimizationAlgorithm solver(ocp);
 
   solver.set(ACADO::MAX_TIME, 2.0); // TODO: have it as parameter
+<<<<<<< HEAD
   // solver.set(ACADO::PRINT_INTEGRATOR_PROFILE, false);    	
   // solver.set(ACADO::CONIC_SOLVER_PRINT_LEVEL, ACADO::NONE);
   solver.set(ACADO::PRINTLEVEL, ACADO::NONE);
   solver.set(ACADO::PRINT_COPYRIGHT, ACADO::NONE);
   solver.set(ACADO::INTEGRATOR_PRINTLEVEL, ACADO::NONE);
+=======
+  solver.set(ACADO::PRINTLEVEL, ACADO::NONE);
+  solver.set(ACADO::PRINT_COPYRIGHT, ACADO::NONE);
+>>>>>>> db7c76dc0f1653db4aac82f13456e6864f4c9c86
   
   bool solver_success = solver.solve();
   
@@ -243,6 +252,7 @@ void MissionPlanner::optimalTrajectory(const std::vector<state> &initial_traject
 
   solver.getDifferentialStates(output_states);
   solver.getControls(output_control);
+
   for (int k = 0; k < param_.horizon_length; k++) {
     last_trajectory_[k].pos(0) = output_states(k, 0);
     last_trajectory_[k].pos(1) = output_states(k, 1);
@@ -263,6 +273,7 @@ void MissionPlanner::optimalTrajectory(const std::vector<state> &initial_traject
   ax_.clearStaticCounters();
   ay_.clearStaticCounters();
   az_.clearStaticCounters();
+
 };
 
 bool MissionPlanner::isInspectionZone(const Eigen::Vector3d &drone_pose){
@@ -279,4 +290,15 @@ bool MissionPlanner::isInspectionZone(const Eigen::Vector3d &drone_pose){
   else return true;
 }
 
-
+int MissionPlanner::closestPoint(const std::vector<state> &initial_trajectory, const state point){
+  float dist, aux_dist = INFINITY;
+  int idx = 0;
+  for(int i = 0; i<initial_trajectory.size();i++){
+    aux_dist = (initial_trajectory[i].pos-point.pos).norm();
+    if(aux_dist<dist){
+      dist = aux_dist;
+      idx = i;
+    }
+  }
+  return idx;
+}
