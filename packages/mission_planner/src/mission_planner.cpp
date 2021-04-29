@@ -16,8 +16,9 @@ void MissionPlanner::plan() {
   if(planner_state_== PlannerStatus::FIRST_PLAN){
     initial_pose = states_[param_.drone_id];
   }else{
-    int shift = closestPoint(last_trajectory_,states_[param_.drone_id]);
-    initial_pose = last_trajectory_[param_.planning_rate/param_.step_size+shift];
+    if(shift>param_.horizon_length) shift = param_.horizon_length; 
+    initial_pose = last_trajectory_[shift];
+
     std::cout<<"i: "<<param_.planning_rate/param_.step_size+shift<<std::endl;
   }
   // calculate initial trajectory
