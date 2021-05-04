@@ -70,7 +70,6 @@ state MissionPlannerDurableLeader::calcNextPoint(const state &_state, const bool
 
 void MissionPlannerDurableLeader::appendGoal(const state &_new_goal) {
   state goal;
-
   Eigen::Vector3d goal_vector = _new_goal.pos;
 
   goal.pos = pointOnCircle(goal_vector);
