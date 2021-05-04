@@ -6,8 +6,7 @@ leader_id: 1        #drone_id
 step_size: 0.2     # seconds
 planning_rate: 1   # sec
 visualization_rate: 3   # sec
-vel_max_xy: 0.7         # m/s
-vel_max_z: 0.7         # m/s
+vel_max: 0.7         # m/s
 acc_max: 1         # m/s²
 inspection_dist: 4 # m 
 

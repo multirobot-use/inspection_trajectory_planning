@@ -8,8 +8,7 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader) : n
   safeGetParam(nh_, "step_size", param_.step_size);
   safeGetParam(nh_, "planning_rate", param_.planning_rate);
   safeGetParam(nh_, "drone_id", param_.drone_id);
-  safeGetParam(nh_, "vel_max_xy", param_.vel_max_xy);
-  safeGetParam(nh_, "vel_max_z", param_.vel_max_z);
+  safeGetParam(nh_, "vel_max", param_.vel_max);
   safeGetParam(nh_, "acc_max", param_.acc_max);
   safeGetParam(nh_, "frame", param_.frame);
   safeGetParam(nh_, "drone_id", param_.drone_id);

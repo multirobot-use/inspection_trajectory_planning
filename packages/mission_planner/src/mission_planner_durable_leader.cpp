@@ -79,7 +79,7 @@ void MissionPlannerDurableLeader::appendGoal(const state &_new_goal) {
 
 float MissionPlannerDurableLeader::velmaxToPolar(){
   // Ang_vel = step_linear_distance / total_linear_distance
-  return ((param_.vel_max_xy*param_.step_size)/(distance_to_inspect_point_*2*M_PI))*2*M_PI;
+  return ((param_.vel_max*param_.step_size)/(distance_to_inspect_point_*2*M_PI))*2*M_PI;
 }
 
 float MissionPlannerDurableLeader::getTotalAngleOfSection(const float &_initial_angle, const float &_final_angle, const bool &_clockwise){

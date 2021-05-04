@@ -9,8 +9,7 @@ struct parameters {
   float planning_rate = 0.0;  // sec
   float visualization_rate = 0.0;  // sec
   int drone_id = 0;
-  float vel_max_xy = 0.0;
-  float vel_max_z = 0.0;
+  float vel_max = 0.0;
   float acc_max = 0.0;
   std::string frame;
   float inspection_dist = 1; // meters
