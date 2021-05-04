@@ -72,7 +72,7 @@ class MissionPlanner {
  private:
   const float REACH_TOL = 1; //! tolerance to reach waypoints
 
-  virtual std::vector<state> initialTrajectory(const state &_initial_pose){return pathFromPointToAnother(states_[param_.drone_id].pos, goals_[0].pos);}
+  virtual std::vector<state> initialTrajectory(const state &_initial_pose){return pathFromPointToAnother(_initial_pose.pos, goals_[0].pos);}
   virtual std::vector<state> initialTrajectoryToInspect(const state &initial_pose){}
   virtual void optimalTrajectory(const std::vector<state> &initial_trajectory);
   virtual state nextGoal(){return goals_[0];}

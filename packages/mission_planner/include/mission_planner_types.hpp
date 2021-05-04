@@ -36,8 +36,16 @@ inline Eigen::Vector3d pointOnSphere(const Eigen::Vector3d point, const Eigen::V
   return (R*(point - inspection_point)/((point - inspection_point).norm()) + inspection_point);
 }
 
+// From -pi to pi
 inline float getAngle(const Eigen::Vector3d _state, const Eigen::Vector3d _inspection_point){
   return atan2(_state(1) - _inspection_point(1), _state(0) - _inspection_point(0));
+}
+
+// From 0 to 2*pi
+inline float getNormalizedAngle(const Eigen::Vector3d _state, const Eigen::Vector3d _inspection_point){
+  float angle = getAngle(_state, _inspection_point);
+  if (angle < 0)        return (angle + 2*M_PI);
+  else                  return angle;
 }
 
 template <typename T>

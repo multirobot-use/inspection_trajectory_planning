@@ -17,6 +17,7 @@ void MissionPlanner::plan() {
     initial_pose = states_[param_.drone_id];
   }else{
     int shift = closestPoint(last_trajectory_,states_[param_.drone_id]);
+    std::cout<<shift<<std::endl;
     initial_pose = last_trajectory_[param_.planning_rate/param_.step_size+shift];
     std::cout<<"i: "<<param_.planning_rate/param_.step_size+shift<<std::endl;
   }
@@ -286,10 +287,12 @@ bool MissionPlanner::isInspectionZone(const Eigen::Vector3d &drone_pose){
 }
 
 int MissionPlanner::closestPoint(const std::vector<state> &initial_trajectory, const state point){
-  float dist, aux_dist = INFINITY;
+  float dist = INFINITY;
+  float aux_dist = 0;
   int idx = 0;
   for(int i = 0; i<initial_trajectory.size();i++){
     aux_dist = (initial_trajectory[i].pos-point.pos).norm();
+    std::cout<<aux_dist<<std::endl;
     if(aux_dist<dist){
       dist = aux_dist;
       idx = i;
