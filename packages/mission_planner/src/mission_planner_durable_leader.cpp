@@ -5,46 +5,74 @@ MissionPlannerDurableLeader::MissionPlannerDurableLeader(parameters params)
 MissionPlannerDurableLeader::~MissionPlannerDurableLeader(){};
 
 std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(const state &initial_pose){
-  std::vector<state> traj;
-  state state_in_circle;
-  int goal = 0;
-  // int total_section_steps;
-  float vel_polar_angle;
-  state_in_circle.pos = pointOnCircle(initial_pose.pos);
-  traj.push_back(state_in_circle);
-  Eigen::Vector3d vel_unitary(0,0,0);
+  
+  std::vector<state> traj;  // trajectory to return in that function
+  // transform to polar initial and final point
+  Eigen::Vector3d initial_pose_polar = transformToPolar(initial_pose.pos, point_to_inspect_ );
+  Eigen::Vector3d final_pose_polar = transformToPolar(goals_[0].pos, point_to_inspect_ );
 
-  // Temporary fix: if we do not consider the rest state, all the sections will go always in the same direction
-  vel_unitary     = (goals_[goal].pos - state_in_circle.pos)/(goals_[goal].pos - state_in_circle.pos).norm();
+  // calculate curve length and theta_total
+  float theta_total = getTotalAngle(initial_pose_polar(1),final_pose_polar(1),true); // to put isClockWIse
+  float curve_length = sqrt(pow(distance_to_inspect_point_,2)*pow(theta_total,2)+pow(final_pose_polar(2)-initial_pose_polar(2),2));
 
-  // Not changing, at least for now
-  if (PlannerStatus::FIRST_PLAN || init == true){
-    init = false;
-    init_point_ = pointOnCircle(initial_pose.pos);
-    std::cout << "Init Z point" << std::to_string(init_point_[2]) << std::endl;
-    std::cout << "Going to Z point" << std::to_string(goals_[0].pos(2)) << std::endl;
-    clockwise   = isClockWise(vel_unitary, state_in_circle);
+  Eigen::Vector3d k_point_polar;
+  Eigen::Vector3d k_point_xyz;
+  state k_state;
+  for(int k = 0; k< param_.horizon_length; k++){
+    // calculate parameter tk
+    float t_k = (param_.vel_max*param_.step_size*k)/curve_length;
+    // calculate point with parameter tk
+    k_point_polar(0) = distance_to_inspect_point_;
+    k_point_polar(1) = initial_pose_polar(1)+(theta_total)*t_k;
+    k_point_polar(2) = initial_pose_polar(2)+(final_pose_polar(2)-initial_pose_polar(2))*t_k;
+
+    //polar to cartesians
+    k_point_xyz(0) = distance_to_inspect_point_*cos(k_point_polar(1));
+    k_point_xyz(1) = distance_to_inspect_point_*sin(k_point_polar(1));
+    k_point_xyz(2) = k_point_polar(2);
+    k_state.pos = k_point_xyz;
+    traj.push_back(std::move(k_state));
   }
 
-  for(int i = 1; i < param_.horizon_length; i++){
-    // Temporary fix: if we do not consider the rest state, all the sections will go always in the same direction
-    vel_unitary       = (goals_[goal].pos - state_in_circle.pos)/(goals_[goal].pos - state_in_circle.pos).norm(); 
-    state_in_circle   = calcNextPoint(state_in_circle, clockwise, goal);
-    traj.push_back(state_in_circle);
+  // state state_in_circle;
+  // int goal = 0;
+  // // int total_section_steps;
+  // float vel_polar_angle;
+  // state_in_circle.pos = pointOnCircle(initial_pose.pos);
+  // traj.push_back(state_in_circle);
+  // Eigen::Vector3d vel_unitary(0,0,0);
 
-    if((state_in_circle.pos - goals_[goal].pos).norm() < 0.5){
-      std::cout << std::endl << "Reached a goal during interpolation!" << std::endl;
-      goal++;
-    }
+  // // Temporary fix: if we do not consider the rest state, all the sections will go always in the same direction
+  // vel_unitary     = (goals_[goal].pos - state_in_circle.pos)/(goals_[goal].pos - state_in_circle.pos).norm();
 
-    if(goal == goals_.size()){
+  // // Not changing, at least for now
+  // if (PlannerStatus::FIRST_PLAN || init == true){
+  //   init = false;
+  //   init_point_ = pointOnCircle(initial_pose.pos);
+  //   std::cout << "Init Z point" << std::to_string(init_point_[2]) << std::endl;
+  //   std::cout << "Going to Z point" << std::to_string(goals_[0].pos(2)) << std::endl;
+  //   clockwise   = isClockWise(vel_unitary, state_in_circle);
+  // }
 
-      while(i < (param_.horizon_length - 1)) {
-        traj.push_back(state_in_circle);
-        i++;}
-      break;
-    }
-  }
+  // for(int i = 1; i < param_.horizon_length; i++){
+  //   // Temporary fix: if we do not consider the rest state, all the sections will go always in the same direction
+  //   vel_unitary       = (goals_[goal].pos - state_in_circle.pos)/(goals_[goal].pos - state_in_circle.pos).norm(); 
+  //   state_in_circle   = calcNextPoint(state_in_circle, clockwise, goal);
+  //   traj.push_back(state_in_circle);
+
+  //   if((state_in_circle.pos - goals_[goal].pos).norm() < 0.5){
+  //     std::cout << std::endl << "Reached a goal during interpolation!" << std::endl;
+  //     goal++;
+  //   }
+
+    // if(goal == goals_.size()){
+
+    //   while(i < (param_.horizon_length - 1)) {
+    //     traj.push_back(state_in_circle);
+    //     i++;}
+    //   break;
+    // }
+  //}
   
   return traj;
 }
@@ -56,7 +84,7 @@ state MissionPlannerDurableLeader::calcNextPoint(const state &_state, const bool
   float current_angle     = getNormalizedAngle(_state.pos, point_to_inspect_);
   float initial_angle     = getNormalizedAngle(init_point_, point_to_inspect_);
   float final_angle       = getNormalizedAngle(goals_[_goal].pos, point_to_inspect_);
-  float total_angle       = getTotalAngleOfSection(initial_angle, final_angle, clockwise);
+  float total_angle       = getTotalAngle(initial_angle, final_angle, clockwise);
   // std::cout << "Total angle: " << std::to_string(total_angle) << std::endl;
   float vel_polar_angle   = velmaxToPolar(total_angle);
 
@@ -114,7 +142,7 @@ float MissionPlannerDurableLeader::velmaxToPolar(const float &_total_angle){
   return (param_.vel_max*param_.step_size)/(distance_to_inspect_point_*_total_angle);
 }
 
-float MissionPlannerDurableLeader::getTotalAngleOfSection(const float &_initial_angle, const float &_final_angle, const bool &_clockwise){
+float MissionPlannerDurableLeader::getTotalAngle(const float &_initial_angle, const float &_final_angle, const bool &_clockwise){
   float total_angle, initial_angle, final_angle;
 
   if (_initial_angle < 0)         initial_angle  = _initial_angle  + 2*M_PI;
@@ -140,7 +168,7 @@ int MissionPlannerDurableLeader::getSectionSteps(const state &_initial_point, co
 
   float initial_angle   = getAngle(_initial_point.pos, point_to_inspect_);
   float final_angle     = getAngle(_final_point.pos, point_to_inspect_);
-  float total_angle     = getTotalAngleOfSection(initial_angle, final_angle, _clockwise);
+  float total_angle     = getTotalAngle(initial_angle, final_angle, _clockwise);
 
   float angle_pass      = velmaxToPolar(total_angle);
   
