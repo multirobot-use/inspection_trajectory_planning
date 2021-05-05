@@ -69,16 +69,27 @@ state MissionPlannerDurableLeader::calcNextPoint(const state &_state, const bool
   next_point.pos(0) = point_to_inspect_(0) + distance_to_inspect_point_*cos(current_angle);
   next_point.pos(1) = point_to_inspect_(1) + distance_to_inspect_point_*sin(current_angle);
   
-  // Z position. NOTE: if saturation, it may be interesting maximizing velocity on XY 
-  if (abs(_state.pos(2) - goals_[_goal].pos(2)) < tol)          next_point.pos(2) = goals_[_goal].pos(2);
+  // Z position. NOTE: if saturation, it may be interesting maximizing velocity on XY
 
-  else if (abs(_state.pos(2) - goals_[_goal].pos(2)) < tol)     next_point.pos(2) = goals_[_goal].pos(2);
+  // // WITH SATURATIONS
+  // if (abs(_state.pos(2) - goals_[_goal].pos(2)) < tol)          next_point.pos(2) = goals_[_goal].pos(2);
 
-    else if (_goal > 0) next_point.pos(2) = _state.pos(2) +
-          (goals_[_goal].pos(2) - goals_[_goal-1].pos(2))*(param_.vel_max*param_.step_size/(sqrt( pow(distance_to_inspect_point_*total_angle,2) + pow(goals_[_goal].pos(2) - goals_[_goal-1].pos(2),2) ) ));
+  // else if (abs(_state.pos(2) - goals_[_goal].pos(2)) < tol)     next_point.pos(2) = goals_[_goal].pos(2);
 
-      else  next_point.pos(2) = _state.pos(2) +
-            (goals_[_goal].pos(2) - init_point_[2])*(param_.vel_max*param_.step_size/(sqrt( pow(distance_to_inspect_point_*total_angle,2) + pow(goals_[_goal].pos(2) - init_point_[2],2) ) ));
+  //   else if (_goal > 0) next_point.pos(2) = _state.pos(2) +
+  //         (goals_[_goal].pos(2) - goals_[_goal-1].pos(2))*(param_.vel_max*param_.step_size/(sqrt( pow(distance_to_inspect_point_*total_angle,2) + pow(goals_[_goal].pos(2) - goals_[_goal-1].pos(2),2) ) ));
+
+  //     else  next_point.pos(2) = _state.pos(2) +
+  //           (goals_[_goal].pos(2) - init_point_[2])*(param_.vel_max*param_.step_size/(sqrt( pow(distance_to_inspect_point_*total_angle,2) + pow(goals_[_goal].pos(2) - init_point_[2],2) ) ));
+
+  // WITHOUT SATURATIONS
+  if (_goal > 0)  next_point.pos(2) = _state.pos(2) +
+                  (goals_[_goal].pos(2) - goals_[_goal-1].pos(2))*(param_.vel_max*param_.step_size/(sqrt( pow(distance_to_inspect_point_*total_angle,2) + pow(goals_[_goal].pos(2) - goals_[_goal-1].pos(2),2) ) ));
+  
+  else            next_point.pos(2) = _state.pos(2) +
+                  (goals_[_goal].pos(2) - init_point_[2])*(param_.vel_max*param_.step_size/(sqrt( pow(distance_to_inspect_point_*total_angle,2) + pow(goals_[_goal].pos(2) - init_point_[2],2) ) ));
+
+
 
   // std::cout << std::to_string(next_point.pos(2)) << std::endl;
 
