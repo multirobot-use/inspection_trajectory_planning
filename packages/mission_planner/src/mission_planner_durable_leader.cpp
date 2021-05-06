@@ -8,23 +8,23 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(const
   
   std::vector<state> traj;  // trajectory to return in that function
   // transform to polar initial and final point
-  Eigen::Vector3d initial_pose_polar = transformToPolar(initial_pose.pos, point_to_inspect_ );
-  Eigen::Vector3d final_pose_polar = transformToPolar(goals_[0].pos, point_to_inspect_ );
+  Eigen::Vector3d initial_pose_polar  = transformToPolar(initial_pose.pos, point_to_inspect_ );
+  Eigen::Vector3d final_pose_polar    = transformToPolar(goals_[0].pos, point_to_inspect_ );
 
   // calculate curve length and theta_total
-  float theta_total = getTotalAngle(initial_pose_polar(1),final_pose_polar(1),true); // to put isClockWIse
-  float curve_length = sqrt(pow(distance_to_inspect_point_,2)*pow(theta_total,2)+pow(final_pose_polar(2)-initial_pose_polar(2),2));
+  float theta_total   = getTotalAngle(initial_pose_polar(1), final_pose_polar(1), true); // to put isClockWIse
+  float curve_length  = sqrt(pow(distance_to_inspect_point_, 2)*pow(theta_total, 2) + pow(final_pose_polar(2) - initial_pose_polar(2), 2));
 
   Eigen::Vector3d k_point_polar;
   Eigen::Vector3d k_point_xyz;
   state k_state;
-  for(int k = 0; k< param_.horizon_length; k++){
+  for(int k = 0; k < param_.horizon_length; k++){
     // calculate parameter tk
     float t_k = (param_.vel_max*param_.step_size*k)/curve_length;
     // calculate point with parameter tk
     k_point_polar(0) = distance_to_inspect_point_;
-    k_point_polar(1) = initial_pose_polar(1)+(theta_total)*t_k;
-    k_point_polar(2) = initial_pose_polar(2)+(final_pose_polar(2)-initial_pose_polar(2))*t_k;
+    k_point_polar(1) = initial_pose_polar(1) + (theta_total)*t_k;
+    k_point_polar(2) = initial_pose_polar(2) + (final_pose_polar(2) - initial_pose_polar(2))*t_k;
 
     //polar to cartesians
     k_point_xyz(0) = distance_to_inspect_point_*cos(k_point_polar(1));
@@ -152,11 +152,11 @@ float MissionPlannerDurableLeader::getTotalAngle(const float &_initial_angle, co
 
   if (_clockwise){
     if (initial_angle < final_angle)    total_angle = initial_angle + (2*M_PI - final_angle);
-    else                                total_angle = final_angle - initial_angle;
+    else                                total_angle = initial_angle - final_angle;
   }
   else{
     if (initial_angle > final_angle)    total_angle = final_angle + (2*M_PI - initial_angle);
-    else                                total_angle = initial_angle - final_angle;
+    else                                total_angle = final_angle - initial_angle;
   }
 
   return abs(total_angle);
