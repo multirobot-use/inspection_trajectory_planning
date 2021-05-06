@@ -12,7 +12,8 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(const
   Eigen::Vector3d final_pose_polar    = transformToPolar(goals_[0].pos, point_to_inspect_ );
 
   // calculate curve length and theta_total
-  float theta_total   = getTotalAngle(initial_pose_polar(1), final_pose_polar(1), true); // to put isClockWIse
+  float theta_total   = getTotalAngle(initial_pose_polar(1), final_pose_polar(1));
+  // std::cout << std::to_string(theta_total) << std::endl;
   float curve_length  = sqrt(pow(distance_to_inspect_point_, 2)*pow(theta_total, 2) + pow(final_pose_polar(2) - initial_pose_polar(2), 2));
 
   Eigen::Vector3d k_point_polar;
@@ -84,7 +85,7 @@ state MissionPlannerDurableLeader::calcNextPoint(const state &_state, const bool
   float current_angle     = getNormalizedAngle(_state.pos, point_to_inspect_);
   float initial_angle     = getNormalizedAngle(init_point_, point_to_inspect_);
   float final_angle       = getNormalizedAngle(goals_[_goal].pos, point_to_inspect_);
-  float total_angle       = getTotalAngle(initial_angle, final_angle, clockwise);
+  float total_angle       = getTotalAngle(initial_angle, final_angle);
   // std::cout << "Total angle: " << std::to_string(total_angle) << std::endl;
   float vel_polar_angle   = velmaxToPolar(total_angle);
 
@@ -142,7 +143,7 @@ float MissionPlannerDurableLeader::velmaxToPolar(const float &_total_angle){
   return (param_.vel_max*param_.step_size)/(distance_to_inspect_point_*_total_angle);
 }
 
-float MissionPlannerDurableLeader::getTotalAngle(const float &_initial_angle, const float &_final_angle, const bool &_clockwise){
+float MissionPlannerDurableLeader::getTotalAngle(const float &_initial_angle, const float &_final_angle){
   float total_angle, initial_angle, final_angle;
 
   if (_initial_angle < 0)         initial_angle  = _initial_angle  + 2*M_PI;
@@ -150,16 +151,32 @@ float MissionPlannerDurableLeader::getTotalAngle(const float &_initial_angle, co
   if (_final_angle < 0)           final_angle    = _final_angle    + 2*M_PI;
   else                            final_angle    = _final_angle;
 
-  if (_clockwise){
-    if (initial_angle < final_angle)    total_angle = initial_angle + (2*M_PI - final_angle);
-    else                                total_angle = initial_angle - final_angle;
-  }
-  else{
-    if (initial_angle > final_angle)    total_angle = final_angle + (2*M_PI - initial_angle);
-    else                                total_angle = final_angle - initial_angle;
-  }
+  // Get the shortest path (should be always between [-M_PI, M_PI])
+  if (final_angle - initial_angle > M_PI)                                             total_angle = -(initial_angle + (2*M_PI - final_angle));
+  if ((final_angle - initial_angle < M_PI) && (final_angle - initial_angle < 0))      total_angle = -(initial_angle - final_angle);
+  if (final_angle - initial_angle < -M_PI)                                            total_angle = final_angle + (2*M_PI - initial_angle);
+  if ((final_angle - initial_angle < M_PI) && (final_angle - initial_angle > 0))      total_angle = final_angle - initial_angle;
 
-  return abs(total_angle);
+
+
+  
+  // initial_angle  = _initial_angle;
+  // final_angle    = _final_angle;
+  // if (_clockwise){
+  //   if (initial_angle < final_angle)    total_angle = initial_angle + (2*M_PI - final_angle);
+  //   else                                total_angle = initial_angle - final_angle;
+  // }
+  // else{
+  //   if (initial_angle > final_angle)    total_angle = final_angle + (2*M_PI - initial_angle);
+  //   else                                total_angle = final_angle - initial_angle;
+  // }
+
+  // if (total_angle > M_PI)       return total_angle + 2*M_PI;
+  // else if (total_angle < M_PI)  return total_angle - 2*M_PI;
+  //   else                        return total_angle;
+  
+  return total_angle;
+  
 }
 
 // Need to know for the z increase in each section point
@@ -168,7 +185,7 @@ int MissionPlannerDurableLeader::getSectionSteps(const state &_initial_point, co
 
   float initial_angle   = getAngle(_initial_point.pos, point_to_inspect_);
   float final_angle     = getAngle(_final_point.pos, point_to_inspect_);
-  float total_angle     = getTotalAngle(initial_angle, final_angle, _clockwise);
+  float total_angle     = getTotalAngle(initial_angle, final_angle);
 
   float angle_pass      = velmaxToPolar(total_angle);
   
