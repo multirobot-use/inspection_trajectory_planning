@@ -152,8 +152,8 @@ float MissionPlannerDurableLeader::getTotalAngle(const float &_initial_angle, co
   else                            final_angle    = _final_angle;
 
   // Get the shortest path (should be always between [-M_PI, M_PI])
-  if (final_angle - initial_angle > M_PI)                                             total_angle = -(initial_angle + (2*M_PI - final_angle));
-  if ((final_angle - initial_angle < M_PI) && (final_angle - initial_angle < 0))      total_angle = -(initial_angle - final_angle);
+  if (final_angle - initial_angle > M_PI)                                             total_angle = final_angle - (initial_angle + 2*M_PI);
+  if ((final_angle - initial_angle < M_PI) && (final_angle - initial_angle < 0))      total_angle = final_angle - initial_angle;
   if (final_angle - initial_angle < -M_PI)                                            total_angle = final_angle + (2*M_PI - initial_angle);
   if ((final_angle - initial_angle < M_PI) && (final_angle - initial_angle > 0))      total_angle = final_angle - initial_angle;
 
