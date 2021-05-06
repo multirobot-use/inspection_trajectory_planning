@@ -18,7 +18,7 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(const
 
   Eigen::Vector3d k_point_polar;
   Eigen::Vector3d k_point_xyz;
-  state k_state;
+  state k_state = initial_pose;;
   for(int k = 0; k < param_.horizon_length; k++){
     // calculate parameter tk
     float t_k = (param_.vel_max*param_.step_size*k)/curve_length;

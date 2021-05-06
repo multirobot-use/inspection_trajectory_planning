@@ -32,7 +32,7 @@ const float velocity_error = 0.1;
 std::ofstream csv_ual; // logging the pose
 std::ofstream csv_record; // logging the pose
 ros::Publisher tracking_pub_;
-const float rate = 0.1;
+const float rate = 0.01; //seg
 
 int previous_pose_on_path = 0;
 
@@ -184,7 +184,13 @@ int main(int _argc, char **_argv)
             }
             ROS_INFO("Drone %d: look ahead: %d",drone_id,target_pose);
             Eigen::Vector3f pose_to_go =Eigen::Vector3f(positions[target_pose].pose.position.x,positions[target_pose].pose.position.y, positions[target_pose].pose.position.z);
-            Eigen::Vector3f vel_to_go= Eigen::Vector3f(velocities[pose_on_path].linear.x,velocities[pose_on_path].linear.y, velocities[pose_on_path].linear.z);
+            Eigen::Vector3f vel_to_go;
+            if(pose_on_path == 0){
+                Eigen::Vector3f pose_to_go =Eigen::Vector3f(positions[0].pose.position.x,positions[0].pose.position.y, positions[0].pose.position.z);
+                float dist = (pose_to_go-current_pose).norm();
+                vel_to_go= Eigen::Vector3f(velocities[pose_on_path].linear.x+dist,velocities[pose_on_path].linear.y+dist, velocities[pose_on_path].linear.z+dist);
+            }else vel_to_go= Eigen::Vector3f(velocities[pose_on_path].linear.x,velocities[pose_on_path].linear.y, velocities[pose_on_path].linear.z); 
+
             Eigen::Vector3f velocity_to_command = calculate_vel(pose_to_go, vel_to_go);
 
             //yaw

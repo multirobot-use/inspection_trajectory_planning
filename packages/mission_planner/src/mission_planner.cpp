@@ -199,15 +199,15 @@ void MissionPlanner::optimalTrajectory(const std::vector<state> &initial_traject
   ocp.subjectTo(  -param_.vel_max <= vy_ <= param_.vel_max   );
   ocp.subjectTo(  -param_.vel_max <= vz_ <= param_.vel_max   );
 
-  // ocp.subjectTo(ACADO::AT_START, px_ == initial_trajectory[0].pos(0));
-  // ocp.subjectTo(ACADO::AT_START, py_ == initial_trajectory[0].pos(1));
-  // ocp.subjectTo(ACADO::AT_START, pz_ == initial_trajectory[0].pos(2));
-  // ocp.subjectTo(ACADO::AT_START, vx_ == initial_trajectory[0].vel(0));
-  // ocp.subjectTo(ACADO::AT_START, vy_ == initial_trajectory[0].vel(1));
-  // ocp.subjectTo(ACADO::AT_START, vz_ == initial_trajectory[0].vel(2));
-  // ocp.subjectTo(ACADO::AT_START, ax_ == initial_trajectory[0].acc(0));
-  // ocp.subjectTo(ACADO::AT_START, ay_ == initial_trajectory[0].acc(1));
-  // ocp.subjectTo(ACADO::AT_START, az_ == initial_trajectory[0].acc(2));
+  ocp.subjectTo(ACADO::AT_START, px_ == initial_trajectory[0].pos(0));
+  ocp.subjectTo(ACADO::AT_START, py_ == initial_trajectory[0].pos(1));
+  ocp.subjectTo(ACADO::AT_START, pz_ == initial_trajectory[0].pos(2));
+  ocp.subjectTo(ACADO::AT_START, vx_ == initial_trajectory[0].vel(0));
+  ocp.subjectTo(ACADO::AT_START, vy_ == initial_trajectory[0].vel(1));
+  ocp.subjectTo(ACADO::AT_START, vz_ == initial_trajectory[0].vel(2));
+  ocp.subjectTo(ACADO::AT_START, ax_ == initial_trajectory[0].acc(0));
+  ocp.subjectTo(ACADO::AT_START, ay_ == initial_trajectory[0].acc(1));
+  ocp.subjectTo(ACADO::AT_START, az_ == initial_trajectory[0].acc(2));
 
   // setup reference trajectory
   ACADO::VariablesGrid reference_trajectory(6, my_grid_);
