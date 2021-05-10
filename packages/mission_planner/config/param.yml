@@ -1,16 +1,15 @@
 auto: True
+drone_ids : [1,2]
 leader_start_point: [3, 3, 3]
 follower_start_point: [3, 3, 3]
 take_off_height: 2
 take_off_blocking: False
-x_inspect: 0
-y_inspect: 0
-z_inspect: 10
-r_inspect: 6.5
+inspect: [0,0,10,6.5] # x,y,z,r
+
 
 relative_angle: 0.6
 
-n_waypoints: 3
-waypoint1: [0, 5, 9]
-waypoint2: [0, -3, 4]
-waypoint3: [2, 3, 11]
+waypoints: 
+  - [0, 5, 9]
+  - [0, -3, 4]
+  - [2, 3, 11]
