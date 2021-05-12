@@ -6,7 +6,6 @@ class MissionPlannerDurableFollower : public MissionPlanner {
         ~MissionPlannerDurableFollower();
     private:
         float formation_angle_ = 0.78; // radians
-        bool has_leader_pose_ = false;
         std::vector<state> initialTrajectory(const state &_state) override;
         bool checks();
         std::vector<state> initialTrajectoryToInspect(const state &initial_pose) override;
