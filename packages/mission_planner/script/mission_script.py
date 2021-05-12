@@ -135,14 +135,17 @@ class Drone:
             print "Service call failed: %s" %e
 
     def start_mission(self):
-        try:
-            req = SetBoolRequest()
-            req.data = True
-            self.activate_planner_service(req)
-            print "Mission has started!"
+        if self.state == State.FLYING_AUTO:
+            try:
+                req = SetBoolRequest()
+                req.data = True
+                self.activate_planner_service(req)
+                print "Mission has started!"
 
-        except rospy.ServiceException, e:
-            print("Failed calling start_mission service")
+            except rospy.ServiceException, e:
+                print("Failed calling start_mission service")
+        else:
+            print("Start mission aborted, drone is not flying auto")
 
     def add_one_waypoint(self, waypoint):
         
@@ -204,13 +207,15 @@ def show_menu(params,drones):
         for drone in drones:
             drone.take_off(params.height)
 
-    elif option == 2:
-        drones[0].start_mission()
+    elif option == 2: #start mission
+        for drone in drones:
+            drone.start_mission()
             
     elif option == 3:
-        drones[0].stop_mission()
+        for drone in drones:
+            drone.stop_mission()
             
-    elif option == 4:
+    elif option == 4: # add waypoint
         px = float(raw_input("X pose (meters): "))
         py = float(raw_input("Y pose (meters): "))
         pz = float(raw_input("Z pose (meters): "))
@@ -223,12 +228,14 @@ def show_menu(params,drones):
     elif option == 6:
         print "Please, enter the desired relative angle between follower drones and the leader drone (Manual mode)\n"
         angle = (3.1415/180)*float(raw_input("Angle (degrees): "))
-        drones[0].change_relative_angle(angle)
+        for drone in drones:
+            drone.change_relative_angle(angle)
         
     elif option == 7:
         print "Please, enter the desired relative angle between follower drones and the leader drone (Manual mode)\n"
         distance = float(raw_input("Distance (meters): "))
-        drones[0].set_distance_inspection(distance)
+        for drone in drones:
+            drone.set_distance_inspection(distance)
         
     elif option == 8:
         print "Please, enter the desired inspection point (Manual mode):\n"
@@ -236,7 +243,8 @@ def show_menu(params,drones):
         waypoint[0] = (float(raw_input("X (meters): ")))
         waypoint[1] = (float(raw_input("Y (meters): ")))
         waypoint[2] = (float(raw_input("Z (meters): ")))
-        drones[0].change_inspection_point(waypoint)
+        for drone in drones:
+            drone.change_inspection_point(waypoint)
         
     else:
         print ("Option n " + str(option) + " does not exist!")
