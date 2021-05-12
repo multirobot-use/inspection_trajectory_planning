@@ -19,16 +19,20 @@ std::vector<state> MissionPlannerDurableFollower::initialTrajectory(const state 
 }
 
 std::vector<state> MissionPlannerDurableFollower::initialTrajectoryToInspect(const state &initial_pose){
-    state aux;
-    std::vector<state> trajectory_to_optimize;
-    trajectory_to_optimize.push_back(initial_pose);
-    Eigen::Quaterniond rotation = eulerToQuat(0,0,formation_angle_);
-    Eigen::Matrix3d rotMat = rotation.toRotationMatrix();
-    Eigen::Vector3d aux_point_to_inspect = point_to_inspect_;
-    point_to_inspect_(2) = 0;
-    for(int i = 1;i< param_.horizon_length;i++){
-      aux.pos = rotMat*(solved_trajectories_[param_.leader_id][i] - point_to_inspect_);
-      trajectory_to_optimize.push_back(std::move(aux));
+    if(hasSolvedTrajectories()){
+      state aux;
+      std::vector<state> trajectory_to_optimize;
+      trajectory_to_optimize.push_back(initial_pose);
+      Eigen::Quaterniond rotation = eulerToQuat(0,0,formation_angle_);
+      Eigen::Matrix3d rotMat = rotation.toRotationMatrix();
+      Eigen::Vector3d aux_point_to_inspect = point_to_inspect_;
+      point_to_inspect_(2) = 0;
+      for(int i = 1;i< param_.horizon_length;i++){
+        aux.pos = rotMat*(solved_trajectories_[param_.leader_id][i].pos - point_to_inspect_);
+        trajectory_to_optimize.push_back(std::move(aux));
+      }
+      return trajectory_to_optimize;
+    }else{
+      return initialTrajectory(initial_pose);
     }
-    return trajectory_to_optimize;
 }

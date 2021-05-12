@@ -166,13 +166,12 @@ bool MissionPlannerRos::changeRelativeAngleServiceCallback(mission_planner::Angl
 
 void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
   if(mission_planner_ptr_->getStatus()!=PlannerStatus::FIRST_PLAN){
-    publishTrajectoryJoint(tracking_pub_trajectory_, mission_planner_ptr_->last_trajectory_);
+    publishTrajectoryJoint(tracking_pub_trajectory_, mission_planner_ptr_->getLastTrajectory());
     // publishPath(tracking_pub_, mission_planner_ptr_->last_trajectory_);
-    publishPath(pub_path_, mission_planner_ptr_->last_trajectory_);
+    publishPath(pub_path_, mission_planner_ptr_->getLastTrajectory());
     publishPath(pub_ref_path_, mission_planner_ptr_->getReferenceTrajectory());
   }
   mission_planner_ptr_->plan();
-  
 }
 
 void MissionPlannerRos::pubVisCB(const ros::TimerEvent &e) {
@@ -193,13 +192,13 @@ void MissionPlannerRos::pubVisCB(const ros::TimerEvent &e) {
 }
 void MissionPlannerRos::solvedTrajCallback(
   const nav_msgs::Path::ConstPtr &msg, int id){
-    Eigen::Vector3d aux;
-    std::vector<Eigen::Vector3d> path;
+    state aux_state;
+    std::vector<state> path;
     for(auto pose : msg->poses){
-      aux(0) = pose.pose.position.x;
-      aux(1) = pose.pose.position.y;
-      aux(2) = pose.pose.position.z;
-      path.push_back(aux);
+      aux_state.pos(0) = pose.pose.position.x;
+      aux_state.pos(1) = pose.pose.position.y;
+      aux_state.pos(2) = pose.pose.position.z;
+      path.push_back(aux_state);
     }
     mission_planner_ptr_->setSolvedTrajectories(path, id);
 }
