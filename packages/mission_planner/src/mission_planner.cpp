@@ -2,9 +2,10 @@
 
 MissionPlanner::MissionPlanner(const parameters _param)
     : param_(_param),
-      last_trajectory_(_param.horizon_length),
       my_grid_(0.0, (param_.horizon_length - 1) * param_.step_size,
-               param_.horizon_length) {}
+               param_.horizon_length) {
+  solved_trajectories_[param_.drone_id]= std::vector<state>(_param.horizon_length);
+}
 
 MissionPlanner::~MissionPlanner() {}
 
@@ -15,22 +16,16 @@ void MissionPlanner::plan() {
   if(!checks()) return;
   reference_traj.clear();
   state initial_pose;
+  
   if(planner_state_== PlannerStatus::FIRST_PLAN){
     initial_pose = states_[param_.drone_id];
   }else{
-    int shift = closestPoint(last_trajectory_,states_[param_.drone_id]);
+    int shift = closestPoint(solved_trajectories_[param_.drone_id],states_[param_.drone_id]);
     // std::cout<<shift<<std::endl;
-    initial_pose = last_trajectory_[param_.planning_rate/param_.step_size+shift];
+    initial_pose = solved_trajectories_[param_.drone_id][param_.planning_rate/param_.step_size+shift];
     // std::cout<<"i: "<<param_.planning_rate/param_.step_size+shift<<std::endl;
   }
-  // calculate initial trajectory
-  // if(isInspectionZone(states_[param_.drone_id].pos)){
-  //   // std::cout<<"TODO: implement trajectory to Inspect"<<std::endl;
-  //   // return;
-  //   reference_traj = initialTrajectoryToInspect(initial_pose);
-  // }else{
-  //   reference_traj = initialTrajectory(initial_pose);
-  // }
+  
   reference_traj = initialTrajectoryToInspect(initial_pose);
 
   if(reference_traj.empty()){
@@ -44,7 +39,7 @@ void MissionPlanner::plan() {
     optimalTrajectory(reference_traj);
   }
   // calculate orientation
-  initialOrientation(last_trajectory_);
+  initialOrientation(solved_trajectories_[param_.drone_id]);
 
   planner_state_ = PlannerStatus::REPLANNED;
 }
@@ -253,15 +248,15 @@ void MissionPlanner::optimalTrajectory(const std::vector<state> &initial_traject
   solver.getControls(output_control);
 
   for (int k = 0; k < param_.horizon_length; k++) {
-    last_trajectory_[k].pos(0) = output_states(k, 0);
-    last_trajectory_[k].pos(1) = output_states(k, 1);
-    last_trajectory_[k].pos(2) = output_states(k, 2);
-    last_trajectory_[k].vel(0) = output_states(k, 3);
-    last_trajectory_[k].vel(1) = output_states(k, 4);
-    last_trajectory_[k].vel(2) = output_states(k, 5);
-    last_trajectory_[k].acc(0) = output_control(k, 0);
-    last_trajectory_[k].acc(1) = output_control(k, 1);
-    last_trajectory_[k].acc(2) = output_control(k, 2);
+    solved_trajectories_[param_.drone_id][k].pos(0) = output_states(k, 0);
+    solved_trajectories_[param_.drone_id][k].pos(1) = output_states(k, 1);
+    solved_trajectories_[param_.drone_id][k].pos(2) = output_states(k, 2);
+    solved_trajectories_[param_.drone_id][k].vel(0) = output_states(k, 3);
+    solved_trajectories_[param_.drone_id][k].vel(1) = output_states(k, 4);
+    solved_trajectories_[param_.drone_id][k].vel(2) = output_states(k, 5);
+    solved_trajectories_[param_.drone_id][k].acc(0) = output_control(k, 0);
+    solved_trajectories_[param_.drone_id][k].acc(1) = output_control(k, 1);
+    solved_trajectories_[param_.drone_id][k].acc(2) = output_control(k, 2);
   }
   px_.clearStaticCounters();
   py_.clearStaticCounters();

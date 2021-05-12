@@ -19,7 +19,6 @@ enum MissionStatus { GO_TO = 0, MISSION_ZONE = 1};
 class MissionPlanner {
  public:
   std::vector<state> reference_traj;
-  std::vector<state> last_trajectory_;
   std::map<int, state> states_;
   MissionPlanner(const parameters _param);
   virtual ~MissionPlanner();
@@ -27,6 +26,7 @@ class MissionPlanner {
   void clearGoals() { goals_.clear(); }
   std::vector<state> getGoals(){return goals_;}
   std::vector<state> getReferenceTrajectory(){return reference_traj;}
+  std::vector<state> getLastTrajectory(){return solved_trajectories_[param_.drone_id];}
   void setPointToInspect(const Eigen::Vector3d &_point){  point_to_inspect_ = std::move(_point);}
   Eigen::Vector3d getPointToInspect(){ return point_to_inspect_;}
   void setDistanceToInspect(const float &_distance){ distance_to_inspect_point_ = _distance;}
@@ -34,7 +34,7 @@ class MissionPlanner {
   int getStatus(){return planner_state_;}
   void setRelativeAngle(const float &_angle){ relative_angle_ = _angle;}
   void plan();
-  void setSolvedTrajectories(const std::vector<Eigen::Vector3d> &solved_trajectory, int _drone_id){solved_trajectories_[_drone_id]=solved_trajectory;}
+  void setSolvedTrajectories(const std::vector<state> &solved_trajectory, int _drone_id){solved_trajectories_[_drone_id]=solved_trajectory;}
   Eigen::Vector3d pointOnCircle(const Eigen::Vector3d point);
   
  protected:
@@ -47,7 +47,7 @@ class MissionPlanner {
   bool clockwise                    = true;
   bool init                         = true;
   Eigen::Vector3d init_point_;
-  std::map<int,std::vector<Eigen::Vector3d>> solved_trajectories_;
+  std::map<int,std::vector<state>> solved_trajectories_;
   int planner_state_ = PlannerStatus::FIRST_PLAN;
 
   /**
@@ -67,6 +67,7 @@ class MissionPlanner {
    */
   
   bool hasPose(){return (states_.size() == param_.n_drones);}
+  bool hasSolvedTrajectories(){return (solved_trajectories_.size()== param_.n_drones);}
   bool hasGoal(){return !goals_.empty();}
   bool waypointReached(const state &point, const state &waypoint) {return ((point.pos-waypoint.pos).norm() < REACH_TOL);}
 
