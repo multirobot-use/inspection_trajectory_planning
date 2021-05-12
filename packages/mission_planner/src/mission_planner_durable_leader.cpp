@@ -13,21 +13,20 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(const
 
   // calculate curve length and theta_total
   float theta_total   = getTotalAngle(initial_pose_polar(1), final_pose_polar(1));
+
   // std::cout << std::to_string(theta_total) << std::endl;
   float curve_length  = sqrt(pow(distance_to_inspect_point_, 2)*pow(theta_total, 2) + pow(final_pose_polar(2) - initial_pose_polar(2), 2));
 
   Eigen::Vector3d k_point_polar;
   Eigen::Vector3d k_point_xyz;
   state k_state = initial_pose;
-  float current_radius = getRho(k_state.pos);
 
   for(int k = 0; k < param_.horizon_length; k++){
     // calculate parameter tk
     float t_k = (param_.vel_max*param_.step_size*k)/curve_length;
 
     // calculate point with parameter tk
-    k_point_polar(0) = current_radius + (distance_to_inspect_point_ - current_radius)*t_k;
-    std::cout << "Current radius: " << std::to_string(current_radius) << std::endl;
+    k_point_polar(0) = initial_pose_polar(0) + (final_pose_polar(0) - initial_pose_polar(0))*t_k;
     k_point_polar(1) = initial_pose_polar(1) + (theta_total)*t_k;
     k_point_polar(2) = initial_pose_polar(2) + (final_pose_polar(2) - initial_pose_polar(2))*t_k;
 
@@ -37,9 +36,6 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(const
     k_point_xyz(2) = k_point_polar(2);
     k_state.pos = k_point_xyz;
     traj.push_back(std::move(k_state));
-
-    // refresh the current radius
-    current_radius = getRho(k_state.pos);
   }
 
   // state state_in_circle;
