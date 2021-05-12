@@ -24,7 +24,6 @@ class MissionPlanner {
   MissionPlanner(const parameters _param);
   virtual ~MissionPlanner();
   virtual void appendGoal(const state &_goal){ goals_.push_back(std::move(_goal));}
-  void refreshGoals();
   void clearGoals() { goals_.clear(); }
   std::vector<state> getGoals(){return goals_;}
   std::vector<state> getReferenceTrajectory(){return reference_traj;}
@@ -93,4 +92,6 @@ class MissionPlanner {
    */
   bool isInspectionZone(const Eigen::Vector3d &drone_pose);
   int closestPoint(const std::vector<state> &initial_trajectory, const state point);
+  void refreshGoals(){  for (auto &goal : goals_){ goal.pos = pointOnCircle(goal.pos); }}
+
 };

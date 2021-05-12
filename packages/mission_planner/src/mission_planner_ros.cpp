@@ -171,9 +171,7 @@ void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
     publishPath(pub_path_, mission_planner_ptr_->last_trajectory_);
     publishPath(pub_ref_path_, mission_planner_ptr_->getReferenceTrajectory());
   }
-  mission_planner_ptr_->refreshGoals();
   mission_planner_ptr_->plan();
-  
 }
 
 void MissionPlannerRos::pubVisCB(const ros::TimerEvent &e) {

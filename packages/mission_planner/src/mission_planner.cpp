@@ -10,6 +10,8 @@ MissionPlanner::~MissionPlanner() {}
 
 void MissionPlanner::plan() {
   
+  refreshGoals();
+
   if(!checks()) return;
   reference_traj.clear();
   state initial_pose;
@@ -162,10 +164,6 @@ Eigen::Vector3d MissionPlanner::pointOnCircle(const Eigen::Vector3d point){
   point_on_circle_3D(2) = point(2);
 
   return point_on_circle_3D;
-}
-
-void MissionPlanner::refreshGoals() {
-  for (auto &goal : goals_){ goal.pos = pointOnCircle(goal.pos); }
 }
 
 std::vector<state> MissionPlanner::pathFromPointToAnother(const Eigen::Vector3d &initial, const Eigen::Vector3d &final){
