@@ -18,21 +18,28 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(const
 
   Eigen::Vector3d k_point_polar;
   Eigen::Vector3d k_point_xyz;
-  state k_state = initial_pose;;
+  state k_state = initial_pose;
+  float current_radius = getRho(k_state.pos);
+
   for(int k = 0; k < param_.horizon_length; k++){
     // calculate parameter tk
     float t_k = (param_.vel_max*param_.step_size*k)/curve_length;
+
     // calculate point with parameter tk
-    k_point_polar(0) = distance_to_inspect_point_;
+    k_point_polar(0) = current_radius + (distance_to_inspect_point_ - current_radius)*t_k;
+    std::cout << "Current radius: " << std::to_string(current_radius) << std::endl;
     k_point_polar(1) = initial_pose_polar(1) + (theta_total)*t_k;
     k_point_polar(2) = initial_pose_polar(2) + (final_pose_polar(2) - initial_pose_polar(2))*t_k;
 
-    //polar to cartesians
-    k_point_xyz(0) = distance_to_inspect_point_*cos(k_point_polar(1));
-    k_point_xyz(1) = distance_to_inspect_point_*sin(k_point_polar(1));
+    // polar to cartesians
+    k_point_xyz(0) = k_point_polar(0)*cos(k_point_polar(1));
+    k_point_xyz(1) = k_point_polar(0)*sin(k_point_polar(1));
     k_point_xyz(2) = k_point_polar(2);
     k_state.pos = k_point_xyz;
     traj.push_back(std::move(k_state));
+
+    // refresh the current radius
+    current_radius = getRho(k_state.pos);
   }
 
   // state state_in_circle;
@@ -141,6 +148,10 @@ void MissionPlannerDurableLeader::appendGoal(const state &_new_goal) {
 float MissionPlannerDurableLeader::velmaxToPolar(const float &_total_angle){
   // Ang_vel = step_linear_distance / total_linear_distance
   return (param_.vel_max*param_.step_size)/(distance_to_inspect_point_*_total_angle);
+}
+
+float MissionPlannerDurableLeader::getRho(const Eigen::Vector3d &_position){
+  return sqrt( pow((_position(0) - point_to_inspect_(0)),2) + pow((_position(1) - point_to_inspect_(1)),2) );
 }
 
 float MissionPlannerDurableLeader::getTotalAngle(const float &_initial_angle, const float &_final_angle){

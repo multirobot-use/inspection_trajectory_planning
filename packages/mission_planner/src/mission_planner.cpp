@@ -22,13 +22,14 @@ void MissionPlanner::plan() {
     // std::cout<<"i: "<<param_.planning_rate/param_.step_size+shift<<std::endl;
   }
   // calculate initial trajectory
-  if(isInspectionZone(states_[param_.drone_id].pos)){
-    // std::cout<<"TODO: implement trajectory to Inspect"<<std::endl;
-    // return;
-    reference_traj = initialTrajectoryToInspect(initial_pose);
-  }else{
-    reference_traj = initialTrajectory(initial_pose);
-  }
+  // if(isInspectionZone(states_[param_.drone_id].pos)){
+  //   // std::cout<<"TODO: implement trajectory to Inspect"<<std::endl;
+  //   // return;
+  //   reference_traj = initialTrajectoryToInspect(initial_pose);
+  // }else{
+  //   reference_traj = initialTrajectory(initial_pose);
+  // }
+  reference_traj = initialTrajectoryToInspect(initial_pose);
 
   if(reference_traj.empty()){
     std::cout<<"Initial trajectory empty...breaking"<<std::endl;

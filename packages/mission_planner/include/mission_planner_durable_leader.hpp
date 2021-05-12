@@ -7,9 +7,14 @@ class MissionPlannerDurableLeader : public MissionPlanner {
   MissionPlannerDurableLeader(parameters params);
   ~MissionPlannerDurableLeader();
   void appendGoal(const state &_new_goal);
+
+ protected:
+  float rho;
+
  private:
   bool checks();
   float velmaxToPolar(const float &_total_angle);
+  float getRho(const Eigen::Vector3d &_position);
   float getTotalAngle(const float &_initial_angle, const float &_final_angle);
   int getSectionSteps(const state &_initial_point, const state &_final_point, const bool &_clockwise);
   state calcNextPoint(const state &_state, const bool &_clockwise, const int &_goal);
