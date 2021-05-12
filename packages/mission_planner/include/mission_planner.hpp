@@ -24,6 +24,7 @@ class MissionPlanner {
   MissionPlanner(const parameters _param);
   virtual ~MissionPlanner();
   virtual void appendGoal(const state &_goal){ goals_.push_back(std::move(_goal));}
+  void refreshGoals();
   void clearGoals() { goals_.clear(); }
   std::vector<state> getGoals(){return goals_;}
   std::vector<state> getReferenceTrajectory(){return reference_traj;}

@@ -163,6 +163,21 @@ Eigen::Vector3d MissionPlanner::pointOnCircle(const Eigen::Vector3d point){
   return point_on_circle_3D;
 }
 
+void MissionPlanner::refreshGoals() {
+  Eigen::Vector3d point;
+  state goal2;
+  std::vector<state> aux_goals;
+
+  for (auto &goal : goals_){
+    point     = pointOnCircle(goal.pos);
+    goal2.pos = point;  
+    aux_goals.push_back(goal2);
+    // goals_.erase(goals_.begin());
+  }
+
+  goals_ = aux_goals;
+}
+
 std::vector<state> MissionPlanner::pathFromPointToAnother(const Eigen::Vector3d &initial, const Eigen::Vector3d &final){
   std::vector<state> trajectory_to_optimize;
   state aux_point;
