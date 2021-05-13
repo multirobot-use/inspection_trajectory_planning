@@ -16,6 +16,8 @@ void MissionPlanner::plan() {
   
   refreshGoals();
 
+  if (!hasGoal()) planner_state_ = PlannerStatus::FIRST_PLAN;
+
   if(!checks()) return;
   reference_traj.clear();
   state initial_pose;
