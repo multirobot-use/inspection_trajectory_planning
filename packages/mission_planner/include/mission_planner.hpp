@@ -7,6 +7,7 @@
 #include <math.h>
 #include <map>
 #include "mission_planner_types.hpp"
+#include "log.h"
 
 //! MissionPlanner class
 /*!
@@ -18,6 +19,7 @@ enum MissionStatus { GO_TO = 0, MISSION_ZONE = 1};
 
 class MissionPlanner {
  public:
+  std::unique_ptr<Logger> logger_;
   std::vector<state> reference_traj;
   std::map<int, state> states_;
   MissionPlanner(const parameters _param);
@@ -76,7 +78,7 @@ class MissionPlanner {
 
   virtual std::vector<state> initialTrajectory(const state &_initial_pose){return pathFromPointToAnother(_initial_pose.pos, goals_[0].pos);}
   virtual std::vector<state> initialTrajectoryToInspect(const state &initial_pose){}
-  virtual void optimalTrajectory(const std::vector<state> &initial_trajectory);
+  virtual bool optimalTrajectory(const std::vector<state> &initial_trajectory);
   virtual state nextGoal(){return goals_[0];}
   /**
    * @brief virtual function that makes the following checks

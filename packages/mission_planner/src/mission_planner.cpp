@@ -4,7 +4,10 @@ MissionPlanner::MissionPlanner(const parameters _param)
     : param_(_param),
       my_grid_(0.0, (param_.horizon_length - 1) * param_.step_size,
                param_.horizon_length) {
+  // initialize solved trajectory
   solved_trajectories_[param_.drone_id]= std::vector<state>(_param.horizon_length);
+  // initialize logger
+  logger_ = std::make_unique<Logger>(param_.drone_id);
 }
 
 MissionPlanner::~MissionPlanner() {}
@@ -16,7 +19,6 @@ void MissionPlanner::plan() {
   if(!checks()) return;
   reference_traj.clear();
   state initial_pose;
-  
   if(planner_state_== PlannerStatus::FIRST_PLAN){
     initial_pose = states_[param_.drone_id];
   }else{
@@ -25,18 +27,21 @@ void MissionPlanner::plan() {
     initial_pose = solved_trajectories_[param_.drone_id][param_.planning_rate/param_.step_size+shift];
     // std::cout<<"i: "<<param_.planning_rate/param_.step_size+shift<<std::endl;
   }
-  
-  reference_traj = initialTrajectoryToInspect(initial_pose);
 
+  reference_traj = initialTrajectoryToInspect(initial_pose);
   if(reference_traj.empty()){
     std::cout<<"Initial trajectory empty...breaking"<<std::endl;
   }else{
     if(trajectoryHasNan(reference_traj)){
       std::cout<<"Initial trajectory has nan"<<std::endl;
+      logger_->log(reference_traj,"Nan or Inf found in ref trajectory");
       return;
     }
     // calculate optimal trajectory
-    optimalTrajectory(reference_traj);
+    bool solver_success = optimalTrajectory(reference_traj);
+    if( solver_success!=0){
+      logger_->log(solver_success, "Error solving the ocp: ");
+    }
   }
   // calculate orientation
   initialOrientation(solved_trajectories_[param_.drone_id]);
@@ -172,8 +177,8 @@ std::vector<state> MissionPlanner::pathFromPointToAnother(const Eigen::Vector3d 
   return trajectory_to_optimize;
 }
 
-void MissionPlanner::optimalTrajectory(const std::vector<state> &initial_trajectory){
-  if(initial_trajectory.size()!=param_.horizon_length) return;
+bool MissionPlanner::optimalTrajectory(const std::vector<state> &initial_trajectory){
+  if(initial_trajectory.size()!=param_.horizon_length) return -2;
   ACADO::DifferentialState px_, py_, pz_, vx_, vy_, vz_;
   ACADO::Control ax_, ay_, az_;
   
