@@ -175,7 +175,7 @@ class Drone:
         except rospy.ServiceException, e:
             print("Failed calling stop_mission service")
 
-    def clear_all_waypoints():
+    def clear_all_waypoints(self):
         try:
             self.clear_waypoints_service()
             print "Waypoints cleared!"
@@ -197,9 +197,11 @@ def show_menu(params,drones):
     print "\t7. Change distance to inspection point"
     print "\t8. Change inspection point\n"
     
-    option = int(raw_input (">> "))
-    while (option < 1 or option > 8):
-        option = raw_input("Please, choose a valid option: ")
+    option = ord(raw_input (">> "))
+    while (option < (48+1) or option > (48+8)): # ASCII for make sure there is no error of inputs. Zero --> 48
+        option = ord(raw_input("Please, choose a valid option: "))
+
+    option = option - 48
 
     if option == 1: #prepare drones
         height = raw_input("Please, introduce a height to take off: ")
@@ -232,7 +234,7 @@ def show_menu(params,drones):
             drone.change_relative_angle(angle)
         
     elif option == 7:
-        print "Please, enter the desired relative angle between follower drones and the leader drone (Manual mode)\n"
+        print "Please, enter the desired distance to the inspection point (Manual mode)\n"
         distance = float(raw_input("Distance (meters): "))
         for drone in drones:
             drone.set_distance_inspection(distance)
