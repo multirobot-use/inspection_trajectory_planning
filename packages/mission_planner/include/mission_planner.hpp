@@ -7,7 +7,7 @@
 #include <math.h>
 #include <map>
 #include "mission_planner_types.hpp"
-// #include "log.h"
+#include "log.h"
 
 //! MissionPlanner class
 /*!
@@ -19,7 +19,7 @@ enum MissionStatus { GO_TO = 0, MISSION_ZONE = 1};
 
 class MissionPlanner {
  public:
-  // std::unique_ptr<Logger> logger_;
+  std::unique_ptr<Logger> logger_;
   std::vector<state> reference_traj;
   std::map<int, state> states_;
   MissionPlanner(const parameters _param);

@@ -7,7 +7,7 @@ MissionPlanner::MissionPlanner(const parameters _param)
   // initialize solved trajectory
   solved_trajectories_[param_.drone_id]= std::vector<state>(_param.horizon_length);
   // initialize logger
-  // logger_ = std::make_unique<Logger>(param_.drone_id);
+  logger_ = std::make_unique<Logger>(param_.drone_id);
 }
 
 MissionPlanner::~MissionPlanner() {}
@@ -36,13 +36,13 @@ void MissionPlanner::plan() {
   }else{
     if(trajectoryHasNan(reference_traj)){
       std::cout<<"Initial trajectory has nan"<<std::endl;
-      // logger_->log(reference_traj,"Nan or Inf found in ref trajectory");
+      logger_->log(reference_traj,"Nan or Inf found in ref trajectory");
       return;
     }
     // calculate optimal trajectory
     bool solver_success = optimalTrajectory(reference_traj);
     if( solver_success!=0){
-      // logger_->log(solver_success, "Error solving the ocp: ");
+      logger_->log(solver_success, "Error solving the ocp: ");
     }
   }
   // calculate orientation
