@@ -7,7 +7,7 @@ MissionPlanner::MissionPlanner(const parameters _param)
   // initialize solved trajectory
   solved_trajectories_[param_.drone_id]= std::vector<state>(_param.horizon_length);
   // initialize logger
-  logger_ = std::make_unique<Logger>(param_.drone_id);
+  // logger_ = std::make_unique<Logger>(param_.drone_id);
 }
 
 MissionPlanner::~MissionPlanner() {}
@@ -36,13 +36,13 @@ void MissionPlanner::plan() {
   }else{
     if(trajectoryHasNan(reference_traj)){
       std::cout<<"Initial trajectory has nan"<<std::endl;
-      logger_->log(reference_traj,"Nan or Inf found in ref trajectory");
+      // logger_->log(reference_traj,"Nan or Inf found in ref trajectory");
       return;
     }
     // calculate optimal trajectory
     bool solver_success = optimalTrajectory(reference_traj);
     if( solver_success!=0){
-      logger_->log(solver_success, "Error solving the ocp: ");
+      // logger_->log(solver_success, "Error solving the ocp: ");
     }
   }
   // calculate orientation
@@ -243,6 +243,7 @@ bool MissionPlanner::optimalTrajectory(const std::vector<state> &initial_traject
   solver.set(ACADO::MAX_TIME, 2.0); // TODO: have it as parameter
   // solver.set(ACADO::PRINT_INTEGRATOR_PROFILE, false);    	
   // solver.set(ACADO::CONIC_SOLVER_PRINT_LEVEL, ACADO::NONE);
+  solver.set(ACADO::RELAXATION_PARAMETER, 3.0);
   solver.set(ACADO::PRINTLEVEL, ACADO::NONE);
   solver.set(ACADO::PRINT_COPYRIGHT, ACADO::NONE);
   solver.set(ACADO::INTEGRATOR_PRINTLEVEL, ACADO::NONE);

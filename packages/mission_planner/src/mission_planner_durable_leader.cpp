@@ -34,6 +34,11 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(const
     k_point_xyz(0) = k_point_polar(0)*cos(k_point_polar(1));
     k_point_xyz(1) = k_point_polar(0)*sin(k_point_polar(1));
     k_point_xyz(2) = k_point_polar(2);
+
+    if (k == 1){
+      std::cout << "Point [rho, theta, Z] = [" << std::to_string(k_point_polar(0)) << ",  " << std::to_string(k_point_polar(1)) << ",  " << std::to_string(k_point_polar(2)) << "]" << std::endl; 
+      std::cout << "Point to inspect [rho, theta, Z] = [" << std::to_string(point_to_inspect_(0)) << ",  " << std::to_string(point_to_inspect_(1)) << ",  " << std::to_string(point_to_inspect_(2)) << "]" << std::endl;
+    }
     k_state.pos = k_point_xyz;
     traj.push_back(std::move(k_state));
   }

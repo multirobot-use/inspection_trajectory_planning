@@ -7,11 +7,11 @@
 #include <math.h>
 #include <map>
 #include "mission_planner_types.hpp"
-#include "log.h"
+// #include "log.h"
 
 //! MissionPlanner class
 /*!
- * Abstract base class for mission planner. It cannot be instatiated
+ * Abstract base class for mission planner. It cannot be instantiated
  */
 
 enum PlannerStatus { FIRST_PLAN = 0, REPLANNED = 2 };
@@ -19,7 +19,7 @@ enum MissionStatus { GO_TO = 0, MISSION_ZONE = 1};
 
 class MissionPlanner {
  public:
-  std::unique_ptr<Logger> logger_;
+  // std::unique_ptr<Logger> logger_;
   std::vector<state> reference_traj;
   std::map<int, state> states_;
   MissionPlanner(const parameters _param);

@@ -36,12 +36,18 @@ inline Eigen::Vector3d pointOnSphere(const Eigen::Vector3d point, const Eigen::V
 }
 
 inline Eigen::Vector3d transformToPolar(const Eigen::Vector3d &pose_xyz, const Eigen::Vector3d &_inspection_point){
-   Eigen::Vector3d pose_polar;
-   pose_polar(0) = sqrt(pow(pose_xyz(0)-_inspection_point(0),2)+pow(pose_xyz(1)-_inspection_point(1),2));   // r
-   pose_polar(1) = atan2(pose_xyz(1) - _inspection_point(1), pose_xyz(0) - _inspection_point(0)); //theta
-   if (pose_polar(1) < 0)       pose_polar(1) = pose_polar(1) + 2*M_PI;
-   pose_polar(2) = pose_xyz(2); //z
-   return pose_polar;
+  Eigen::Vector3d pose_polar;
+  float aux, aux2;
+  pose_polar(0) = sqrt(pow(pose_xyz(0)-_inspection_point(0),2) + pow(pose_xyz(1)-_inspection_point(1),2));   // r
+  pose_polar(1) = atan2(pose_xyz(1) - _inspection_point(1), pose_xyz(0) - _inspection_point(0)); //theta
+  if (pose_polar(1) < 0)       pose_polar(1) = pose_polar(1) + 2*M_PI;
+  if (pose_polar(1) > 2*M_PI){
+    aux   = pose_polar(1)/(2*M_PI);
+    aux2  = floor(aux);
+    pose_polar(1) = (aux - aux2)*(2*M_PI); 
+  }
+  pose_polar(2) = pose_xyz(2); //z
+  return pose_polar;
 }
 // From -pi to pi
 inline float getAngle(const Eigen::Vector3d _state, const Eigen::Vector3d _inspection_point){
