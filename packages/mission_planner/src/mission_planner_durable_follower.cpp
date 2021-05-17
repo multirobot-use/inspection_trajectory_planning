@@ -14,7 +14,7 @@ bool MissionPlannerDurableFollower::checks(){
   return true;
 }
 std::vector<state> MissionPlannerDurableFollower::initialTrajectory(const state &_state){
-  const Eigen::Vector3d goal = rotateEig(states_[1].pos,formation_angle_);
+  const Eigen::Vector3d goal = rotateEig(states_[1].pos,relative_angle_);
   return pathFromPointToAnother(_state.pos, goal);
 }
 
@@ -23,7 +23,7 @@ std::vector<state> MissionPlannerDurableFollower::initialTrajectoryToInspect(con
       state aux;
       std::vector<state> trajectory_to_optimize;
       trajectory_to_optimize.push_back(initial_pose);
-      Eigen::Quaterniond rotation = eulerToQuat(0,0,formation_angle_);
+      Eigen::Quaterniond rotation = eulerToQuat(0,0,relative_angle_);
       Eigen::Matrix3d rotMat = rotation.toRotationMatrix();
       Eigen::Vector3d aux_point_to_inspect = point_to_inspect_;
       point_to_inspect_(2) = 0;
