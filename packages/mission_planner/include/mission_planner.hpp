@@ -45,7 +45,7 @@ class MissionPlanner {
   std::vector<state> goals_;
   Eigen::Vector3d point_to_inspect_ = Eigen::Vector3d::Zero();
   float distance_to_inspect_point_  = 3;
-  float relative_angle_             = 0.4;
+  float relative_angle_             = 0.7;
   bool clockwise                    = true;
   bool init                         = true;
   Eigen::Vector3d init_point_;
