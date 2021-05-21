@@ -11,7 +11,7 @@
 
 //! MissionPlanner class
 /*!
- * Abstract base class for mission planner. It cannot be instatiated
+ * Abstract base class for mission planner. It cannot be instantiated
  */
 
 enum PlannerStatus { FIRST_PLAN = 0, REPLANNED = 2 };

@@ -31,9 +31,17 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(const
     k_point_polar(2) = initial_pose_polar(2) + (final_pose_polar(2) - initial_pose_polar(2))*t_k;
 
     // polar to cartesians
-    k_point_xyz(0) = k_point_polar(0)*cos(k_point_polar(1));
-    k_point_xyz(1) = k_point_polar(0)*sin(k_point_polar(1));
+    k_point_xyz(0) = k_point_polar(0)*cos(k_point_polar(1)) + point_to_inspect_(0);
+    k_point_xyz(1) = k_point_polar(0)*sin(k_point_polar(1)) + point_to_inspect_(1);
     k_point_xyz(2) = k_point_polar(2);
+
+    // if (k == 1){
+    //   std::cout << "Point [rho, theta, Z] = [" << std::to_string(k_point_polar(0)) << ",  " << std::to_string(k_point_polar(1)) << ",  " << std::to_string(k_point_polar(2)) << "]" << std::endl; 
+    //   // std::cout << "Point to inspect [X, Y, Z] = [" << std::to_string(point_to_inspect_(0)) << ",  " << std::to_string(point_to_inspect_(1)) << ",  " << std::to_string(point_to_inspect_(2)) << "]" << std::endl;
+    //   // std::cout << "Initial pose [rho, theta, Z] = [" << std::to_string(initial_pose_polar(0)) << ",  " << std::to_string(initial_pose_polar(1)) << ",  " << std::to_string(initial_pose_polar(2)) << "]" << std::endl; 
+    //   std::cout << "Final pose [rho, theta, Z] = [" << std::to_string(final_pose_polar(0)) << ",  " << std::to_string(final_pose_polar(1)) << ",  " << std::to_string(final_pose_polar(2)) << "]" << std::endl;
+    
+    // }
     k_state.pos = k_point_xyz;
     traj.push_back(std::move(k_state));
   }

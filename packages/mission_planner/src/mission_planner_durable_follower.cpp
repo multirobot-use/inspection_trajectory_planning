@@ -26,9 +26,9 @@ std::vector<state> MissionPlannerDurableFollower::initialTrajectoryToInspect(con
       Eigen::Quaterniond rotation = eulerToQuat(0,0,relative_angle_);
       Eigen::Matrix3d rotMat = rotation.toRotationMatrix();
       Eigen::Vector3d aux_point_to_inspect = point_to_inspect_;
-      point_to_inspect_(2) = 0;
+      aux_point_to_inspect(2) = 0;
       for(int i = 1;i< param_.horizon_length;i++){
-        aux.pos = rotMat*(solved_trajectories_[param_.leader_id][i].pos - point_to_inspect_);
+        aux.pos = rotMat*(solved_trajectories_[param_.leader_id][i].pos - aux_point_to_inspect) + aux_point_to_inspect;
         trajectory_to_optimize.push_back(std::move(aux));
       }
       return trajectory_to_optimize;
