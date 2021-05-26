@@ -5,6 +5,7 @@
 #include <geometry_msgs/TwistStamped.h>
 #include <geometry_msgs/TwistWithCovariance.h>
 #include <geometry_msgs/Point.h>
+#include <std_msgs/Float32.h>
 #include <nav_msgs/Odometry.h>
 #include <nav_msgs/Path.h>
 #include <mission_planner/WaypointSrv.h>
@@ -58,6 +59,8 @@ class MissionPlannerRos {
   ros::Publisher tracking_pub_;
   ros::Publisher tracking_pub_trajectory_;
   ros::Publisher sphere_pub_;
+  ros::Publisher distance_to_inspection_point_pub_;
+  ros::Publisher relative_angle_pub_;
   
   // Services
   ros::ServiceServer service_activate_planner;

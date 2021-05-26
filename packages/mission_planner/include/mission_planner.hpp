@@ -35,6 +35,7 @@ class MissionPlanner {
   float getDistanceToInspect(){ return distance_to_inspect_point_;}
   int getStatus(){return planner_state_;}
   void setRelativeAngle(const float &_angle){ relative_angle_ = _angle;}
+  float getRelativeAngle() {return relative_angle_;}
   void plan();
   void setSolvedTrajectories(const std::vector<state> &solved_trajectory, int _drone_id){solved_trajectories_[_drone_id]=solved_trajectory;}
   Eigen::Vector3d pointOnCircle(const Eigen::Vector3d point);

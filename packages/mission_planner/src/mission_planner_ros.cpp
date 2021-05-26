@@ -31,15 +31,19 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader) : n
         "/drone_" + std::to_string(drone) + "/ual/pose", 1,
         std::bind(&MissionPlannerRos::uavPoseCallback, this,
                   std::placeholders::_1, drone));
+
     cur_vel_sub_[drone] = nh_.subscribe<geometry_msgs::TwistStamped>(
         "/drone_" + std::to_string(drone) + "/ual/velocity", 1,
         std::bind(&MissionPlannerRos::uavVelocityCallback, this,
                   std::placeholders::_1, drone));
+
     if(drone!=param_.drone_id){
       solved_trajectories_sub_[drone] = nh_.subscribe<nav_msgs::Path>(
         "/drone_" + std::to_string(drone) + "/mission_planner_ros/solved_traj", 1,
         std::bind(&MissionPlannerRos::solvedTrajCallback, this,
                   std::placeholders::_1, drone));
+      
+
     }
   }
 
@@ -52,13 +56,16 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader) : n
   pubVis_.start();
 
   // publishers
-  points_pub_ = nh_.advertise<visualization_msgs::Marker>("points_to_inspect",1);
-  points_trans_pub_ = nh_.advertise<visualization_msgs::Marker>("points_to_inspect_transformed",1);
-  sphere_pub_ = nh_.advertise<visualization_msgs::Marker>("inspection_sphere",1);
-  pub_path_   = nh_.advertise<nav_msgs::Path>("solved_traj", 1);
-  pub_ref_path_   = nh_.advertise<nav_msgs::Path>("ref_traj", 1);
-  tracking_pub_   = nh_.advertise<nav_msgs::Path>("/drone_"+std::to_string(param_.drone_id)+"/upat_follower/follower/trajectory_to_follow", 1);
-  tracking_pub_trajectory_   = nh_.advertise<trajectory_msgs::JointTrajectory>("/drone_"+std::to_string(param_.drone_id)+"/trajectory_follower_node/trajectory_to_follow", 1);
+  points_pub_                         = nh_.advertise<visualization_msgs::Marker>("points_to_inspect", 1);
+  points_trans_pub_                   = nh_.advertise<visualization_msgs::Marker>("points_to_inspect_transformed", 1);
+  sphere_pub_                         = nh_.advertise<visualization_msgs::Marker>("inspection_sphere", 1);
+  pub_path_                           = nh_.advertise<nav_msgs::Path>("solved_traj", 1);
+  pub_ref_path_                       = nh_.advertise<nav_msgs::Path>("ref_traj", 1);
+  distance_to_inspection_point_pub_   = nh_.advertise<std_msgs::Float32>("distance_to_inspection_point", 1);
+  relative_angle_pub_                 = nh_.advertise<std_msgs::Float32>("relative_angle", 1);
+  tracking_pub_                       = nh_.advertise<nav_msgs::Path>("/drone_"+std::to_string(param_.drone_id)+"/upat_follower/follower/trajectory_to_follow", 1);
+  tracking_pub_trajectory_            = nh_.advertise<trajectory_msgs::JointTrajectory>("/drone_"+std::to_string(param_.drone_id)+"/trajectory_follower_node/trajectory_to_follow", 1);
+
   // Services
   service_activate_planner = nh_.advertiseService(
       "activate_planner", &MissionPlannerRos::activationPlannerServiceCallback,
@@ -112,9 +119,9 @@ bool MissionPlannerRos::addWaypointServiceCallback(mission_planner::WaypointSrv:
 
   state state_req;
 
-  state_req.pos(0)   = req.waypoint.pose.pose.position.x;
-  state_req.pos(1)   = req.waypoint.pose.pose.position.y;
-  state_req.pos(2)   = req.waypoint.pose.pose.position.z;
+  state_req.pos(0)  = req.waypoint.pose.pose.position.x;
+  state_req.pos(1)  = req.waypoint.pose.pose.position.y;
+  state_req.pos(2)  = req.waypoint.pose.pose.position.z;
   state_req.vel[0]  = req.waypoint.twist.twist.linear.x;
   state_req.vel[1]  = req.waypoint.twist.twist.linear.y;
   state_req.vel[2]  = req.waypoint.twist.twist.linear.z;
@@ -175,18 +182,32 @@ void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
 }
 
 void MissionPlannerRos::pubVisCB(const ros::TimerEvent &e) {
+    // publish changes on relative angle and on distance to inspection point
+    float current_distance = mission_planner_ptr_ -> getDistanceToInspect();
+    float current_angle    = mission_planner_ptr_ -> getRelativeAngle();
+
+    // an input needed for operator
+    float increase_distance = 0.01;
+    float increase_angle = 0.001;
+    publishDistance(distance_to_inspection_point_pub_, current_distance, increase_distance);
+    publishAngle(distance_to_inspection_point_pub_, current_angle, increase_angle);
+
     // publish commanded waypoint
     publishPoints(points_pub_, points_, Colors::RED );
+
     // publish transformed waypoints
     std::vector<state> goals = mission_planner_ptr_->getGoals();
+
     geometry_msgs::Point point;
     std::vector<geometry_msgs::Point> points;
+
     for(auto const &goal : goals){
       point.x = goal.pos(0);
       point.y = goal.pos(1);
       point.z = goal.pos(2);
       points.push_back(point);
     }
+
     publishPoints(points_trans_pub_, points, Colors::BLUE );
     publishSphere(sphere_pub_, Colors::YELLOW);
 }
