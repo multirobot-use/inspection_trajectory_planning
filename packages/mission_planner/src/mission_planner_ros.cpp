@@ -213,6 +213,17 @@ void MissionPlannerRos::pubVisCB(const ros::TimerEvent &e) {
     publishPoints(points_trans_pub_, points, Colors::BLUE );
     publishSphere(sphere_pub_, Colors::YELLOW);
 }
+
+void MissionPlannerRos::publishDistance(const ros::Publisher &pub_distance, float distance, float increase){
+  mission_planner_ptr_ -> setDistanceToInspect(distance + increase);
+  pub_distance.publish(distance + increase);
+}
+
+void MissionPlannerRos::publishAngle(const ros::Publisher &pub_angle, float angle, float increase){
+  mission_planner_ptr_ -> setRelativeAngle(angle + increase);
+  pub_angle.publish(angle + increase);
+}
+
 void MissionPlannerRos::solvedTrajCallback(
   const nav_msgs::Path::ConstPtr &msg, int id){
     state aux_state;
