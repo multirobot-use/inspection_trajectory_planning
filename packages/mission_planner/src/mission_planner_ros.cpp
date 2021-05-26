@@ -24,7 +24,8 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader) : n
   else{
     ROS_INFO("I'm a follower");
     mission_planner_ptr_ = std::make_unique<MissionPlannerDurableFollower>(param_);
-  } 
+  }
+
   // Subscribers
   for (int drone = 1; drone <= param_.n_drones; drone++) {
     cur_pose_sub_[drone] = nh_.subscribe<geometry_msgs::PoseStamped>(
@@ -48,9 +49,9 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader) : n
   }
 
   // create timer
-  planTimer_ = nh_.createTimer(ros::Duration(param_.planning_rate),
+  planTimer_  = nh_.createTimer(ros::Duration(param_.planning_rate),
                                &MissionPlannerRos::replanCB, this);
-  pubVis_ = nh_.createTimer(ros::Duration(param_.visualization_rate),
+  pubVis_     = nh_.createTimer(ros::Duration(param_.visualization_rate),
                                &MissionPlannerRos::pubVisCB, this);
   planTimer_.stop();
   pubVis_.start();
@@ -95,6 +96,7 @@ bool MissionPlannerRos::activationPlannerServiceCallback(
            ros::this_node::getName().c_str());
 
   res.success = true;
+
   if (req.data == false) {
     ROS_INFO("[%s]: Planning deactivated.",
             ros::this_node::getName().c_str());
@@ -119,12 +121,12 @@ bool MissionPlannerRos::addWaypointServiceCallback(mission_planner::WaypointSrv:
 
   state state_req;
 
-  state_req.pos(0)  = req.waypoint.pose.pose.position.x;
-  state_req.pos(1)  = req.waypoint.pose.pose.position.y;
-  state_req.pos(2)  = req.waypoint.pose.pose.position.z;
-  state_req.vel[0]  = req.waypoint.twist.twist.linear.x;
-  state_req.vel[1]  = req.waypoint.twist.twist.linear.y;
-  state_req.vel[2]  = req.waypoint.twist.twist.linear.z;
+  state_req.pos(0) = req.waypoint.pose.pose.position.x;
+  state_req.pos(1) = req.waypoint.pose.pose.position.y;
+  state_req.pos(2) = req.waypoint.pose.pose.position.z;
+  state_req.vel[0] = req.waypoint.twist.twist.linear.x;
+  state_req.vel[1] = req.waypoint.twist.twist.linear.y;
+  state_req.vel[2] = req.waypoint.twist.twist.linear.z;
 
   mission_planner_ptr_->appendGoal(state_req);
 
@@ -148,7 +150,7 @@ bool MissionPlannerRos::pointToInspectServiceCallback(mission_planner::PointToIn
   
   mission_planner_ptr_->setPointToInspect(point);
 
-  ROS_INFO("[%s]: Point to inspect changed successfully!   [X,  Y,  Z] = [%f,  %f,  %f]", ros::this_node::getName().c_str(), point[0], point[1], point[2]);
+  ROS_INFO("[%s]: Point to inspect changed successfully!  [X,  Y,  Z] = [%f,  %f,  %f]", ros::this_node::getName().c_str(), point[0], point[1], point[2]);
   res.success = true;
 
 }
@@ -266,7 +268,7 @@ void MissionPlannerRos::publishSphere(const ros::Publisher &pub_sphere, const Co
    marker.header.stamp = ros::Time();
    marker.ns = "my_namespace";
    marker.id = 0;
-   marker.type = visualization_msgs::Marker::CYLINDER;
+   marker.type   = visualization_msgs::Marker::CYLINDER;
    marker.action = visualization_msgs::Marker::ADD;
    // set position
    Eigen::Vector3d point_to_inspect = mission_planner_ptr_->getPointToInspect();

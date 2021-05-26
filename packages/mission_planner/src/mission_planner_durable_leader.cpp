@@ -7,14 +7,13 @@ MissionPlannerDurableLeader::~MissionPlannerDurableLeader(){};
 std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(const state &initial_pose){
   
   std::vector<state> traj;  // trajectory to return in that function
+
   // transform to polar initial and final point
   Eigen::Vector3d initial_pose_polar  = transformToPolar(initial_pose.pos, point_to_inspect_ );
   Eigen::Vector3d final_pose_polar    = transformToPolar(goals_[0].pos, point_to_inspect_ );
 
   // calculate curve length and theta_total
   float theta_total   = getTotalAngle(initial_pose_polar(1), final_pose_polar(1));
-
-  // std::cout << std::to_string(theta_total) << std::endl;
   float curve_length  = sqrt(pow(distance_to_inspect_point_, 2)*pow(theta_total, 2) + pow(final_pose_polar(2) - initial_pose_polar(2), 2));
 
   Eigen::Vector3d k_point_polar;
@@ -34,15 +33,9 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(const
     k_point_xyz(0) = k_point_polar(0)*cos(k_point_polar(1)) + point_to_inspect_(0);
     k_point_xyz(1) = k_point_polar(0)*sin(k_point_polar(1)) + point_to_inspect_(1);
     k_point_xyz(2) = k_point_polar(2);
+    k_state.pos    = k_point_xyz;
 
-    // if (k == 1){
-    //   std::cout << "Point [rho, theta, Z] = [" << std::to_string(k_point_polar(0)) << ",  " << std::to_string(k_point_polar(1)) << ",  " << std::to_string(k_point_polar(2)) << "]" << std::endl; 
-    //   // std::cout << "Point to inspect [X, Y, Z] = [" << std::to_string(point_to_inspect_(0)) << ",  " << std::to_string(point_to_inspect_(1)) << ",  " << std::to_string(point_to_inspect_(2)) << "]" << std::endl;
-    //   // std::cout << "Initial pose [rho, theta, Z] = [" << std::to_string(initial_pose_polar(0)) << ",  " << std::to_string(initial_pose_polar(1)) << ",  " << std::to_string(initial_pose_polar(2)) << "]" << std::endl; 
-    //   std::cout << "Final pose [rho, theta, Z] = [" << std::to_string(final_pose_polar(0)) << ",  " << std::to_string(final_pose_polar(1)) << ",  " << std::to_string(final_pose_polar(2)) << "]" << std::endl;
-    
-    // }
-    k_state.pos = k_point_xyz;
+    // push back the state
     traj.push_back(std::move(k_state));
   }
   
@@ -125,6 +118,7 @@ bool MissionPlannerDurableLeader::checks(){
     std::cout<<"Mission Planner "<<param_.drone_id<<" does not have all poses"<<std::endl;
     return false;
   }
+
   // check waypoints to remove or not the waypoints to follow
   if(waypointReached(goals_[0],states_[param_.drone_id])){
     std::cout<<"Removed waypoint"<<std::endl;

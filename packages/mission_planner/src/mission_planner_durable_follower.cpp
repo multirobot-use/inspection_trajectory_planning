@@ -31,6 +31,7 @@ std::vector<state> MissionPlannerDurableFollower::initialTrajectoryToInspect(con
         aux.pos = rotMat*(solved_trajectories_[param_.leader_id][i].pos - aux_point_to_inspect) + aux_point_to_inspect;
         trajectory_to_optimize.push_back(std::move(aux));
       }
+      
       return trajectory_to_optimize;
     }else{
       return initialTrajectory(initial_pose);
