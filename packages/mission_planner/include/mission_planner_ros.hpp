@@ -147,12 +147,23 @@ class MissionPlannerRos {
   */
   void publishTrajectoryJoint(const ros::Publisher &pub_path, const std::vector<state> &trajectory);
 
-  /*!
+  /*! \brief function to publish points on RViz
+   *   \param pub_points publisher
+   *   \param _points vector of points to publish
+   *   \param color color of points
   */
   void publishPoints(const ros::Publisher &pub_points, const std::vector<geometry_msgs::Point> &_points, Colors color);
 
+  /*! \brief function to publish the cylinder on RViz
+   *   \param pub_sphere publisher
+   *   \param color color of the cylinder
+  */
   void publishSphere(const ros::Publisher &pub_sphere, const Colors &color);
 
+  /*! \brief function to set the marker's color on RViz
+   *   \param marker marker
+   *   \param color color of the marker
+  */
   void setMarkerColor(visualization_msgs::Marker &marker, const Colors &color);
 
 

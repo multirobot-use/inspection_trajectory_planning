@@ -13,18 +13,19 @@ MissionPlanner::MissionPlanner(const parameters _param)
 MissionPlanner::~MissionPlanner() {}
 
 void MissionPlanner::plan() {
-  
   refreshGoals();
 
   if (!hasGoal()) planner_state_ = PlannerStatus::FIRST_PLAN;
 
   if(!checks()) return;
+
   reference_traj.clear();
   state initial_pose;
+
   if(planner_state_== PlannerStatus::FIRST_PLAN){
     initial_pose = states_[param_.drone_id];
   }else{
-    int shift = closestPoint(solved_trajectories_[param_.drone_id],states_[param_.drone_id]);
+    int shift = closestPoint(solved_trajectories_[param_.drone_id], states_[param_.drone_id]);
     // std::cout<<shift<<std::endl;
     initial_pose = solved_trajectories_[param_.drone_id][param_.planning_rate/param_.step_size+shift];
     // std::cout<<"i: "<<param_.planning_rate/param_.step_size+shift<<std::endl;
@@ -32,17 +33,17 @@ void MissionPlanner::plan() {
 
   reference_traj = initialTrajectoryToInspect(initial_pose);
   if(reference_traj.empty()){
-    std::cout<<"Initial trajectory empty...breaking"<<std::endl;
+    std::cout << "Initial trajectory empty...breaking" << std::endl;
   }else{
     if(trajectoryHasNan(reference_traj)){
-      std::cout<<"Initial trajectory has nan"<<std::endl;
-      logger_->log(reference_traj,"Nan or Inf found in ref trajectory");
+      std::cout << "Initial trajectory has nan" << std::endl;
+      logger_ -> log(reference_traj, "Nan or Inf found in ref trajectory");
       return;
     }
     // calculate optimal trajectory
     bool solver_success = optimalTrajectory(reference_traj);
-    if( solver_success!=0){
-      logger_->log(solver_success, "Error solving the ocp: ");
+    if(solver_success != 0){
+      logger_ -> log(solver_success, "Error solving the ocp: ");
     }
   }
   // calculate orientation
@@ -55,7 +56,7 @@ void MissionPlanner::initialOrientation(std::vector<state> &traj){
   Eigen::Vector3d aux;
   for(auto &point : traj){
       aux = point_to_inspect_ - point.pos;
-      point.orientation = eulerToQuat(0,0,atan2(aux(1), aux(0)));
+      point.orientation = eulerToQuat(0, 0, atan2(aux(1), aux(0)));
   }
 }
 
@@ -172,10 +173,12 @@ std::vector<state> MissionPlanner::pathFromPointToAnother(const Eigen::Vector3d 
   std::vector<state> trajectory_to_optimize;
   state aux_point;
   const Eigen::Vector3d vel((final-initial)/(final-initial).norm());
+
   for(int i = 0; i<param_.horizon_length; i++){
-    aux_point.pos =initial+  i*vel*param_.vel_max*param_.step_size;
+    aux_point.pos = initial +  i*vel*param_.vel_max*param_.step_size;
     trajectory_to_optimize.push_back(std::move(aux_point));
   }
+
   return trajectory_to_optimize;
 }
 
@@ -296,13 +299,16 @@ int MissionPlanner::closestPoint(const std::vector<state> &initial_trajectory, c
   float dist = INFINITY;
   float aux_dist = 0;
   int idx = 0;
+
   for(int i = 0; i<initial_trajectory.size();i++){
     aux_dist = (initial_trajectory[i].pos-point.pos).norm();
     // std::cout<<aux_dist<<std::endl;
+    
     if(aux_dist<dist){
       dist = aux_dist;
-      idx = i;
+      idx  = i;
     }
   }
+
   return idx;
 }
