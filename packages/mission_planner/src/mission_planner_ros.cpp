@@ -38,13 +38,21 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader) : n
         std::bind(&MissionPlannerRos::uavVelocityCallback, this,
                   std::placeholders::_1, drone));
 
+    distance_to_inspection_point_sub_[drone] = nh_.subscribe<std_msgs::Float32>(
+        "/drone_" + std::to_string(drone) + "/mission_planner_ros/distance_to_inspection_point", 1,
+        std::bind(&MissionPlannerRos::distanceToInspectionPointCallback, this,
+                  std::placeholders::_1, drone));
+
+    relative_angle_sub_[drone] = nh_.subscribe<std_msgs::Float32>(
+        "/drone_" + std::to_string(drone) + "/mission_planner_ros/relative_angle", 1,
+        std::bind(&MissionPlannerRos::relativeAngleCallback, this,
+                  std::placeholders::_1, drone));
+
     if(drone!=param_.drone_id){
       solved_trajectories_sub_[drone] = nh_.subscribe<nav_msgs::Path>(
         "/drone_" + std::to_string(drone) + "/mission_planner_ros/solved_traj", 1,
         std::bind(&MissionPlannerRos::solvedTrajCallback, this,
                   std::placeholders::_1, drone));
-      
-
     }
   }
 
@@ -185,14 +193,24 @@ void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
 
 void MissionPlannerRos::pubVisCB(const ros::TimerEvent &e) {
     // publish changes on relative angle and on distance to inspection point
-    float current_distance = mission_planner_ptr_ -> getDistanceToInspect();
-    float current_angle    = mission_planner_ptr_ -> getRelativeAngle();
+    std_msgs::Float32 current_distance;
+    std_msgs::Float32 current_angle;
+    std_msgs::Float32 increase_distance;
+    std_msgs::Float32 increase_angle;
+
+    current_distance.data = mission_planner_ptr_ -> getDistanceToInspect();
+    current_angle.data    = mission_planner_ptr_ -> getRelativeAngle();
 
     // an input needed for operator
-    float increase_distance = 0.01;
-    float increase_angle = 0.001;
+    // Test for differential method (joystick/teleop_keyboard)
+    // increase_distance.data = 0.01;
+    // increase_angle.data    = 0.001;
+
+    increase_distance.data = 0;
+    increase_angle.data    = 0;
+
     publishDistance(distance_to_inspection_point_pub_, current_distance, increase_distance);
-    publishAngle(distance_to_inspection_point_pub_, current_angle, increase_angle);
+    publishAngle(relative_angle_pub_, current_angle, increase_angle);
 
     // publish commanded waypoint
     publishPoints(points_pub_, points_, Colors::RED );
@@ -214,14 +232,32 @@ void MissionPlannerRos::pubVisCB(const ros::TimerEvent &e) {
     publishSphere(sphere_pub_, Colors::YELLOW);
 }
 
-void MissionPlannerRos::publishDistance(const ros::Publisher &pub_distance, float distance, float increase){
-  mission_planner_ptr_ -> setDistanceToInspect(distance + increase);
-  pub_distance.publish(distance + increase);
+void MissionPlannerRos::publishDistance(const ros::Publisher &pub_distance, const std_msgs::Float32 &distance, const std_msgs::Float32 &increase){
+  // Set and pub
+  std_msgs::Float32 total_distance;
+  total_distance.data = distance.data + increase.data;
+  mission_planner_ptr_ -> setDistanceToInspect(total_distance.data);
+  pub_distance.publish(total_distance);
 }
 
-void MissionPlannerRos::publishAngle(const ros::Publisher &pub_angle, float angle, float increase){
-  mission_planner_ptr_ -> setRelativeAngle(angle + increase);
-  pub_angle.publish(angle + increase);
+void MissionPlannerRos::publishAngle(const ros::Publisher &pub_angle, const std_msgs::Float32 &angle, const std_msgs::Float32 &increase){
+  // Set and pub
+  std_msgs::Float32 total_angle;
+  total_angle.data = angle.data + increase.data;
+  mission_planner_ptr_ -> setRelativeAngle(total_angle.data);
+  pub_angle.publish(total_angle);
+}
+
+void MissionPlannerRos::distanceToInspectionPointCallback(
+  const std_msgs::Float32::ConstPtr &distance, int id){
+    ROS_INFO("Distance to inspection point:    %f", distance -> data);
+    mission_planner_ptr_ -> setDistanceToInspect(distance->data);
+}
+
+void MissionPlannerRos::relativeAngleCallback(
+  const std_msgs::Float32::ConstPtr &angle, int id){
+    ROS_INFO("Relative angle:    %f", angle -> data);
+    mission_planner_ptr_ -> setRelativeAngle(angle->data);
 }
 
 void MissionPlannerRos::solvedTrajCallback(
@@ -292,7 +328,7 @@ void MissionPlannerRos::publishSphere(const ros::Publisher &pub_sphere, const Co
    marker.pose.orientation.w = 1.0;
    marker.scale.x = mission_planner_ptr_->getDistanceToInspect() * 2;
    marker.scale.y = mission_planner_ptr_->getDistanceToInspect() * 2;
-   marker.scale.z = 15;
+   marker.scale.z = 25;
    marker.color.a = 0.4;
    // inspection distance
   setMarkerColor(marker,Colors::YELLOW);
