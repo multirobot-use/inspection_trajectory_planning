@@ -131,20 +131,6 @@ class MissionPlannerRos {
    */
   void replanCB(const ros::TimerEvent &e);
 
-  /*! \brief Method that publishes the distance to the inspection point with an increase
-   *   \param pub_distance distance publisher
-   *   \param distance current distance to inspection point
-   *   \param increase value to increase the distance to inspection point
-   **/
-  void publishDistance(const ros::Publisher &pub_distance, const std_msgs::Float32 &distance, const std_msgs::Float32 &increase);
-
-  /*! \brief Method that publishes the relative angle with an increase
-   *   \param pub_distance relative angle publisher
-   *   \param distance current relative angle
-   *   \param increase value to increase the relative angle
-   **/
-  void publishAngle(const ros::Publisher &pub_angle, const std_msgs::Float32 &angle, const std_msgs::Float32 &increase);
-
   /*! \brief Callback for drone's pose
    *   \param msg drone's pose, geometry_msgs/PoseStamped
    *   \param id  identifier of the drone
