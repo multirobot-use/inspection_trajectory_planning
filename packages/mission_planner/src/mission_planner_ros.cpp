@@ -193,24 +193,24 @@ void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
 
 void MissionPlannerRos::pubVisCB(const ros::TimerEvent &e) {
     // publish changes on relative angle and on distance to inspection point
-    std_msgs::Float32 current_distance;
-    std_msgs::Float32 current_angle;
-    std_msgs::Float32 increase_distance;
-    std_msgs::Float32 increase_angle;
+    // std_msgs::Float32 current_distance;
+    // std_msgs::Float32 current_angle;
+    // std_msgs::Float32 increase_distance;
+    // std_msgs::Float32 increase_angle;
 
-    current_distance.data = mission_planner_ptr_ -> getDistanceToInspect();
-    current_angle.data    = mission_planner_ptr_ -> getRelativeAngle();
+    // current_distance.data = mission_planner_ptr_ -> getDistanceToInspect();
+    // current_angle.data    = mission_planner_ptr_ -> getRelativeAngle();
 
     // an input needed for operator
     // Test for differential method (joystick/teleop_keyboard)
     // increase_distance.data = 0.01;
     // increase_angle.data    = 0.001;
 
-    increase_distance.data = 0;
-    increase_angle.data    = 0;
+    // increase_distance.data = 0;
+    // increase_angle.data    = 0;
 
-    publishDistance(distance_to_inspection_point_pub_, current_distance, increase_distance);
-    publishAngle(relative_angle_pub_, current_angle, increase_angle);
+    // publishDistance(distance_to_inspection_point_pub_, current_distance, increase_distance);
+    // publishAngle(relative_angle_pub_, current_angle, increase_angle);
 
     // publish commanded waypoint
     publishPoints(points_pub_, points_, Colors::RED );
