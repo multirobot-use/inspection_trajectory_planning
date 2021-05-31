@@ -32,10 +32,22 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader) : n
         "/drone_" + std::to_string(drone) + "/ual/pose", 1,
         std::bind(&MissionPlannerRos::uavPoseCallback, this,
                   std::placeholders::_1, drone));
+
     cur_vel_sub_[drone] = nh_.subscribe<geometry_msgs::TwistStamped>(
         "/drone_" + std::to_string(drone) + "/ual/velocity", 1,
         std::bind(&MissionPlannerRos::uavVelocityCallback, this,
                   std::placeholders::_1, drone));
+
+    distance_to_inspection_point_sub_[drone] = nh_.subscribe<std_msgs::Float32>(
+        "/drone_" + std::to_string(drone) + "/mission_planner_ros/distance_to_inspection_point", 1,
+        std::bind(&MissionPlannerRos::distanceToInspectionPointCallback, this,
+                  std::placeholders::_1, drone));
+
+    relative_angle_sub_[drone] = nh_.subscribe<std_msgs::Float32>(
+        "/drone_" + std::to_string(drone) + "/mission_planner_ros/relative_angle", 1,
+        std::bind(&MissionPlannerRos::relativeAngleCallback, this,
+                  std::placeholders::_1, drone));
+
     if(drone!=param_.drone_id){
       solved_trajectories_sub_[drone] = nh_.subscribe<nav_msgs::Path>(
         "/drone_" + std::to_string(drone) + "/mission_planner_ros/solved_traj", 1,
@@ -53,13 +65,15 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader) : n
   pubVis_.start();
 
   // publishers
-  points_pub_               = nh_.advertise<visualization_msgs::Marker>("points_to_inspect",1);
-  points_trans_pub_         = nh_.advertise<visualization_msgs::Marker>("points_to_inspect_transformed",1);
-  sphere_pub_               = nh_.advertise<visualization_msgs::Marker>("inspection_sphere",1);
-  pub_path_                 = nh_.advertise<nav_msgs::Path>("solved_traj", 1);
-  pub_ref_path_             = nh_.advertise<nav_msgs::Path>("ref_traj", 1);
-  tracking_pub_             = nh_.advertise<nav_msgs::Path>("/drone_"+std::to_string(param_.drone_id)+"/upat_follower/follower/trajectory_to_follow", 1);
-  tracking_pub_trajectory_  = nh_.advertise<trajectory_msgs::JointTrajectory>("/drone_"+std::to_string(param_.drone_id)+"/trajectory_follower_node/trajectory_to_follow", 1);
+  points_pub_                         = nh_.advertise<visualization_msgs::Marker>("points_to_inspect", 1);
+  points_trans_pub_                   = nh_.advertise<visualization_msgs::Marker>("points_to_inspect_transformed", 1);
+  sphere_pub_                         = nh_.advertise<visualization_msgs::Marker>("inspection_sphere", 1);
+  pub_path_                           = nh_.advertise<nav_msgs::Path>("solved_traj", 1);
+  pub_ref_path_                       = nh_.advertise<nav_msgs::Path>("ref_traj", 1);
+  distance_to_inspection_point_pub_   = nh_.advertise<std_msgs::Float32>("distance_to_inspection_point", 1);
+  relative_angle_pub_                 = nh_.advertise<std_msgs::Float32>("relative_angle", 1);
+  tracking_pub_                       = nh_.advertise<nav_msgs::Path>("/drone_"+std::to_string(param_.drone_id)+"/upat_follower/follower/trajectory_to_follow", 1);
+  tracking_pub_trajectory_            = nh_.advertise<trajectory_msgs::JointTrajectory>("/drone_"+std::to_string(param_.drone_id)+"/trajectory_follower_node/trajectory_to_follow", 1);
 
   // Services
   service_activate_planner = nh_.advertiseService(
@@ -180,19 +194,36 @@ void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
 void MissionPlannerRos::pubVisCB(const ros::TimerEvent &e) {
     // publish commanded waypoint
     publishPoints(points_pub_, points_, Colors::RED );
+
     // publish transformed waypoints
     std::vector<state> goals = mission_planner_ptr_->getGoals();
+
     geometry_msgs::Point point;
     std::vector<geometry_msgs::Point> points;
+
     for(auto const &goal : goals){
       point.x = goal.pos(0);
       point.y = goal.pos(1);
       point.z = goal.pos(2);
       points.push_back(point);
     }
+
     publishPoints(points_trans_pub_, points, Colors::BLUE );
     publishSphere(sphere_pub_, Colors::YELLOW);
 }
+
+void MissionPlannerRos::distanceToInspectionPointCallback(
+  const std_msgs::Float32::ConstPtr &distance, int id){
+    ROS_INFO("Distance to inspection point:    %f", distance -> data);
+    mission_planner_ptr_ -> setDistanceToInspect(distance->data);
+}
+
+void MissionPlannerRos::relativeAngleCallback(
+  const std_msgs::Float32::ConstPtr &angle, int id){
+    ROS_INFO("Relative angle:    %f", angle -> data);
+    mission_planner_ptr_ -> setRelativeAngle(angle->data);
+}
+
 void MissionPlannerRos::solvedTrajCallback(
   const nav_msgs::Path::ConstPtr &msg, int id){
     state aux_state;
@@ -261,7 +292,7 @@ void MissionPlannerRos::publishSphere(const ros::Publisher &pub_sphere, const Co
    marker.pose.orientation.w = 1.0;
    marker.scale.x = mission_planner_ptr_->getDistanceToInspect() * 2;
    marker.scale.y = mission_planner_ptr_->getDistanceToInspect() * 2;
-   marker.scale.z = 15;
+   marker.scale.z = 25;
    marker.color.a = 0.4;
    // inspection distance
   setMarkerColor(marker,Colors::YELLOW);

@@ -5,6 +5,7 @@
 #include <geometry_msgs/TwistStamped.h>
 #include <geometry_msgs/TwistWithCovariance.h>
 #include <geometry_msgs/Point.h>
+#include <std_msgs/Float32.h>
 #include <nav_msgs/Odometry.h>
 #include <nav_msgs/Path.h>
 #include <mission_planner/WaypointSrv.h>
@@ -49,6 +50,8 @@ class MissionPlannerRos {
   std::map<int, ros::Subscriber> cur_pose_sub_;
   std::map<int, ros::Subscriber> cur_vel_sub_;
   std::map<int, ros::Subscriber> solved_trajectories_sub_;
+  std::map<int, ros::Subscriber> distance_to_inspection_point_sub_;
+  std::map<int, ros::Subscriber> relative_angle_sub_;
 
   // Publishers
   ros::Publisher points_pub_;
@@ -131,6 +134,18 @@ class MissionPlannerRos {
    *   \param id  identifier of the drone
    **/
   void uavPoseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg, int id);
+
+  /*! \brief Callback for distance to inspection point (topic)
+   *   \param distance desired distance to inspection point (absolute)
+   *   \param id  identifier of the drone (not being used at this moment)
+   **/
+  void distanceToInspectionPointCallback(const std_msgs::Float32::ConstPtr &distance, int id);
+
+  /*! \brief Callback for relative angle (topic)
+   *   \param distance desired relative angle (absolute)
+   *   \param id  identifier of the drone (not being used at this moment)
+   **/
+  void relativeAngleCallback(const std_msgs::Float32::ConstPtr &angle, int id);
 
   /*! \brief Callback for drone's velocity
    *   \param msg drone's velocity, geometry_msgs/TwistStamped

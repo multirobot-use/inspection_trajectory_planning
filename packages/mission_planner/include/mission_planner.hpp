@@ -109,6 +109,13 @@ class MissionPlanner {
   void setRelativeAngle(const float &_angle){ relative_angle_ = _angle;}
 
   /**
+   * @brief gives the relative angle
+   * 
+   * @return relative angle
+   */
+  float getRelativeAngle() {return relative_angle_;}
+
+  /**
    * @brief executes the planner of the drone
    */
   void plan();
