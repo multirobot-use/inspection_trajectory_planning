@@ -70,8 +70,6 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader) : n
   sphere_pub_                         = nh_.advertise<visualization_msgs::Marker>("inspection_sphere", 1);
   pub_path_                           = nh_.advertise<nav_msgs::Path>("solved_traj", 1);
   pub_ref_path_                       = nh_.advertise<nav_msgs::Path>("ref_traj", 1);
-  distance_to_inspection_point_pub_   = nh_.advertise<std_msgs::Float32>("distance_to_inspection_point", 1);
-  relative_angle_pub_                 = nh_.advertise<std_msgs::Float32>("relative_angle", 1);
   tracking_pub_                       = nh_.advertise<nav_msgs::Path>("/drone_"+std::to_string(param_.drone_id)+"/upat_follower/follower/trajectory_to_follow", 1);
   tracking_pub_trajectory_            = nh_.advertise<trajectory_msgs::JointTrajectory>("/drone_"+std::to_string(param_.drone_id)+"/trajectory_follower_node/trajectory_to_follow", 1);
 
