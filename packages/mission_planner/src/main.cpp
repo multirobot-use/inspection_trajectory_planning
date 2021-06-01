@@ -6,7 +6,7 @@ int main(int argc, char **argv) {
   ros::NodeHandle nh("~");
 
   bool leader = true;
-  safeGetParam(nh,"leader",leader);
+  safeGetParam(nh, "leader", leader);
   MissionPlannerRos MissionPlannerRos(nh, leader);
 
   ros::spin();

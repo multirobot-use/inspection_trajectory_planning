@@ -1,6 +1,6 @@
 #include "mission_planner.hpp"
 
-#define M_PI           3.14159265358979323846
+#define M_PI 3.14159265358979323846
 
 //! MissionPlannerDurableLeader class
 /*!
@@ -20,7 +20,7 @@ class MissionPlannerDurableLeader : public MissionPlanner {
 
   /**
    * @brief pushes back a new goal on the vector of goal points to reach
-   * 
+   *
    * @param _goal new waypoint to add
    */
   void appendGoal(const state &_new_goal);
@@ -31,7 +31,7 @@ class MissionPlannerDurableLeader : public MissionPlanner {
  private:
   /**
    * @brief virtual function that makes the following checks
-   * 
+   *
    * @return true if all checks are passed
    * @return false if any ot the check is not passed
    */
@@ -39,16 +39,16 @@ class MissionPlannerDurableLeader : public MissionPlanner {
 
   /**
    * @brief gets the total angle to travel given an initial and a final angle
-   * 
+   *
    * @param _initial_angle initial angle
    * @param _final_angle final angle
-   * @return total angle to travel 
+   * @return total angle to travel
    */
   float getTotalAngle(const float &_initial_angle, const float &_final_angle);
 
   /**
    * @brief determines if the drone is travelling clockwise or anticlockwise
-   * 
+   *
    * @param _vector vector of velocity of the drone
    * @param _state current position of the drone
    * @return true if clockwise
@@ -57,11 +57,11 @@ class MissionPlannerDurableLeader : public MissionPlanner {
   bool isClockWise(const Eigen::Vector3d &_vector, const state &_state);
 
   /**
-   * @brief returns an initial trajectory to inspect for the drone according to the initial pose
-   * 
+   * @brief returns an initial trajectory to inspect for the drone according to
+   * the initial pose
+   *
    * @param initial_pose initial pose of the drone
    * @return vector of states of the trajectory
    */
   std::vector<state> initialTrajectoryToInspect(const state &initial_pose);
-
 };

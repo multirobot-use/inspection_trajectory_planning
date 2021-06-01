@@ -1,27 +1,25 @@
 #pragma once
-#include "ros/ros.h"
+#include <geometry_msgs/Point.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/PoseWithCovariance.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <geometry_msgs/TwistWithCovariance.h>
-#include <geometry_msgs/Point.h>
-#include <std_msgs/Float32.h>
+#include <mission_planner/AngleSrv.h>
+#include <mission_planner/DistanceSrv.h>
+#include <mission_planner/PointToInspectSrv.h>
+#include <mission_planner/WaypointSrv.h>
 #include <nav_msgs/Odometry.h>
 #include <nav_msgs/Path.h>
-#include <mission_planner/WaypointSrv.h>
-#include <mission_planner/PointToInspectSrv.h>
-#include <mission_planner/DistanceSrv.h>
-#include <mission_planner/AngleSrv.h>
-#include <nav_msgs/Odometry.h>
+#include <std_msgs/Float32.h>
 #include <std_srvs/Empty.h>
 #include <std_srvs/SetBool.h>
-#include "mission_planner_durable_leader.hpp"
-#include "mission_planner_durable_follower.hpp"
-#include <visualization_msgs/Marker.h>
 #include <trajectory_msgs/JointTrajectory.h>
+#include <visualization_msgs/Marker.h>
+#include "mission_planner_durable_follower.hpp"
+#include "mission_planner_durable_leader.hpp"
+#include "ros/ros.h"
 
-enum Colors { RED = 0, BLUE = 2, YELLOW = 3};
-
+enum Colors { RED = 0, BLUE = 2, YELLOW = 3 };
 
 //!  MissionPlannerRos class.
 /*!
@@ -35,8 +33,8 @@ class MissionPlannerRos {
 
   //! MissionPlannerRos destructor
   ~MissionPlannerRos();
- private:
 
+ private:
   // Declarations
   ros::NodeHandle nh_;
   parameters param_;
@@ -61,7 +59,7 @@ class MissionPlannerRos {
   ros::Publisher tracking_pub_;
   ros::Publisher tracking_pub_trajectory_;
   ros::Publisher sphere_pub_;
-  
+
   // Services
   ros::ServiceServer service_activate_planner;
   ros::ServiceServer service_waypoint;
@@ -74,7 +72,7 @@ class MissionPlannerRos {
 
   /**
    * @brief Callback for the solved trajectories from others
-   * 
+   *
    * @param msg trajectory
    * @param id drone id
    */
@@ -101,28 +99,33 @@ class MissionPlannerRos {
    */
   bool clearWaypointsServiceCallback(std_srvs::Empty::Request &req,
                                      std_srvs::Empty::Response &res);
-  
-  /*! \brief Callback for inspection point service. It changes the inspection point
-   *   \param req point to inspect (XYZ)
-   *   \param res success
-   */
-  bool pointToInspectServiceCallback(mission_planner::PointToInspectSrv::Request &req, mission_planner::PointToInspectSrv::Response &res);
-  
-  /*! \brief Callback for the distance to inspect service. It changes the distance between the drones and the inspection point
-   *   \param req distance (float)
-   *   \param res success
-   */
-  bool distanceToInspectServiceCallback(mission_planner::DistanceSrv::Request &req, mission_planner::DistanceSrv::Response &res);
 
-  /*! \brief Callback for the change the relative angle service. It changes the relative angles between the leader drone and the followers
-   *   \param req angle (float)
-   *   \param res success
+  /*! \brief Callback for inspection point service. It changes the inspection
+   * point \param req point to inspect (XYZ) \param res success
    */
-  bool changeRelativeAngleServiceCallback(mission_planner::AngleSrv::Request &req, mission_planner::AngleSrv::Response &res);
+  bool pointToInspectServiceCallback(
+      mission_planner::PointToInspectSrv::Request &req,
+      mission_planner::PointToInspectSrv::Response &res);
+
+  /*! \brief Callback for the distance to inspect service. It changes the
+   * distance between the drones and the inspection point \param req distance
+   * (float) \param res success
+   */
+  bool distanceToInspectServiceCallback(
+      mission_planner::DistanceSrv::Request &req,
+      mission_planner::DistanceSrv::Response &res);
+
+  /*! \brief Callback for the change the relative angle service. It changes the
+   * relative angles between the leader drone and the followers \param req angle
+   * (float) \param res success
+   */
+  bool changeRelativeAngleServiceCallback(
+      mission_planner::AngleSrv::Request &req,
+      mission_planner::AngleSrv::Response &res);
 
   /*! \brief Callback for timer that publishes rviz markers
-  * \param TimerEvent structure passed to callback invoked by ros::Timer
-  */
+   * \param TimerEvent structure passed to callback invoked by ros::Timer
+   */
   void pubVisCB(const ros::TimerEvent &e);
   /*! \brief Callback for plan timer.
    *   \param TimerEvent structure passed to callback invoked by ros::Timer
@@ -139,7 +142,8 @@ class MissionPlannerRos {
    *   \param distance desired distance to inspection point (absolute)
    *   \param id  identifier of the drone (not being used at this moment)
    **/
-  void distanceToInspectionPointCallback(const std_msgs::Float32::ConstPtr &distance, int id);
+  void distanceToInspectionPointCallback(
+      const std_msgs::Float32::ConstPtr &distance, int id);
 
   /*! \brief Callback for relative angle (topic)
    *   \param distance desired relative angle (absolute)
@@ -155,31 +159,33 @@ class MissionPlannerRos {
                            int id);
 
   /*! \brief function to publish last solved trajectory
-  */
-  void publishPath(const ros::Publisher &pub_path, const std::vector<state> &trajectory);
+   */
+  void publishPath(const ros::Publisher &pub_path,
+                   const std::vector<state> &trajectory);
 
   /*! \brief function to publish trajectory to the solver
-  */
-  void publishTrajectoryJoint(const ros::Publisher &pub_path, const std::vector<state> &trajectory);
+   */
+  void publishTrajectoryJoint(const ros::Publisher &pub_path,
+                              const std::vector<state> &trajectory);
 
   /*! \brief function to publish points on RViz
    *   \param pub_points publisher
    *   \param _points vector of points to publish
    *   \param color color of points
-  */
-  void publishPoints(const ros::Publisher &pub_points, const std::vector<geometry_msgs::Point> &_points, Colors color);
+   */
+  void publishPoints(const ros::Publisher &pub_points,
+                     const std::vector<geometry_msgs::Point> &_points,
+                     Colors color);
 
   /*! \brief function to publish the cylinder on RViz
    *   \param pub_sphere publisher
    *   \param color color of the cylinder
-  */
+   */
   void publishSphere(const ros::Publisher &pub_sphere, const Colors &color);
 
   /*! \brief function to set the marker's color on RViz
    *   \param marker marker
    *   \param color color of the marker
-  */
+   */
   void setMarkerColor(visualization_msgs::Marker &marker, const Colors &color);
-
-
 };

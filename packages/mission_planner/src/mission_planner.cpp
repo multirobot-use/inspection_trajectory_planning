@@ -5,7 +5,8 @@ MissionPlanner::MissionPlanner(const parameters _param)
       my_grid_(0.0, (param_.horizon_length - 1) * param_.step_size,
                param_.horizon_length) {
   // initialize solved trajectory
-  solved_trajectories_[param_.drone_id]= std::vector<state>(_param.horizon_length);
+  solved_trajectories_[param_.drone_id] =
+      std::vector<state>(_param.horizon_length);
   // initialize logger
   logger_ = std::make_unique<Logger>(param_.drone_id);
 }
@@ -17,33 +18,36 @@ void MissionPlanner::plan() {
 
   if (!hasGoal()) planner_state_ = PlannerStatus::FIRST_PLAN;
 
-  if(!checks()) return;
+  if (!checks()) return;
 
   reference_traj.clear();
   state initial_pose;
 
-  if(planner_state_== PlannerStatus::FIRST_PLAN){
+  if (planner_state_ == PlannerStatus::FIRST_PLAN) {
     initial_pose = states_[param_.drone_id];
-  }else{
-    int shift = closestPoint(solved_trajectories_[param_.drone_id], states_[param_.drone_id]);
+  } else {
+    int shift = closestPoint(solved_trajectories_[param_.drone_id],
+                             states_[param_.drone_id]);
     // std::cout<<shift<<std::endl;
-    initial_pose = solved_trajectories_[param_.drone_id][param_.planning_rate/param_.step_size+shift];
+    initial_pose =
+        solved_trajectories_[param_.drone_id]
+                            [param_.planning_rate / param_.step_size + shift];
     // std::cout<<"i: "<<param_.planning_rate/param_.step_size+shift<<std::endl;
   }
 
   reference_traj = initialTrajectoryToInspect(initial_pose);
-  if(reference_traj.empty()){
+  if (reference_traj.empty()) {
     std::cout << "Initial trajectory empty...breaking" << std::endl;
-  }else{
-    if(trajectoryHasNan(reference_traj)){
+  } else {
+    if (trajectoryHasNan(reference_traj)) {
       std::cout << "Initial trajectory has nan" << std::endl;
-      logger_ -> log(reference_traj, "Nan or Inf found in ref trajectory");
+      logger_->log(reference_traj, "Nan or Inf found in ref trajectory");
       return;
     }
     // calculate optimal trajectory
     bool solver_success = optimalTrajectory(reference_traj);
-    if(solver_success != 0){
-      logger_ -> log(solver_success, "Error solving the ocp: ");
+    if (solver_success != 0) {
+      logger_->log(solver_success, "Error solving the ocp: ");
     }
   }
   // calculate orientation
@@ -52,15 +56,16 @@ void MissionPlanner::plan() {
   planner_state_ = PlannerStatus::REPLANNED;
 }
 
-void MissionPlanner::initialOrientation(std::vector<state> &traj){
+void MissionPlanner::initialOrientation(std::vector<state> &traj) {
   Eigen::Vector3d aux;
-  for(auto &point : traj){
-      aux = point_to_inspect_ - point.pos;
-      point.orientation = eulerToQuat(0, 0, atan2(aux(1), aux(0)));
+  for (auto &point : traj) {
+    aux = point_to_inspect_ - point.pos;
+    point.orientation = eulerToQuat(0, 0, atan2(aux(1), aux(0)));
   }
 }
 
-void MissionPlanner::optimalOrientation(const std::vector<state> &traj_to_optimize){
+void MissionPlanner::optimalOrientation(
+    const std::vector<state> &traj_to_optimize) {
   // // DifferentialState heading, pitch, v_heading, v_pitch;
   // DifferentialState heading, v_heading;
   // // Control a_heading, a_pitch;
@@ -76,7 +81,7 @@ void MissionPlanner::optimalOrientation(const std::vector<state> &traj_to_optimi
   // // model << dot(pitch) == v_pitch;
   // // model << dot(v_pitch) == a_pitch;
 
-  // OCP ocp(my_grid_);  
+  // OCP ocp(my_grid_);
   // ocp.subjectTo(model);
   // ocp.subjectTo(-a_limit <= a_heading <= a_limit);
   // // ocp.subjectTo(-a_limit <= a_pitch <= a_limit);
@@ -86,19 +91,24 @@ void MissionPlanner::optimalOrientation(const std::vector<state> &traj_to_optimi
 
   // VariablesGrid reference_trajectory(2, my_grid_); // 2 for pitch
   // DVector       reference_point(2); // 2 for pitch
-  // reference_trajectory.setVector(0, reference_point);  // TODO: check indexing
-  // for (int k = 0; k < TIME_HORIZON; k++) {
-  //   reference_point(0) = mrs_lib::geometry::radians::unwrap(_desired_trajectory[k].heading, reference_point(0));
-  //   reference_point(1) = 0;
-  //   reference_trajectory.setVector(k, reference_point);  // TODO: check indexing
+  // reference_trajectory.setVector(0, reference_point);  // TODO: check
+  // indexing for (int k = 0; k < TIME_HORIZON; k++) {
+  //   reference_point(0) =
+  //   mrs_lib::geometry::radians::unwrap(_desired_trajectory[k].heading,
+  //   reference_point(0)); reference_point(1) = 0;
+  //   reference_trajectory.setVector(k, reference_point);  // TODO: check
+  //   indexing
   // }
 
   // // set initial guess so that it meats the constraints
-  // // _initial_guess[0].v_heading = _initial_guess[0].v_heading < -v_limit ? -v_limit : _initial_guess[0].v_heading;
-  // // _initial_guess[0].v_pitch   = _initial_guess[0].v_pitch > v_limit ? v_limit : _initial_guess[0].v_pitch;
-  // // _initial_guess[0].a_heading = _initial_guess[0].a_heading < -a_limit ? -a_limit : _initial_guess[0].a_heading;
-  // // _initial_guess[0].a_pitch   = _initial_guess[0].a_pitch > a_limit ? a_limit : _initial_guess[0].a_pitch;
-
+  // // _initial_guess[0].v_heading = _initial_guess[0].v_heading < -v_limit ?
+  // -v_limit : _initial_guess[0].v_heading;
+  // // _initial_guess[0].v_pitch   = _initial_guess[0].v_pitch > v_limit ?
+  // v_limit : _initial_guess[0].v_pitch;
+  // // _initial_guess[0].a_heading = _initial_guess[0].a_heading < -a_limit ?
+  // -a_limit : _initial_guess[0].a_heading;
+  // // _initial_guess[0].a_pitch   = _initial_guess[0].a_pitch > a_limit ?
+  // a_limit : _initial_guess[0].a_pitch;
 
   // ocp.subjectTo(AT_START, heading == _initial_guess[0].heading);
   // ocp.subjectTo(AT_START, pitch == _initial_guess[0].pitch);
@@ -121,7 +131,6 @@ void MissionPlanner::optimalOrientation(const std::vector<state> &traj_to_optimi
 
   // ocp.minimizeLSQ(S, rf, reference_trajectory);
 
- 
   // OptimizationAlgorithm solver_(ocp);
 
   // // reference_trajectory.print();
@@ -146,21 +155,24 @@ void MissionPlanner::optimalOrientation(const std::vector<state> &traj_to_optimi
   // heading.clearStaticCounters();
   // v_heading.clearStaticCounters();
   // int success_value = value;
-  // ROS_INFO("[Acado]: Acado angular optimization took %.3f, success = %d ", (ros::Time::now() - start).toSec(), success_value);
-  // return success_value;
+  // ROS_INFO("[Acado]: Acado angular optimization took %.3f, success = %d ",
+  // (ros::Time::now() - start).toSec(), success_value); return success_value;
 }
 
-Eigen::Vector3d MissionPlanner::pointOnCircle(const Eigen::Vector3d point){
+Eigen::Vector3d MissionPlanner::pointOnCircle(const Eigen::Vector3d point) {
   Eigen::Vector2d point_2D, inspection_point_2D, point_on_circle_2D;
   Eigen::Vector3d point_on_circle_3D;
 
-  point_2D(0)   = point(0);
-  point_2D(1)   = point(1);
+  point_2D(0) = point(0);
+  point_2D(1) = point(1);
 
   inspection_point_2D(0) = point_to_inspect_(0);
   inspection_point_2D(1) = point_to_inspect_(1);
 
-  point_on_circle_2D = distance_to_inspect_point_*(point_2D - inspection_point_2D)/((point_2D - inspection_point_2D).norm()) + inspection_point_2D;
+  point_on_circle_2D = distance_to_inspect_point_ *
+                           (point_2D - inspection_point_2D) /
+                           ((point_2D - inspection_point_2D).norm()) +
+                       inspection_point_2D;
 
   point_on_circle_3D(0) = point_on_circle_2D(0);
   point_on_circle_3D(1) = point_on_circle_2D(1);
@@ -169,24 +181,26 @@ Eigen::Vector3d MissionPlanner::pointOnCircle(const Eigen::Vector3d point){
   return point_on_circle_3D;
 }
 
-std::vector<state> MissionPlanner::pathFromPointToAnother(const Eigen::Vector3d &initial, const Eigen::Vector3d &final){
+std::vector<state> MissionPlanner::pathFromPointToAnother(
+    const Eigen::Vector3d &initial, const Eigen::Vector3d &final) {
   std::vector<state> trajectory_to_optimize;
   state aux_point;
-  const Eigen::Vector3d vel((final-initial)/(final-initial).norm());
+  const Eigen::Vector3d vel((final - initial) / (final - initial).norm());
 
-  for(int i = 0; i<param_.horizon_length; i++){
-    aux_point.pos = initial +  i*vel*param_.vel_max*param_.step_size;
+  for (int i = 0; i < param_.horizon_length; i++) {
+    aux_point.pos = initial + i * vel * param_.vel_max * param_.step_size;
     trajectory_to_optimize.push_back(std::move(aux_point));
   }
 
   return trajectory_to_optimize;
 }
 
-bool MissionPlanner::optimalTrajectory(const std::vector<state> &initial_trajectory){
-  if(initial_trajectory.size()!=param_.horizon_length) return -2;
+bool MissionPlanner::optimalTrajectory(
+    const std::vector<state> &initial_trajectory) {
+  if (initial_trajectory.size() != param_.horizon_length) return -2;
   ACADO::DifferentialState px_, py_, pz_, vx_, vy_, vz_;
   ACADO::Control ax_, ay_, az_;
-  
+
   ACADO::DifferentialEquation model;
 
   // define the model
@@ -200,12 +214,12 @@ bool MissionPlanner::optimalTrajectory(const std::vector<state> &initial_traject
   ACADO::OCP ocp(my_grid_);
   ocp.subjectTo(model);
 
-  ocp.subjectTo(  -param_.acc_max <= ax_ <= param_.acc_max   );  
-  ocp.subjectTo(  -param_.acc_max <= ay_ <= param_.acc_max   );
-  ocp.subjectTo(  -param_.acc_max <= az_ <= param_.acc_max   );
-  ocp.subjectTo(  -param_.vel_max <= vx_ <= param_.vel_max   );
-  ocp.subjectTo(  -param_.vel_max <= vy_ <= param_.vel_max   );
-  ocp.subjectTo(  -param_.vel_max <= vz_ <= param_.vel_max   );
+  ocp.subjectTo(-param_.acc_max <= ax_ <= param_.acc_max);
+  ocp.subjectTo(-param_.acc_max <= ay_ <= param_.acc_max);
+  ocp.subjectTo(-param_.acc_max <= az_ <= param_.acc_max);
+  ocp.subjectTo(-param_.vel_max <= vx_ <= param_.vel_max);
+  ocp.subjectTo(-param_.vel_max <= vy_ <= param_.vel_max);
+  ocp.subjectTo(-param_.vel_max <= vz_ <= param_.vel_max);
 
   ocp.subjectTo(ACADO::AT_START, px_ == initial_trajectory[0].pos(0));
   ocp.subjectTo(ACADO::AT_START, py_ == initial_trajectory[0].pos(1));
@@ -243,16 +257,16 @@ bool MissionPlanner::optimalTrajectory(const std::vector<state> &initial_traject
 
   ACADO::OptimizationAlgorithm solver(ocp);
 
-  solver.set(ACADO::MAX_TIME, 2.0); // TODO: have it as parameter
-  // solver.set(ACADO::PRINT_INTEGRATOR_PROFILE, false);    	
+  solver.set(ACADO::MAX_TIME, 2.0);  // TODO: have it as parameter
+  // solver.set(ACADO::PRINT_INTEGRATOR_PROFILE, false);
   // solver.set(ACADO::CONIC_SOLVER_PRINT_LEVEL, ACADO::NONE);
   // solver.set(ACADO::RELAXATION_PARAMETER, 30.0);
   solver.set(ACADO::PRINTLEVEL, ACADO::NONE);
   solver.set(ACADO::PRINT_COPYRIGHT, ACADO::NONE);
   solver.set(ACADO::INTEGRATOR_PRINTLEVEL, ACADO::NONE);
-  
+
   bool solver_success = solver.solve();
-  
+
   ACADO::VariablesGrid output_states, output_control;
 
   solver.getDifferentialStates(output_states);
@@ -278,11 +292,9 @@ bool MissionPlanner::optimalTrajectory(const std::vector<state> &initial_traject
   ax_.clearStaticCounters();
   ay_.clearStaticCounters();
   az_.clearStaticCounters();
-
 };
 
-bool MissionPlanner::isInspectionZone(const Eigen::Vector3d &drone_pose){
-
+bool MissionPlanner::isInspectionZone(const Eigen::Vector3d &drone_pose) {
   Eigen::Vector2d drone_pose2d, point_to_inspect2d;
 
   drone_pose2d(0) = drone_pose(0);
@@ -291,22 +303,26 @@ bool MissionPlanner::isInspectionZone(const Eigen::Vector3d &drone_pose){
   point_to_inspect2d(0) = point_to_inspect_(0);
   point_to_inspect2d(1) = point_to_inspect_(1);
 
-  if((drone_pose2d - point_to_inspect2d).norm() > distance_to_inspect_point_+REACH_TOL)   return false;
-  else return true;
+  if ((drone_pose2d - point_to_inspect2d).norm() >
+      distance_to_inspect_point_ + REACH_TOL)
+    return false;
+  else
+    return true;
 }
 
-int MissionPlanner::closestPoint(const std::vector<state> &initial_trajectory, const state point){
+int MissionPlanner::closestPoint(const std::vector<state> &initial_trajectory,
+                                 const state point) {
   float dist = INFINITY;
   float aux_dist = 0;
   int idx = 0;
 
-  for(int i = 0; i<initial_trajectory.size();i++){
-    aux_dist = (initial_trajectory[i].pos-point.pos).norm();
+  for (int i = 0; i < initial_trajectory.size(); i++) {
+    aux_dist = (initial_trajectory[i].pos - point.pos).norm();
     // std::cout<<aux_dist<<std::endl;
-    
-    if(aux_dist<dist){
+
+    if (aux_dist < dist) {
       dist = aux_dist;
-      idx  = i;
+      idx = i;
     }
   }
 
