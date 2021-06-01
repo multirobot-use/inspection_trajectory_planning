@@ -12,6 +12,7 @@ import numpy as np
 from std_srvs.srv import SetBool
 from std_srvs.srv import SetBoolRequest
 from std_srvs.srv import Empty
+from std_msgs.msg import Float32
 from uav_abstraction_layer.srv import TakeOff
 from uav_abstraction_layer.srv import TakeOffRequest
 from uav_abstraction_layer.srv import GoToWaypoint
@@ -28,49 +29,54 @@ from mission_planner.srv import AngleSrv
 import signal
 import sys
 from collections import namedtuple
+import keyboard
 
 class Drone:
     state = 0
     def __init__(self, drone_ns):
         print("I'm a python constructor")
         # subscribe topics
-        rospy.Subscriber(drone_ns+"/ual/state", State, self.callbackState)
+        # rospy.Subscriber(drone_ns+"/ual/state", State, self.callbackState)
+        
+        # # Publishers (only one drone topic needed for each one)
+        distance_inspection_pub = rospy.Publisher('/drone_1/mission_planner_ros/distance_to_inspection_point', Float32, queue_size=1)
+        relative_angle_pub      = rospy.Publisher('/drone_1/mission_planner_ros/relative_angle', Float32, queue_size=1)
 
-        # wait for services
-        activate_planner_url = drone_ns + "/mission_planner_ros/activate_planner"
-        add_waypoint_url     = drone_ns + "/mission_planner_ros/add_waypoint"
-        clear_waypoints_url  = drone_ns + "/mission_planner_ros/clear_waypoints"
-        point_to_inspect_url = drone_ns + "/mission_planner_ros/point_to_inspect"
-        distance_url         = drone_ns + "/mission_planner_ros/distance_to_inspect"
-        relative_angle_url   = drone_ns + "/mission_planner_ros/change_relative_angle"
-        take_off_url   = drone_ns + "/ual/take_off"
+        # # wait for services
+        # activate_planner_url = drone_ns + "/mission_planner_ros/activate_planner"
+        # add_waypoint_url     = drone_ns + "/mission_planner_ros/add_waypoint"
+        # clear_waypoints_url  = drone_ns + "/mission_planner_ros/clear_waypoints"
+        # point_to_inspect_url = drone_ns + "/mission_planner_ros/point_to_inspect"
+        # distance_url         = drone_ns + "/mission_planner_ros/distance_to_inspect"
+        # relative_angle_url   = drone_ns + "/mission_planner_ros/change_relative_angle"
+        # take_off_url   = drone_ns + "/ual/take_off"
 
-        rospy.wait_for_service(activate_planner_url)
-        self.activate_planner_service = rospy.ServiceProxy(activate_planner_url, SetBool)
+        # rospy.wait_for_service(activate_planner_url)
+        # self.activate_planner_service = rospy.ServiceProxy(activate_planner_url, SetBool)
 
-        rospy.wait_for_service(add_waypoint_url)
-        self.add_waypoint_service     = rospy.ServiceProxy(add_waypoint_url, WaypointSrv)
+        # rospy.wait_for_service(add_waypoint_url)
+        # self.add_waypoint_service     = rospy.ServiceProxy(add_waypoint_url, WaypointSrv)
 
-        rospy.wait_for_service(clear_waypoints_url)
-        self.clear_waypoints_service  = rospy.ServiceProxy(clear_waypoints_url, Empty)
+        # rospy.wait_for_service(clear_waypoints_url)
+        # self.clear_waypoints_service  = rospy.ServiceProxy(clear_waypoints_url, Empty)
 
-        rospy.wait_for_service(point_to_inspect_url)
-        self.point_to_inspect_service = rospy.ServiceProxy(point_to_inspect_url, PointToInspectSrv)
+        # rospy.wait_for_service(point_to_inspect_url)
+        # self.point_to_inspect_service = rospy.ServiceProxy(point_to_inspect_url, PointToInspectSrv)
 
-        rospy.wait_for_service(distance_url)
-        self.distance_service = rospy.ServiceProxy(distance_url, DistanceSrv)
+        # rospy.wait_for_service(distance_url)
+        # self.distance_service = rospy.ServiceProxy(distance_url, DistanceSrv)
 
-        rospy.wait_for_service(relative_angle_url)
-        self.relative_angle_service = rospy.ServiceProxy(relative_angle_url, AngleSrv)
+        # rospy.wait_for_service(relative_angle_url)
+        # self.relative_angle_service = rospy.ServiceProxy(relative_angle_url, AngleSrv)
 
-        # TakeOff service --> make a for loop when necessary
-        rospy.wait_for_service(take_off_url)
-        self.take_off_service = rospy.ServiceProxy(take_off_url, TakeOff)
+        # # TakeOff service --> make a for loop when necessary
+        # rospy.wait_for_service(take_off_url)
+        # self.take_off_service = rospy.ServiceProxy(take_off_url, TakeOff)
 
-        # GoToWaypoint service
-        go_to_waypoint_url      = drone_ns + "/ual/go_to_waypoint"
-        rospy.wait_for_service(go_to_waypoint_url)
-        self.go_to_waypoint_service  = rospy.ServiceProxy(go_to_waypoint_url, GoToWaypoint)
+        # # GoToWaypoint service
+        # go_to_waypoint_url      = drone_ns + "/ual/go_to_waypoint"
+        # rospy.wait_for_service(go_to_waypoint_url)
+        # self.go_to_waypoint_service  = rospy.ServiceProxy(go_to_waypoint_url, GoToWaypoint)
 
     
     def set_distance_inspection(self, distance):
@@ -181,6 +187,40 @@ class Drone:
             print "Waypoints cleared!"
         except:
             print("Failed calling clear_waypoints service")
+            
+    def joystick_simulator(self):
+        print "\t ----- JOYSTICK SIMULATOR -----\n\n"
+        print "\tTo increase distance to inspection point, press W\n"
+        print "\tTo decrease distance to inspection point, press S\n"
+        print "\tTo increase the relative angle, press D\n"
+        print "\tTo decrease the relative angle, press A\n"
+        print "\tTo quit, press Q\n\n"
+        
+        letter = 'm' # Initialize
+        inspection_distance = 8
+        formation_angle = 0.7
+        
+        increase_distance   = 0.1
+        increase_angle      = 0.02
+        
+        
+        while (not keyboard.is_pressed('q') or (not keyboard.is_pressed('q'))):
+            # Add a pause in order to have a better control of pressed key
+            
+            if (keyboard.is_pressed('W') or keyboard.is_pressed('w')):
+                inspection_distance = inspection_distance + increase_distance
+            elif (keyboard.is_pressed('S') or keyboard.is_pressed('s')):
+                inspection_distance = inspection_distance - increase_distance
+            elif (keyboard.is_pressed('A') or keyboard.is_pressed('a')):
+                formation_angle = formation_angle - increase_angle
+            elif (keyboard.is_pressed('D') or keyboard.is_pressed('d')):
+                formation_angle = formation_angle + increase_angle
+            
+            self.distance_inspection_pub.publish(inspection_distance)
+            self.relative_angle_pub.publish(formation_angle)
+            
+            time.sleep(0.1)
+        
 
    
 # Menu function
@@ -196,9 +236,10 @@ def show_menu(params,drones):
     print "\t6. Change relative angles between followers and leader"
     print "\t7. Change distance to inspection point"
     print "\t8. Change inspection point\n"
+    print "\t9. Joystick simulator"
     
     option = ord(raw_input (">> "))
-    while (option < (48+1) or option > (48+8)): # ASCII for make sure there is no error of inputs. Zero --> 48
+    while (option < (48+1) or option > (48+9)): # ASCII for make sure there is no error of inputs. Zero --> 48
         option = ord(raw_input("Please, choose a valid option: "))
 
     option = option - 48
@@ -247,6 +288,9 @@ def show_menu(params,drones):
         waypoint[2] = (float(raw_input("Z (meters): ")))
         for drone in drones:
             drone.change_inspection_point(waypoint)
+    
+    elif option == 9:
+        drones[0].joystick_simulator()
         
     else:
         print ("Option n " + str(option) + " does not exist!")
@@ -279,43 +323,43 @@ if __name__ == "__main__":
 
     signal.signal(signal.SIGINT, signal_handler)    # Associate signal SIGINT (Ctrl+C pressed) to handler (function "signal_handler")
     
-    
+    print "a"
     # Create the node
     rospy.init_node("operator", anonymous=True)
-
+    print "b"
     # read yml config file
     rospack = rospkg.RosPack()
     f_route = rospack.get_path('mission_planner')+'/config/param.yml'
     yml_file    = open(f_route, 'r')
     yml_content = yaml.load(yml_file)
-
+    print "c"
     drone_ids = yml_content.get('drone_ids')
     drones = []
     for id in drone_ids:
         drones.append(Drone("/drone_"+str(id)))
-
+    print "d"
     params = namedtuple('params', 'auto height inspect_point waypoints relative_angle')
     params.auto                      = yml_content.get('auto')
     params.height                    = yml_content.get('take_off_height')
     params.waypoints                 = yml_content.get('waypoints')
     params.inspect_point             = yml_content.get('inspect')
     params.relative_angle            = yml_content.get('relative_angle')
-    
+    print "e"
     # check all drones are landed armed
-    cont = 0
-    while cont != len(drones):
-        cont = 0
-        for drone in drones:
-            if drone.state == State.LANDED_ARMED:
-                cont +=1
-        time.sleep(1)
-
+    # cont = 0
+    # while cont != len(drones):
+    #     cont = 0
+    #     for drone in drones:
+    #         if drone.state == State.LANDED_ARMED:
+    #             cont +=1
+    #     time.sleep(1)
+    print "f"
     #auto mode
     if params.auto:
         print "Using the automatic interface"
-        auto_function(params,drones)
-
+        auto_function(params, drones)
+    print "g"
     #menu mode
     while (not rospy.is_shutdown()):
-        show_menu(params,drones)            
+        show_menu(params, drones)            
         time.sleep(1)
