@@ -12,6 +12,7 @@ import numpy as np
 from std_srvs.srv import SetBool
 from std_srvs.srv import SetBoolRequest
 from std_srvs.srv import Empty
+from std_msgs.msg import Float32
 from uav_abstraction_layer.srv import TakeOff
 from uav_abstraction_layer.srv import TakeOffRequest
 from uav_abstraction_layer.srv import GoToWaypoint
@@ -29,12 +30,50 @@ import signal
 import sys
 from collections import namedtuple
 
+# FOR KEYBOARD
+from pynput import keyboard
+global pressed_key
+
+def on_press(key):
+    global pressed_key
+    try:
+        # print('alphanumeric key {0} pressed'.format(
+        #     key.char))
+        pressed_key = key.char
+    except AttributeError:
+        pass
+        # print('special key {0} pressed'.format(
+        #     key))
+
+def on_release(key):
+    global pressed_key
+    pressed_key = 'p' # put a value that does not interfeer with the functionality
+    # print('{0} released'.format(
+    #     key))
+    # if key == keyboard.Key.esc:
+        # Stop listener
+        # return False
+
+# ...or, in a non-blocking fashion:
+listener = keyboard.Listener(
+    on_press=on_press,
+    on_release=on_release)
+
+listener.start()
+
+# END KEYBOARD
+
 class Drone:
     state = 0
     def __init__(self, drone_ns):
         print("I'm a python constructor")
+                
         # subscribe topics
         rospy.Subscriber(drone_ns+"/ual/state", State, self.callbackState)
+        
+        # # Publishers (only one drone topic needed for each one)
+        self.distance_inspection_pub = rospy.Publisher('/drone_1/mission_planner_ros/distance_to_inspection_point', Float32, queue_size = 1)
+        self.relative_angle_pub      = rospy.Publisher('/drone_1/mission_planner_ros/relative_angle', Float32, queue_size = 1)
 
         # wait for services
         activate_planner_url = drone_ns + "/mission_planner_ros/activate_planner"
@@ -181,6 +220,44 @@ class Drone:
             print "Waypoints cleared!"
         except:
             print("Failed calling clear_waypoints service")
+            
+    def joystick_simulator(self):
+        global pressed_key
+        print "\t ----- JOYSTICK SIMULATOR -----\n\n"
+        print "\tTo increase distance to inspection point, press W\n"
+        print "\tTo decrease distance to inspection point, press S\n"
+        print "\tTo increase the relative angle, press D\n"
+        print "\tTo decrease the relative angle, press A\n"
+        print "\tTo quit, press Q\n\n"
+        
+        inspection_distance = 8
+        formation_angle = 0.7
+        
+        increase_distance   = 0.1
+        increase_angle      = 0.02
+        
+        
+        while (not (pressed_key == 'q' or pressed_key == 'Q')):
+            # Add a pause in order to have a better control of pressed key
+            
+            if (pressed_key == 'w' or pressed_key == 'W'):
+                inspection_distance = inspection_distance + increase_distance
+                # print " "
+            elif (pressed_key == 's' or pressed_key == 'S'):
+                inspection_distance = inspection_distance - increase_distance
+                # print " "
+            elif (pressed_key == 'a' or pressed_key == 'A'):
+                formation_angle = formation_angle - increase_angle
+                # print " "
+            elif (pressed_key == 'd' or pressed_key == 'D'):
+                formation_angle = formation_angle + increase_angle
+                # print " "
+            
+            self.distance_inspection_pub.publish(inspection_distance)
+            self.relative_angle_pub.publish(formation_angle)
+            
+            time.sleep(0.1)
+        
 
    
 # Menu function
@@ -195,10 +272,11 @@ def show_menu(params,drones):
     print "\t5. Clear all the waypoints"
     print "\t6. Change relative angles between followers and leader"
     print "\t7. Change distance to inspection point"
-    print "\t8. Change inspection point\n"
+    print "\t8. Change inspection point"
+    print "\t9. Joystick simulator"
     
     option = ord(raw_input (">> "))
-    while (option < (48+1) or option > (48+8)): # ASCII for make sure there is no error of inputs. Zero --> 48
+    while (option < (48+1) or option > (48+9)): # ASCII for make sure there is no error of inputs. Zero --> 48
         option = ord(raw_input("Please, choose a valid option: "))
 
     option = option - 48
@@ -247,6 +325,9 @@ def show_menu(params,drones):
         waypoint[2] = (float(raw_input("Z (meters): ")))
         for drone in drones:
             drone.change_inspection_point(waypoint)
+    
+    elif option == 9:
+        drones[0].joystick_simulator()
         
     else:
         print ("Option n " + str(option) + " does not exist!")
@@ -278,8 +359,7 @@ def auto_function(params,drones):
 if __name__ == "__main__":
 
     signal.signal(signal.SIGINT, signal_handler)    # Associate signal SIGINT (Ctrl+C pressed) to handler (function "signal_handler")
-    
-    
+
     # Create the node
     rospy.init_node("operator", anonymous=True)
 
@@ -300,7 +380,7 @@ if __name__ == "__main__":
     params.waypoints                 = yml_content.get('waypoints')
     params.inspect_point             = yml_content.get('inspect')
     params.relative_angle            = yml_content.get('relative_angle')
-    
+
     # check all drones are landed armed
     cont = 0
     while cont != len(drones):
@@ -313,9 +393,9 @@ if __name__ == "__main__":
     #auto mode
     if params.auto:
         print "Using the automatic interface"
-        auto_function(params,drones)
+        auto_function(params, drones)
 
     #menu mode
     while (not rospy.is_shutdown()):
-        show_menu(params,drones)            
+        show_menu(params, drones)            
         time.sleep(1)
