@@ -249,26 +249,14 @@ void MissionPlannerRos::pubVisCB(const ros::TimerEvent &e) {
 
 void MissionPlannerRos::distanceToInspectionPointCallback(
     const std_msgs::Bool::ConstPtr &distance, int id) {
-  // ROS_INFO("Distance to inspection point:    %f", distance->data);
-  float dist = mission_planner_ptr_ -> getDistanceToInspect();
-  float inc;
-  // If true, increase
-  if (distance->data)     inc = param_.inc_distance;
-  else                    inc = -param_.inc_distance;
 
-  mission_planner_ptr_ -> setDistanceToInspect(dist + inc);
+  mission_planner_ptr_ -> incDistanceToInspect(distance->data);
 }
 
 void MissionPlannerRos::relativeAngleCallback(
     const std_msgs::Bool::ConstPtr &angle, int id) {
-  
-  float ang = mission_planner_ptr_ -> getRelativeAngle();
-  float inc;
-  // If true, increase
-  if (angle->data)        inc = param_.inc_angle;
-  else                    inc = -param_.inc_angle;
-  // ROS_INFO("Relative angle:    %f", angle->data);
-  mission_planner_ptr_->setRelativeAngle(ang + inc);
+
+  mission_planner_ptr_->incRelativeAngle(angle->data);
 }
 
 void MissionPlannerRos::solvedTrajCallback(const nav_msgs::Path::ConstPtr &msg,

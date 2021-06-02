@@ -96,6 +96,16 @@ class MissionPlanner {
   }
 
   /**
+   * @brief increases/decreases the desired distance to the inspection point
+   *
+   * @param _distance true if increase, false if decrease
+   */
+  void incDistanceToInspect(const bool &_distance) {
+    if (_distance)  setDistanceToInspect(distance_to_inspect_point_ + param_.inc_distance);
+    else                    setDistanceToInspect(distance_to_inspect_point_ - param_.inc_distance);
+  }
+
+  /**
    * @brief gives the distance to the inspection point
    *
    * @return distance to the inspection point
@@ -122,6 +132,16 @@ class MissionPlanner {
    * @return relative angle
    */
   float getRelativeAngle() { return relative_angle_; }
+
+  /**
+   * @brief increases/decreases the relative angle of the drones
+   *
+   * @param _distance true if increase, false if decrease
+   */
+  void incRelativeAngle(const bool &_angle) {
+    if (_angle)  setRelativeAngle(relative_angle_ + param_.inc_angle);
+    else                 setRelativeAngle(relative_angle_ - param_.inc_angle);
+  }
 
   /**
    * @brief executes the planner of the drone
