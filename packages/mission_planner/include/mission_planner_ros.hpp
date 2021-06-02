@@ -10,7 +10,7 @@
 #include <mission_planner/WaypointSrv.h>
 #include <nav_msgs/Odometry.h>
 #include <nav_msgs/Path.h>
-#include <std_msgs/Float32.h>
+#include <std_msgs/Bool.h>
 #include <std_srvs/Empty.h>
 #include <std_srvs/SetBool.h>
 #include <trajectory_msgs/JointTrajectory.h>
@@ -143,13 +143,13 @@ class MissionPlannerRos {
    *   \param id  identifier of the drone (not being used at this moment)
    **/
   void distanceToInspectionPointCallback(
-      const std_msgs::Float32::ConstPtr &distance, int id);
+      const std_msgs::Bool::ConstPtr &distance, int id);
 
   /*! \brief Callback for relative angle (topic)
    *   \param distance desired relative angle (absolute)
    *   \param id  identifier of the drone (not being used at this moment)
    **/
-  void relativeAngleCallback(const std_msgs::Float32::ConstPtr &angle, int id);
+  void relativeAngleCallback(const std_msgs::Bool::ConstPtr &angle, int id);
 
   /*! \brief Callback for drone's velocity
    *   \param msg drone's velocity, geometry_msgs/TwistStamped

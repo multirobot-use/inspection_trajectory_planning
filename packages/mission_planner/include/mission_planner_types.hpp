@@ -14,6 +14,8 @@ struct parameters {
   std::string frame;
   float inspection_dist = 1;  // meters
   int leader_id = 1;
+  float inc_distance = 0.1;
+  float inc_angle = 0.01;
 };
 
 struct state {

@@ -15,6 +15,8 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   safeGetParam(nh_, "inspection_dist", param_.inspection_dist);
   safeGetParam(nh_, "visualization_rate", param_.visualization_rate);
   safeGetParam(nh_, "leader_id", param_.leader_id);
+  safeGetParam(nh_, "inc_distance", param_.inc_distance);
+  safeGetParam(nh_, "inc_angle", param_.inc_angle);
 
   // initialize mission planner
   if (leader) {
@@ -39,14 +41,14 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
         std::bind(&MissionPlannerRos::uavVelocityCallback, this,
                   std::placeholders::_1, drone));
 
-    distance_to_inspection_point_sub_[drone] = nh_.subscribe<std_msgs::Float32>(
+    distance_to_inspection_point_sub_[drone] = nh_.subscribe<std_msgs::Bool>(
         "/drone_" + std::to_string(drone) +
             "/mission_planner_ros/distance_to_inspection_point",
         1,
         std::bind(&MissionPlannerRos::distanceToInspectionPointCallback, this,
                   std::placeholders::_1, drone));
 
-    relative_angle_sub_[drone] = nh_.subscribe<std_msgs::Float32>(
+    relative_angle_sub_[drone] = nh_.subscribe<std_msgs::Bool>(
         "/drone_" + std::to_string(drone) +
             "/mission_planner_ros/relative_angle",
         1,
@@ -246,15 +248,27 @@ void MissionPlannerRos::pubVisCB(const ros::TimerEvent &e) {
 }
 
 void MissionPlannerRos::distanceToInspectionPointCallback(
-    const std_msgs::Float32::ConstPtr &distance, int id) {
-  ROS_INFO("Distance to inspection point:    %f", distance->data);
-  mission_planner_ptr_->setDistanceToInspect(distance->data);
+    const std_msgs::Bool::ConstPtr &distance, int id) {
+  // ROS_INFO("Distance to inspection point:    %f", distance->data);
+  float dist = mission_planner_ptr_ -> getDistanceToInspect();
+  float inc;
+  // If true, increase
+  if (distance->data)     inc = param_.inc_distance;
+  else                    inc = -param_.inc_distance;
+
+  mission_planner_ptr_ -> setDistanceToInspect(dist + inc);
 }
 
 void MissionPlannerRos::relativeAngleCallback(
-    const std_msgs::Float32::ConstPtr &angle, int id) {
-  ROS_INFO("Relative angle:    %f", angle->data);
-  mission_planner_ptr_->setRelativeAngle(angle->data);
+    const std_msgs::Bool::ConstPtr &angle, int id) {
+  
+  float ang = mission_planner_ptr_ -> getRelativeAngle();
+  float inc;
+  // If true, increase
+  if (angle->data)        inc = param_.inc_angle;
+  else                    inc = -param_.inc_angle;
+  // ROS_INFO("Relative angle:    %f", angle->data);
+  mission_planner_ptr_->setRelativeAngle(ang + inc);
 }
 
 void MissionPlannerRos::solvedTrajCallback(const nav_msgs::Path::ConstPtr &msg,
