@@ -26,4 +26,4 @@ windows:
   - python script:  
       layout: even-vertical
       panes:
-        - sleep 15; python mission_script.py
+        - sleep 17; python mission_script.py

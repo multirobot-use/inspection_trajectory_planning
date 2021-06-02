@@ -1,4 +1,4 @@
-auto: False
+auto: True
 drone_ids : [1,2]
 leader_start_point: [3, 3, 3]
 follower_start_point: [3, 3, 3]
