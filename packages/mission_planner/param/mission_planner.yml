@@ -9,5 +9,7 @@ visualization_rate: 3   # sec
 vel_max: 0.7         # m/s
 acc_max: 1         # m/s²
 inspection_dist: 6 # m 
+inc_distance: 0.1 # m
+inc_angle: 0.01 # rad
 
 frame: "map"
