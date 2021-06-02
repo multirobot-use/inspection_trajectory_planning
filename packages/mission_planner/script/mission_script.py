@@ -12,7 +12,7 @@ import numpy as np
 from std_srvs.srv import SetBool
 from std_srvs.srv import SetBoolRequest
 from std_srvs.srv import Empty
-from std_msgs.msg import Float32
+from std_msgs.msg import Bool
 from uav_abstraction_layer.srv import TakeOff
 from uav_abstraction_layer.srv import TakeOffRequest
 from uav_abstraction_layer.srv import GoToWaypoint
@@ -72,8 +72,8 @@ class Drone:
         rospy.Subscriber(drone_ns+"/ual/state", State, self.callbackState)
         
         # # Publishers (only one drone topic needed for each one)
-        self.distance_inspection_pub = rospy.Publisher('/drone_1/mission_planner_ros/distance_to_inspection_point', Float32, queue_size = 1)
-        self.relative_angle_pub      = rospy.Publisher('/drone_1/mission_planner_ros/relative_angle', Float32, queue_size = 1)
+        self.distance_inspection_pub = rospy.Publisher('/drone_1/mission_planner_ros/distance_to_inspection_point', Bool, queue_size = 1)
+        self.relative_angle_pub      = rospy.Publisher('/drone_1/mission_planner_ros/relative_angle', Bool, queue_size = 1)
 
         # wait for services
         activate_planner_url = drone_ns + "/mission_planner_ros/activate_planner"
@@ -230,31 +230,29 @@ class Drone:
         print "\tTo decrease the relative angle, press A\n"
         print "\tTo quit, press Q\n\n"
         
-        inspection_distance = 8
-        formation_angle = 0.7
-        
-        increase_distance   = 0.1
-        increase_angle      = 0.02
-        
+        # Initialize
+        inc_distance = True
+        inc_angle = True       
         
         while (not (pressed_key == 'q' or pressed_key == 'Q')):
             # Add a pause in order to have a better control of pressed key
             
             if (pressed_key == 'w' or pressed_key == 'W'):
-                inspection_distance = inspection_distance + increase_distance
+                inc_distance = True
+                self.distance_inspection_pub.publish(inc_distance)
                 # print " "
             elif (pressed_key == 's' or pressed_key == 'S'):
-                inspection_distance = inspection_distance - increase_distance
+                inc_distance = False
+                self.distance_inspection_pub.publish(inc_distance)
                 # print " "
             elif (pressed_key == 'a' or pressed_key == 'A'):
-                formation_angle = formation_angle - increase_angle
+                inc_angle = False
+                self.relative_angle_pub.publish(inc_angle)
                 # print " "
             elif (pressed_key == 'd' or pressed_key == 'D'):
-                formation_angle = formation_angle + increase_angle
+                inc_angle = True
+                self.relative_angle_pub.publish(inc_angle)
                 # print " "
-            
-            self.distance_inspection_pub.publish(inspection_distance)
-            self.relative_angle_pub.publish(formation_angle)
             
             time.sleep(0.1)
         
