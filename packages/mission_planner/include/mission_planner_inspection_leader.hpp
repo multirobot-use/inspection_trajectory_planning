@@ -2,21 +2,21 @@
 
 #define M_PI 3.14159265358979323846
 
-//! MissionPlannerDurableLeader class
+//! MissionPlannerInspectionLeader class
 /*!
  * Class for leader drones that inherits of the class MissionPlanner
  */
-class MissionPlannerDurableLeader : public MissionPlanner {
+class MissionPlannerInspectionLeader : public MissionPlanner {
  public:
   /**
    * @brief constructor of the class
    */
-  MissionPlannerDurableLeader(parameters params);
+  MissionPlannerInspectionLeader(parameters params);
 
   /**
    * @brief destructor of the class
    */
-  ~MissionPlannerDurableLeader();
+  ~MissionPlannerInspectionLeader();
 
   /**
    * @brief pushes back a new goal on the vector of goal points to reach

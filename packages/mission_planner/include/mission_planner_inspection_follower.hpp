@@ -1,21 +1,21 @@
 #include "mission_planner.hpp"
 
-//! MissionPlannerDurableFollower class
+//! MissionPlannerInspectionFollower class
 /*!
  * Class for follower drones that inherits of the class MissionPlanner
  */
 
-class MissionPlannerDurableFollower : public MissionPlanner {
+class MissionPlannerInspectionFollower : public MissionPlanner {
  public:
   /**
    * @brief constructor of the class
    */
-  MissionPlannerDurableFollower(parameters params);
+  MissionPlannerInspectionFollower(parameters params);
 
   /**
    * @brief destructor of the class
    */
-  ~MissionPlannerDurableFollower();
+  ~MissionPlannerInspectionFollower();
 
  private:
   /**

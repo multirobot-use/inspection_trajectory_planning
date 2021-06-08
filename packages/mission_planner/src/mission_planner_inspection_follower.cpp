@@ -1,11 +1,11 @@
-#include <mission_planner_durable_follower.hpp>
+#include <mission_planner_inspection_follower.hpp>
 
-MissionPlannerDurableFollower::MissionPlannerDurableFollower(parameters params)
+MissionPlannerInspectionFollower::MissionPlannerInspectionFollower(parameters params)
     : MissionPlanner(params) {}
 
-MissionPlannerDurableFollower::~MissionPlannerDurableFollower() {}
+MissionPlannerInspectionFollower::~MissionPlannerInspectionFollower() {}
 
-bool MissionPlannerDurableFollower::checks() {
+bool MissionPlannerInspectionFollower::checks() {
   if (!hasPose()) {
     std::cout << "Mission Planner " << param_.drone_id
               << " does not have all poses" << std::endl;
@@ -13,13 +13,13 @@ bool MissionPlannerDurableFollower::checks() {
   }
   return true;
 }
-std::vector<state> MissionPlannerDurableFollower::initialTrajectory(
+std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
     const state &_state) {
   const Eigen::Vector3d goal = rotateEig(states_[1].pos, relative_angle_);
   return pathFromPointToAnother(_state.pos, goal);
 }
 
-std::vector<state> MissionPlannerDurableFollower::initialTrajectoryToInspect(
+std::vector<state> MissionPlannerInspectionFollower::initialTrajectoryToInspect(
     const state &initial_pose) {
   if (hasSolvedTrajectories()) {
     state aux;

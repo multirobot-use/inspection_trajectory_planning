@@ -1,10 +1,10 @@
-#include "mission_planner_durable_leader.hpp"
+#include "mission_planner_inspection_leader.hpp"
 
-MissionPlannerDurableLeader::MissionPlannerDurableLeader(parameters params)
+MissionPlannerInspectionLeader::MissionPlannerInspectionLeader(parameters params)
     : MissionPlanner(params){};
-MissionPlannerDurableLeader::~MissionPlannerDurableLeader(){};
+MissionPlannerInspectionLeader::~MissionPlannerInspectionLeader(){};
 
-std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(
+std::vector<state> MissionPlannerInspectionLeader::initialTrajectoryToInspect(
     const state &initial_pose) {
   std::vector<state> traj;  // trajectory to return in that function
 
@@ -50,7 +50,7 @@ std::vector<state> MissionPlannerDurableLeader::initialTrajectoryToInspect(
   return traj;
 }
 
-void MissionPlannerDurableLeader::appendGoal(const state &_new_goal) {
+void MissionPlannerInspectionLeader::appendGoal(const state &_new_goal) {
   state goal;
   Eigen::Vector3d goal_vector = _new_goal.pos;
 
@@ -59,7 +59,7 @@ void MissionPlannerDurableLeader::appendGoal(const state &_new_goal) {
   goals_.push_back(goal);
 }
 
-float MissionPlannerDurableLeader::getTotalAngle(const float &_initial_angle,
+float MissionPlannerInspectionLeader::getTotalAngle(const float &_initial_angle,
                                                  const float &_final_angle) {
   float total_angle, initial_angle, final_angle;
 
@@ -85,7 +85,7 @@ float MissionPlannerDurableLeader::getTotalAngle(const float &_initial_angle,
   return total_angle;
 }
 
-bool MissionPlannerDurableLeader::isClockWise(const Eigen::Vector3d &_vector,
+bool MissionPlannerInspectionLeader::isClockWise(const Eigen::Vector3d &_vector,
                                               const state &_state) {
   float angle = getAngle(_state.pos, point_to_inspect_);
   int quadrant;
@@ -133,7 +133,7 @@ bool MissionPlannerDurableLeader::isClockWise(const Eigen::Vector3d &_vector,
   }
 }
 
-bool MissionPlannerDurableLeader::checks() {
+bool MissionPlannerInspectionLeader::checks() {
   std::cout << "checking... " << std::endl;
   if (!hasGoal()) {
     std::cout << "Mission Planner " << param_.drone_id << " does not have goals"

@@ -22,11 +22,11 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   if (leader) {
     ROS_INFO("I'm a leader");
     mission_planner_ptr_ =
-        std::make_unique<MissionPlannerDurableLeader>(param_);
+        std::make_unique<MissionPlannerInspectionLeader>(param_);
   } else {
     ROS_INFO("I'm a follower");
     mission_planner_ptr_ =
-        std::make_unique<MissionPlannerDurableFollower>(param_);
+        std::make_unique<MissionPlannerInspectionFollower>(param_);
   }
 
   // Subscribers

@@ -15,8 +15,8 @@
 #include <std_srvs/SetBool.h>
 #include <trajectory_msgs/JointTrajectory.h>
 #include <visualization_msgs/Marker.h>
-#include "mission_planner_durable_follower.hpp"
-#include "mission_planner_durable_leader.hpp"
+#include "mission_planner_inspection_follower.hpp"
+#include "mission_planner_inspection_leader.hpp"
 #include "ros/ros.h"
 
 enum Colors { RED = 0, BLUE = 2, YELLOW = 3 };
