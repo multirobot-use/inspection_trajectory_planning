@@ -5,7 +5,7 @@
  * Class for follower drones that inherits of the class MissionPlanner
  */
 
-class MissionPlannerInspectionFollower : public MissionPlanner {
+class MissionPlannerInspectionFollower : public MissionPlannerInspection {
  public:
   /**
    * @brief constructor of the class

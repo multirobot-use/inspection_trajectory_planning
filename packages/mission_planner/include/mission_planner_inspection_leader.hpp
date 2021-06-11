@@ -1,12 +1,13 @@
 #include "mission_planner.hpp"
+#include <trajectory_planner.hpp>
 
 #define M_PI 3.14159265358979323846
 
 //! MissionPlannerInspectionLeader class
 /*!
- * Class for leader drones that inherits of the class MissionPlanner
+ * Class for leader drones that inherits of the class MissionPlannerInspection
  */
-class MissionPlannerInspectionLeader : public MissionPlanner {
+class MissionPlannerInspectionLeader : public MissionPlannerInspection {
  public:
   /**
    * @brief constructor of the class

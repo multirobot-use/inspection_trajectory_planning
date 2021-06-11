@@ -18,6 +18,7 @@
 #include "mission_planner_inspection_follower.hpp"
 #include "mission_planner_inspection_leader.hpp"
 #include "ros/ros.h"
+#include <trajectory_planner.hpp>
 
 enum Colors { RED = 0, BLUE = 2, YELLOW = 3 };
 
@@ -38,7 +39,7 @@ class MissionPlannerRos {
   // Declarations
   ros::NodeHandle nh_;
   parameters param_;
-  std::unique_ptr<MissionPlanner> mission_planner_ptr_;
+  std::unique_ptr<MissionPlannerInspection> mission_planner_ptr_;
   ros::Timer planTimer_;
   ros::Timer pubVis_;
 

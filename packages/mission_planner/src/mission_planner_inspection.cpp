@@ -1,6 +1,6 @@
 #include "mission_planner.hpp"
 
-MissionPlanner::MissionPlanner(const parameters _param)
+MissionPlannerInspection::MissionPlannerInspection(const parameters _param)
     : param_(_param),
       my_grid_(0.0, (param_.horizon_length - 1) * param_.step_size,
                param_.horizon_length) {
@@ -11,9 +11,9 @@ MissionPlanner::MissionPlanner(const parameters _param)
   logger_ = std::make_unique<Logger>(param_.drone_id);
 }
 
-MissionPlanner::~MissionPlanner() {}
+MissionPlannerInspection::~MissionPlannerInspection() {}
 
-void MissionPlanner::plan() {
+void MissionPlannerInspection::plan() {
   refreshGoals();
 
   if (!hasGoal()) planner_state_ = PlannerStatus::FIRST_PLAN;
@@ -56,7 +56,7 @@ void MissionPlanner::plan() {
   planner_state_ = PlannerStatus::REPLANNED;
 }
 
-void MissionPlanner::initialOrientation(std::vector<state> &traj) {
+void MissionPlannerInspection::initialOrientation(std::vector<state> &traj) {
   Eigen::Vector3d aux;
   for (auto &point : traj) {
     aux = point_to_inspect_ - point.pos;
@@ -64,7 +64,7 @@ void MissionPlanner::initialOrientation(std::vector<state> &traj) {
   }
 }
 
-void MissionPlanner::optimalOrientation(
+void MissionPlannerInspection::optimalOrientation(
     const std::vector<state> &traj_to_optimize) {
   // // DifferentialState heading, pitch, v_heading, v_pitch;
   // DifferentialState heading, v_heading;
@@ -159,7 +159,7 @@ void MissionPlanner::optimalOrientation(
   // (ros::Time::now() - start).toSec(), success_value); return success_value;
 }
 
-Eigen::Vector3d MissionPlanner::pointOnCircle(const Eigen::Vector3d point) {
+Eigen::Vector3d MissionPlannerInspection::pointOnCircle(const Eigen::Vector3d point) {
   Eigen::Vector2d point_2D, inspection_point_2D, point_on_circle_2D;
   Eigen::Vector3d point_on_circle_3D;
 
@@ -181,7 +181,7 @@ Eigen::Vector3d MissionPlanner::pointOnCircle(const Eigen::Vector3d point) {
   return point_on_circle_3D;
 }
 
-std::vector<state> MissionPlanner::pathFromPointToAnother(
+std::vector<state> MissionPlannerInspection::pathFromPointToAnother(
     const Eigen::Vector3d &initial, const Eigen::Vector3d &final) {
   std::vector<state> trajectory_to_optimize;
   state aux_point;
@@ -195,7 +195,7 @@ std::vector<state> MissionPlanner::pathFromPointToAnother(
   return trajectory_to_optimize;
 }
 
-bool MissionPlanner::optimalTrajectory(
+bool MissionPlannerInspection::optimalTrajectory(
     const std::vector<state> &initial_trajectory) {
   if (initial_trajectory.size() != param_.horizon_length) return -2;
   ACADO::DifferentialState px_, py_, pz_, vx_, vy_, vz_;
@@ -294,7 +294,7 @@ bool MissionPlanner::optimalTrajectory(
   az_.clearStaticCounters();
 };
 
-bool MissionPlanner::isInspectionZone(const Eigen::Vector3d &drone_pose) {
+bool MissionPlannerInspection::isInspectionZone(const Eigen::Vector3d &drone_pose) {
   Eigen::Vector2d drone_pose2d, point_to_inspect2d;
 
   drone_pose2d(0) = drone_pose(0);
@@ -310,7 +310,7 @@ bool MissionPlanner::isInspectionZone(const Eigen::Vector3d &drone_pose) {
     return true;
 }
 
-int MissionPlanner::closestPoint(const std::vector<state> &initial_trajectory,
+int MissionPlannerInspection::closestPoint(const std::vector<state> &initial_trajectory,
                                  const state point) {
   float dist = INFINITY;
   float aux_dist = 0;

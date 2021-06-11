@@ -1,7 +1,7 @@
 #include "mission_planner_inspection_leader.hpp"
 
 MissionPlannerInspectionLeader::MissionPlannerInspectionLeader(parameters params)
-    : MissionPlanner(params){};
+    : MissionPlannerInspection(params){};
 MissionPlannerInspectionLeader::~MissionPlannerInspectionLeader(){};
 
 std::vector<state> MissionPlannerInspectionLeader::initialTrajectoryToInspect(

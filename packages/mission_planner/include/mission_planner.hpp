@@ -9,7 +9,7 @@
 #include "log.h"
 #include "mission_planner_types.hpp"
 
-//! MissionPlanner class
+//! MissionPlannerInspection class
 /*!
  * Abstract base class for mission planner. It cannot be instantiated
  */
@@ -17,7 +17,7 @@
 enum PlannerStatus { FIRST_PLAN = 0, REPLANNED = 2 };
 enum MissionStatus { GO_TO = 0, MISSION_ZONE = 1 };
 
-class MissionPlanner {
+class MissionPlannerInspection {
  public:
   std::unique_ptr<Logger> logger_;
   std::vector<state> reference_traj;
@@ -26,12 +26,12 @@ class MissionPlanner {
   /**
    * @brief constructor of the class
    */
-  MissionPlanner(const parameters _param);
+  MissionPlannerInspection(const parameters _param);
 
   /**
    * @brief destructor of the class
    */
-  virtual ~MissionPlanner();
+  virtual ~MissionPlannerInspection();
 
   /**
    * @brief pushes back a new goal on the vector of goal points to reach

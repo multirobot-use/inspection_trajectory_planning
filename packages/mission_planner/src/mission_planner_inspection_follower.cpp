@@ -1,7 +1,7 @@
 #include <mission_planner_inspection_follower.hpp>
 
 MissionPlannerInspectionFollower::MissionPlannerInspectionFollower(parameters params)
-    : MissionPlanner(params) {}
+    : MissionPlannerInspection(params) {}
 
 MissionPlannerInspectionFollower::~MissionPlannerInspectionFollower() {}
 
