@@ -1,8 +1,8 @@
-#include "mission_planner.hpp"
+#include "mission_planner_inspection.hpp"
 
 //! MissionPlannerInspectionFollower class
 /*!
- * Class for follower drones that inherits of the class MissionPlanner
+ * Class for follower drones that inherits of the class MissionPlannerInspection
  */
 
 class MissionPlannerInspectionFollower : public MissionPlannerInspection {
