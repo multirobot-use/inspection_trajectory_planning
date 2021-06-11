@@ -18,7 +18,6 @@
 #include "mission_planner_inspection_follower.hpp"
 #include "mission_planner_inspection_leader.hpp"
 #include "ros/ros.h"
-#include <trajectory_planner.hpp>
 
 enum Colors { RED = 0, BLUE = 2, YELLOW = 3 };
 
@@ -50,6 +49,7 @@ class MissionPlannerRos {
   std::map<int, ros::Subscriber> cur_vel_sub_;
   std::map<int, ros::Subscriber> solved_trajectories_sub_;
   std::map<int, ros::Subscriber> distance_to_inspection_point_sub_;
+
   std::map<int, ros::Subscriber> relative_angle_sub_;
 
   // Publishers

@@ -1,5 +1,4 @@
 #include "mission_planner.hpp"
-#include <trajectory_planner.hpp>
 
 #define M_PI 3.14159265358979323846
 
