@@ -3,30 +3,30 @@
 MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
     : nh_(_nh) {
   // ros params
-  safeGetParam(nh_, "horizon_length", param_.horizon_length);
-  safeGetParam(nh_, "n_drones", param_.n_drones);
-  safeGetParam(nh_, "step_size", param_.step_size);
-  safeGetParam(nh_, "planning_rate", param_.planning_rate);
-  safeGetParam(nh_, "drone_id", param_.drone_id);
-  safeGetParam(nh_, "vel_max", param_.vel_max);
-  safeGetParam(nh_, "acc_max", param_.acc_max);
-  safeGetParam(nh_, "frame", param_.frame);
-  safeGetParam(nh_, "drone_id", param_.drone_id);
-  safeGetParam(nh_, "inspection_dist", param_.inspection_dist);
-  safeGetParam(nh_, "visualization_rate", param_.visualization_rate);
-  safeGetParam(nh_, "leader_id", param_.leader_id);
-  safeGetParam(nh_, "inc_distance", param_.inc_distance);
-  safeGetParam(nh_, "inc_angle", param_.inc_angle);
+  trajectory_planner::safeGetParam(nh_, "horizon_length", param_.horizon_length);
+  trajectory_planner::safeGetParam(nh_, "n_drones", param_.n_drones);
+  trajectory_planner::safeGetParam(nh_, "step_size", param_.step_size);
+  trajectory_planner::safeGetParam(nh_, "planning_rate", param_.planning_rate);
+  trajectory_planner::safeGetParam(nh_, "drone_id", param_.drone_id);
+  trajectory_planner::safeGetParam(nh_, "vel_max", param_.vel_max);
+  trajectory_planner::safeGetParam(nh_, "acc_max", param_.acc_max);
+  trajectory_planner::safeGetParam(nh_, "frame", param_.frame);
+  trajectory_planner::safeGetParam(nh_, "drone_id", param_.drone_id);
+  trajectory_planner::safeGetParam(nh_, "inspection_dist", inspection_params_.inspection_dist);
+  trajectory_planner::safeGetParam(nh_, "visualization_rate", param_.visualization_rate);
+  trajectory_planner::safeGetParam(nh_, "leader_id", inspection_params_.leader_id);
+  trajectory_planner::safeGetParam(nh_, "inc_distance", inspection_params_.inc_distance);
+  trajectory_planner::safeGetParam(nh_, "inc_angle", inspection_params_.inc_angle);
 
   // initialize mission planner
   if (leader) {
     ROS_INFO("I'm a leader");
     mission_planner_ptr_ =
-        std::make_unique<MissionPlannerInspectionLeader>(param_);
+        std::make_unique<MissionPlannerInspectionLeader>(param_, inspection_params_);
   } else {
     ROS_INFO("I'm a follower");
     mission_planner_ptr_ =
-        std::make_unique<MissionPlannerInspectionFollower>(param_);
+        std::make_unique<MissionPlannerInspectionFollower>(param_, inspection_params_);
   }
 
   // Subscribers
@@ -216,7 +216,7 @@ bool MissionPlannerRos::changeRelativeAngleServiceCallback(
 }
 
 void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
-  if (mission_planner_ptr_->getStatus() != PlannerStatus::FIRST_PLAN) {
+  if (mission_planner_ptr_->getStatus() != trajectory_planner::PlannerStatus::FIRST_PLAN) {
     publishTrajectoryJoint(tracking_pub_trajectory_,
                            mission_planner_ptr_->getLastTrajectory());
     // publishPath(tracking_pub_, mission_planner_ptr_->last_trajectory_);

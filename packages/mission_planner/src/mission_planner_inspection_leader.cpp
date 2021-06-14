@@ -1,11 +1,12 @@
 #include "mission_planner_inspection_leader.hpp"
 
-MissionPlannerInspectionLeader::MissionPlannerInspectionLeader(parameters params)
-    : MissionPlannerInspection(params){};
+MissionPlannerInspectionLeader::MissionPlannerInspectionLeader(trajectory_planner::parameters _params, inspection_params _inspection_params)
+    : MissionPlannerInspection(_params, _inspection_params){};
 MissionPlannerInspectionLeader::~MissionPlannerInspectionLeader(){};
 
-std::vector<state> MissionPlannerInspectionLeader::initialTrajectoryToInspect(
+std::vector<state> MissionPlannerInspectionLeader::initialTrajectory(
     const state &initial_pose) {
+  refreshGoals();
   std::vector<state> traj;  // trajectory to return in that function
 
   // transform to polar initial and final point
@@ -83,54 +84,6 @@ float MissionPlannerInspectionLeader::getTotalAngle(const float &_initial_angle,
     total_angle = final_angle - initial_angle;
 
   return total_angle;
-}
-
-bool MissionPlannerInspectionLeader::isClockWise(const Eigen::Vector3d &_vector,
-                                              const state &_state) {
-  float angle = getAngle(_state.pos, point_to_inspect_);
-  int quadrant;
-
-  if ((angle >= -M_PI) && (angle < -M_PI / 2)) quadrant = 3;
-  if ((angle >= -M_PI / 2) && (angle < 0)) quadrant = 4;
-  if ((angle >= 0) && (angle < M_PI / 2)) quadrant = 1;
-  if ((angle >= M_PI / 2) && (angle <= M_PI)) quadrant = 2;
-
-  // std::cout << std::endl << "QUADRANT: " << std::to_string(quadrant) <<
-  // std::endl; std::cout << std::endl << "ANGLE (rad): " << angle << std::endl;
-
-  // true if clockwise, false if anticlockwise
-  switch (quadrant) {
-    case 1:
-      if ((_vector(0) > 0) && (_vector(1) < 0))
-        return true;
-      else
-        return false;
-      break;
-
-    case 2:
-      if ((_vector(0) > 0) && (_vector(1) > 0))
-        return true;
-      else
-        return false;
-      break;
-
-    case 3:
-      if ((_vector(0) < 0) && (_vector(1) > 0))
-        return true;
-      else
-        return false;
-      break;
-
-    case 4:
-      if ((_vector(0) < 0) && (_vector(1) < 0))
-        return true;
-      else
-        return false;
-      break;
-
-    default:
-      break;
-  }
 }
 
 bool MissionPlannerInspectionLeader::checks() {

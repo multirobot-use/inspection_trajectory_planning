@@ -11,7 +11,7 @@ class MissionPlannerInspectionLeader : public MissionPlannerInspection {
   /**
    * @brief constructor of the class
    */
-  MissionPlannerInspectionLeader(parameters params);
+  MissionPlannerInspectionLeader(trajectory_planner::parameters _params, inspection_params _inspection_params);
 
   /**
    * @brief destructor of the class
@@ -47,21 +47,11 @@ class MissionPlannerInspectionLeader : public MissionPlannerInspection {
   float getTotalAngle(const float &_initial_angle, const float &_final_angle);
 
   /**
-   * @brief determines if the drone is travelling clockwise or anticlockwise
-   *
-   * @param _vector vector of velocity of the drone
-   * @param _state current position of the drone
-   * @return true if clockwise
-   * @return false if anticlockwise
-   */
-  bool isClockWise(const Eigen::Vector3d &_vector, const state &_state);
-
-  /**
    * @brief returns an initial trajectory to inspect for the drone according to
    * the initial pose
    *
    * @param initial_pose initial pose of the drone
    * @return vector of states of the trajectory
    */
-  std::vector<state> initialTrajectoryToInspect(const state &initial_pose);
+  virtual std::vector<state> initialTrajectory(const state &initial_pose) override;
 };

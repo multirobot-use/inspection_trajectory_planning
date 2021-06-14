@@ -37,7 +37,8 @@ class MissionPlannerRos {
  private:
   // Declarations
   ros::NodeHandle nh_;
-  parameters param_;
+  trajectory_planner::parameters param_;
+  inspection_params inspection_params_;
   std::unique_ptr<MissionPlannerInspection> mission_planner_ptr_;
   ros::Timer planTimer_;
   ros::Timer pubVis_;

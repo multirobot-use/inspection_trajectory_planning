@@ -10,7 +10,7 @@ class MissionPlannerInspectionFollower : public MissionPlannerInspection {
   /**
    * @brief constructor of the class
    */
-  MissionPlannerInspectionFollower(parameters params);
+  MissionPlannerInspectionFollower(trajectory_planner::parameters _params, inspection_params _inspection_params);
 
   /**
    * @brief destructor of the class
@@ -18,14 +18,6 @@ class MissionPlannerInspectionFollower : public MissionPlannerInspection {
   ~MissionPlannerInspectionFollower();
 
  private:
-  /**
-   * @brief returns an initial straight trajectory for the drone according to
-   * the initial pose
-   *
-   * @param initial_pose initial pose of the drone
-   * @return vector of states of the trajectory
-   */
-  std::vector<state> initialTrajectory(const state &_state) override;
 
   /**
    * @brief virtual function that makes the following checks
@@ -42,6 +34,6 @@ class MissionPlannerInspectionFollower : public MissionPlannerInspection {
    * @param initial_pose initial pose of the drone
    * @return vector of states of the trajectory
    */
-  std::vector<state> initialTrajectoryToInspect(
-      const state &initial_pose) override;
+  virtual std::vector<trajectory_planner::state> initialTrajectory(
+      const trajectory_planner::state &initial_pose) override;
 };

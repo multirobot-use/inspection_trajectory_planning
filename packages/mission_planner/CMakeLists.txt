@@ -26,6 +26,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   nav_msgs
   trajectory_msgs
+  trajectory_planner
 )
 
 add_service_files(
