@@ -1,0 +1,3 @@
+[submodule "packages/trajectory_planner"]
+	path = packages/trajectory_planner
+	url = https://github.com/alfalcmar/trajectory_planner.git
