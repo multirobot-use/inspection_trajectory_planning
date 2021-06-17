@@ -4,9 +4,6 @@ MissionPlannerInspection::MissionPlannerInspection(const trajectory_planner::par
     : trajectory_planner::TrajectoryPlanner(_params),
       inspection_params_(_inspection_params)
  {
-      
-  my_grid_ = ACADO::Grid(0.0, (param_.horizon_length - 1) * param_.step_size,
-               param_.horizon_length);
   // initialize solved trajectory
   solved_trajectories_[param_.drone_id] =
       std::vector<state>(param_.horizon_length);
