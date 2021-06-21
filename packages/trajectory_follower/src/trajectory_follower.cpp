@@ -30,9 +30,10 @@ struct State {
 
 struct Follower {
   const double look_ahead = 1.0;
+  int pose_on_path = 0;
+
 };
 
-int pose_on_path = 0;
 
 int target_pose;  // look ahead pose
 int drone_id = 1;
@@ -119,10 +120,10 @@ int main(int _argc, char **_argv) {
 
   // trajectory subscriber
   auto trajectoryCallback =
-      [&last_traj_received,
+      [&last_traj_received, &follower,
        tracking_pub](const trajectory_msgs::JointTrajectory::ConstPtr &msg) {
         ROS_INFO("Drone %d: trajectory received", drone_id);
-        pose_on_path = 0;
+        follower.pose_on_path = 0;
         last_traj_received.positions.clear();
         last_traj_received.velocities.clear();
         geometry_msgs::Twist velocity;
@@ -177,18 +178,18 @@ int main(int _argc, char **_argv) {
 
   while (ros::ok) {
     ROS_INFO("Drone %d: waiting for trajectory. Pose on path: %d", drone_id,
-             pose_on_path);
+             follower.pose_on_path);
     // wait for receiving trajectories
     while ((
         !last_traj_received.positions.empty() &&
         !last_traj_received.velocities
              .empty())) {  // if start trajectory is provided by topic or by csv
-      pose_on_path =
+      follower.pose_on_path =
           cal_pose_on_path(last_traj_received.positions, uav_state.current_pose,
-                           pose_on_path);
-      ROS_INFO("Drones %d: pose on path: %d", drone_id, pose_on_path);
+                           follower.pose_on_path);
+      ROS_INFO("Drones %d: pose on path: %d", drone_id, follower.pose_on_path);
       target_pose = cal_pose_look_ahead(last_traj_received.positions,
-                                        follower.look_ahead, pose_on_path);
+                                        follower.look_ahead, follower.pose_on_path);
       std::cout << "target pose: " << target_pose << std::endl;
       // if the point to go is out of the trajectory, the trajectory will be
       // finished and cleared
@@ -196,7 +197,7 @@ int main(int _argc, char **_argv) {
         ROS_INFO("Drone %d: end of the trajectory", drone_id);
         last_traj_received.positions.clear();
         last_traj_received.velocities.clear();
-        pose_on_path = 0;
+        follower.pose_on_path = 0;
         break;
       }
       ROS_INFO("Drone %d: look ahead: %d", drone_id, target_pose);
@@ -205,21 +206,21 @@ int main(int _argc, char **_argv) {
           last_traj_received.positions[target_pose].pose.position.y,
           last_traj_received.positions[target_pose].pose.position.z);
       Eigen::Vector3f vel_to_go;
-      if (pose_on_path == 0) {
+      if (follower.pose_on_path == 0) {
         Eigen::Vector3f pose_to_go =
             Eigen::Vector3f(last_traj_received.positions[0].pose.position.x,
                             last_traj_received.positions[0].pose.position.y,
                             last_traj_received.positions[0].pose.position.z);
         float dist = (pose_to_go - uav_state.current_pose).norm();
         vel_to_go = Eigen::Vector3f(
-            last_traj_received.velocities[pose_on_path].linear.x + dist,
-            last_traj_received.velocities[pose_on_path].linear.y + dist,
-            last_traj_received.velocities[pose_on_path].linear.z + dist);
+            last_traj_received.velocities[follower.pose_on_path].linear.x + dist,
+            last_traj_received.velocities[follower.pose_on_path].linear.y + dist,
+            last_traj_received.velocities[follower.pose_on_path].linear.z + dist);
       } else
         vel_to_go = Eigen::Vector3f(
-            last_traj_received.velocities[pose_on_path].linear.x,
-            last_traj_received.velocities[pose_on_path].linear.y,
-            last_traj_received.velocities[pose_on_path].linear.z);
+            last_traj_received.velocities[follower.pose_on_path].linear.x,
+            last_traj_received.velocities[follower.pose_on_path].linear.y,
+            last_traj_received.velocities[follower.pose_on_path].linear.z);
 
       Eigen::Vector3f velocity_to_command =
           calculate_vel(pose_to_go, vel_to_go, uav_state.current_pose);
