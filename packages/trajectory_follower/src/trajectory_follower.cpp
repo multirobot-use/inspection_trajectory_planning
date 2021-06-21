@@ -31,16 +31,21 @@ struct State {
 struct Follower {
   const double look_ahead = 1.0;
   int pose_on_path = 0;
+  const float rate = 0.01;  // seg
+  const float velocity_error = 0.1;
 
+  float calculateYawDiff(float _desired_yaw, float _current_yaw);
+  int cal_pose_on_path(const std::vector<geometry_msgs::PoseStamped> &positions,
+                       const Eigen::Vector3f &current_pose);
+  int cal_pose_look_ahead(
+      const std::vector<geometry_msgs::PoseStamped> &positions);
+  Eigen::Vector3f calculate_vel(const Eigen::Vector3f pose,
+                                const Eigen::Vector3f vel,
+                                const Eigen::Vector3f &current_pose);
 };
 
 
-int target_pose;  // look ahead pose
-int drone_id = 1;
-const float velocity_error = 0.1;
-const float rate = 0.01;  // seg
-
-float calculateYawDiff(float _desired_yaw, float _current_yaw) {
+float Follower::calculateYawDiff(float _desired_yaw, float _current_yaw) {
   float yaw_diff = _desired_yaw - _current_yaw;
   while (yaw_diff < -M_PI) yaw_diff += 2 * M_PI;
   while (yaw_diff > M_PI) yaw_diff -= 2 * M_PI;
@@ -51,12 +56,11 @@ float calculateYawDiff(float _desired_yaw, float _current_yaw) {
  *  \param positions a path to follow
  *  \return index of the nearest pose on the path
  */
-int cal_pose_on_path(const std::vector<geometry_msgs::PoseStamped> &positions,
-                     const Eigen::Vector3f &current_pose,
-                     int previous_pose_on_path) {
-  double min_distance = 10000000;
+int Follower::cal_pose_on_path(const std::vector<geometry_msgs::PoseStamped> &positions,
+                     const Eigen::Vector3f &current_pose) {
+  double min_distance = INFINITY;
   int pose_on_path_id = 0;
-  for (int i = previous_pose_on_path; i < positions.size(); i++) {
+  for (int i = pose_on_path; i < positions.size(); i++) {
     Eigen::Vector3f pose_on_path = Eigen::Vector3f(
         positions[i].pose.position.x, positions[i].pose.position.y,
         positions[i].pose.position.z);
@@ -75,9 +79,8 @@ int cal_pose_on_path(const std::vector<geometry_msgs::PoseStamped> &positions,
  *  \return look ahead position index
  */
 
-int cal_pose_look_ahead(
-    const std::vector<geometry_msgs::PoseStamped> &positions,
-    const double look_ahead, int pose_on_path) {
+int Follower::cal_pose_look_ahead(
+    const std::vector<geometry_msgs::PoseStamped> &positions) {
   for (int i = pose_on_path; i < positions.size(); i++) {
     Eigen::Vector3f aux = Eigen::Vector3f(
         positions[i].pose.position.x - positions[pose_on_path].pose.position.x,
@@ -95,7 +98,7 @@ int cal_pose_look_ahead(
  *  \param vel desired velocity of the nearest pose on the path
  *  \return 3d vector velocity to command
  */
-Eigen::Vector3f calculate_vel(const Eigen::Vector3f pose,
+Eigen::Vector3f Follower::calculate_vel(const Eigen::Vector3f pose,
                               const Eigen::Vector3f vel,
                               const Eigen::Vector3f &current_pose) {
   Eigen::Vector3f vel_to_command = (pose - current_pose).normalized();
@@ -111,6 +114,7 @@ int main(int _argc, char **_argv) {
   ros::init(_argc, _argv, "trajectory_follower_node");
   ros::NodeHandle nh;
   ros::NodeHandle pnh("~");
+  
   Trajectory last_traj_received;
   State uav_state;
   Follower follower;
@@ -122,7 +126,6 @@ int main(int _argc, char **_argv) {
   auto trajectoryCallback =
       [&last_traj_received, &follower,
        tracking_pub](const trajectory_msgs::JointTrajectory::ConstPtr &msg) {
-        ROS_INFO("Drone %d: trajectory received", drone_id);
         follower.pose_on_path = 0;
         last_traj_received.positions.clear();
         last_traj_received.velocities.clear();
@@ -174,39 +177,37 @@ int main(int _argc, char **_argv) {
   ros::Publisher velocity_ual_pub =
       nh.advertise<geometry_msgs::TwistStamped>("ual/set_velocity", 1);
   grvc::utils::PidController yaw_pid("yaw", YAW_PID_P, YAW_PID_I, YAW_PID_P);
-  nh.getParam("trajectory_follower_node/drone_id", drone_id);
 
   while (ros::ok) {
-    ROS_INFO("Drone %d: waiting for trajectory. Pose on path: %d", drone_id,
+    ROS_INFO("Follower: waiting for trajectory. Pose on path: %d",
              follower.pose_on_path);
     // wait for receiving trajectories
-    while ((
+    while (( // if start trajectory is provided by topic or by csv
         !last_traj_received.positions.empty() &&
         !last_traj_received.velocities
-             .empty())) {  // if start trajectory is provided by topic or by csv
+             .empty())) {  
       follower.pose_on_path =
-          cal_pose_on_path(last_traj_received.positions, uav_state.current_pose,
-                           follower.pose_on_path);
-      ROS_INFO("Drones %d: pose on path: %d", drone_id, follower.pose_on_path);
-      target_pose = cal_pose_look_ahead(last_traj_received.positions,
-                                        follower.look_ahead, follower.pose_on_path);
+          follower.cal_pose_on_path(last_traj_received.positions, uav_state.current_pose);
+      ROS_INFO("Follower: pose on path: %d", follower.pose_on_path);
+      int target_pose = follower.cal_pose_look_ahead(last_traj_received.positions);
       std::cout << "target pose: " << target_pose << std::endl;
       // if the point to go is out of the trajectory, the trajectory will be
       // finished and cleared
       if (target_pose == last_traj_received.positions.size()) {
-        ROS_INFO("Drone %d: end of the trajectory", drone_id);
+        ROS_INFO("Follower: end of the trajectory");
         last_traj_received.positions.clear();
         last_traj_received.velocities.clear();
         follower.pose_on_path = 0;
         break;
       }
-      ROS_INFO("Drone %d: look ahead: %d", drone_id, target_pose);
+      ROS_INFO("Follower: look ahead: %d", target_pose);
       Eigen::Vector3f pose_to_go = Eigen::Vector3f(
           last_traj_received.positions[target_pose].pose.position.x,
           last_traj_received.positions[target_pose].pose.position.y,
           last_traj_received.positions[target_pose].pose.position.z);
       Eigen::Vector3f vel_to_go;
-      if (follower.pose_on_path == 0) {
+     
+      if (follower.pose_on_path == 0) { // if pose to go is the firs point
         Eigen::Vector3f pose_to_go =
             Eigen::Vector3f(last_traj_received.positions[0].pose.position.x,
                             last_traj_received.positions[0].pose.position.y,
@@ -216,14 +217,14 @@ int main(int _argc, char **_argv) {
             last_traj_received.velocities[follower.pose_on_path].linear.x + dist,
             last_traj_received.velocities[follower.pose_on_path].linear.y + dist,
             last_traj_received.velocities[follower.pose_on_path].linear.z + dist);
-      } else
+      } else // if it is not the first point
         vel_to_go = Eigen::Vector3f(
             last_traj_received.velocities[follower.pose_on_path].linear.x,
             last_traj_received.velocities[follower.pose_on_path].linear.y,
             last_traj_received.velocities[follower.pose_on_path].linear.z);
 
       Eigen::Vector3f velocity_to_command =
-          calculate_vel(pose_to_go, vel_to_go, uav_state.current_pose);
+          follower.calculate_vel(pose_to_go, vel_to_go, uav_state.current_pose);
 
       // yaw
       tf2::Quaternion desired_q(
@@ -237,8 +238,8 @@ int main(int _argc, char **_argv) {
 
       float current_yaw = tf2::getYaw(current_q);
       float desired_yaw = tf2::getYaw(desired_q);
-      float yaw_diff = calculateYawDiff(desired_yaw, current_yaw);
-      float sampling_period = rate;
+      float yaw_diff = follower.calculateYawDiff(desired_yaw, current_yaw);
+      float sampling_period = follower.rate;
 
       // publish topic to ual
       geometry_msgs::TwistStamped vel;
@@ -250,7 +251,7 @@ int main(int _argc, char **_argv) {
 
       velocity_ual_pub.publish(vel);
       ros::spinOnce();
-      ros::Duration(rate).sleep();
+      ros::Duration(follower.rate).sleep();
     }
     ros::spinOnce();
     ros::Duration(1).sleep();
