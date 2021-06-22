@@ -11,14 +11,23 @@
 #include <thread>        
 #include <chrono>         
 
-const float YAW_PID_P = 0.4;
-const float YAW_PID_I = 0.02;
-const float YAW_PI_D = 0.0;
+const float YAW_PID_P{0.4};
+const float YAW_PID_I{0.02};
+const float YAW_PI_D{0.0};
 
 struct Trajectory {
   std::vector<Eigen::Vector3f> positions;  // trajectory to follow
   std::vector<Eigen::Vector3f> velocities;       // trajectory to follow
   std::vector<Eigen::Quaternionf> orientations;
+  std::vector<float> times;
+
+  Trajectory(const int N, const float step_size) {
+    std::wcout<<"Fixed horizon and step size";
+    for (int i = 0; i < N; i++) {
+      times.push_back(i * step_size);
+    }
+  }
+  Trajectory() {}
 };
 struct State {
   Eigen::Vector3f current_pose;
@@ -27,19 +36,22 @@ struct State {
 };
 
 struct Follower {
-  const double look_ahead = 1.0;
-  int pose_on_path = 0;
-  const float rate = 0.01;  // hz
-  const float velocity_error = 0.1;
+  const double look_ahead{1.0};
+  int pose_on_path{0};
+  const float rate{0.01};  // hz
+  const float velocity_error{0.1};
+
+  std::chrono::time_point<std::chrono::high_resolution_clock> time_last_traj;
 
   float calculateYawDiff(const float _desired_yaw, const float _current_yaw);
   int cal_pose_on_path(const std::vector<Eigen::Vector3f> &positions,
                        const Eigen::Vector3f &current_pose);
   int cal_pose_look_ahead(
       const std::vector<Eigen::Vector3f> &positions);
-  Eigen::Vector3f calculate_vel(const Eigen::Vector3f &pose,
+  Eigen::Vector3f calculate_vel(const Eigen::Vector3f &target_pose,
                                 const Eigen::Vector3f &vel,
-                                const Eigen::Vector3f &current_pose);
+                                const Eigen::Vector3f &current_pose,
+                                const float target_time);
 };
 
 
@@ -48,7 +60,7 @@ int main(int _argc, char **_argv) {
   ros::NodeHandle nh;
   ros::NodeHandle pnh("~");
   
-  Trajectory last_traj_received;
+  Trajectory last_traj_received{40,0.1};
   State uav_state;
   Follower follower;
   //// publishers and subscribers
@@ -59,6 +71,7 @@ int main(int _argc, char **_argv) {
   auto trajectoryCallback =
       [&last_traj_received, &follower,
        tracking_pub](const trajectory_msgs::JointTrajectory::ConstPtr &msg) {
+        follower.time_last_traj = std::chrono::high_resolution_clock::now();
         follower.pose_on_path = 0;
         last_traj_received.positions.clear();
         last_traj_received.velocities.clear();
@@ -130,37 +143,37 @@ int main(int _argc, char **_argv) {
       follower.pose_on_path =
           follower.cal_pose_on_path(last_traj_received.positions, uav_state.current_pose);
       ROS_INFO("Follower: pose on path: %d", follower.pose_on_path);
-      int target_pose = follower.cal_pose_look_ahead(last_traj_received.positions);
-      std::cout << "target pose: " << target_pose << std::endl;
+      int target_pose_idx = follower.cal_pose_look_ahead(last_traj_received.positions);
+      std::cout << "target pose: " << target_pose_idx << std::endl;
       // if the point to go is out of the trajectory, the trajectory will be
       // finished and cleared
-      if (target_pose == last_traj_received.positions.size()) {
+      if (target_pose_idx == last_traj_received.positions.size()) {
         ROS_INFO("Follower: end of the trajectory");
         last_traj_received.positions.clear();
         last_traj_received.velocities.clear();
         follower.pose_on_path = 0;
         break;
       }
-      ROS_INFO("Follower: look ahead: %d", target_pose);
-      Eigen::Vector3f pose_to_go = last_traj_received.positions[target_pose];
-      Eigen::Vector3f vel_to_go;
+      ROS_INFO("Follower: look ahead: %d", target_pose_idx);
+      Eigen::Vector3f target_pose = last_traj_received.positions[target_pose_idx];
      
-      if (follower.pose_on_path == 0) { // if pose to go is the firs point
-        Eigen::Vector3f pose_to_go = last_traj_received.positions[0];
-        float dist = (pose_to_go - uav_state.current_pose).norm();
-        vel_to_go = last_traj_received.velocities[follower.pose_on_path] + Eigen::Vector3f(dist,dist,dist);
-      } else // if it is not the first point
-        vel_to_go = last_traj_received.velocities[follower.pose_on_path];
+      // if (follower.pose_on_path == 0) { // if pose to go is the firs point
+      //   Eigen::Vector3f pose_to_go = last_traj_received.positions[0];
+      //   float dist = (pose_to_go - uav_state.current_pose).norm();
+      //   vel_to_go = last_traj_received.velocities[follower.pose_on_path] + Eigen::Vector3f(dist,dist,dist);
+      // } else // if it is not the first point
+      Eigen::Vector3f vel_to_go = last_traj_received.velocities[follower.pose_on_path];
+
 
       Eigen::Vector3f velocity_to_command =
-          follower.calculate_vel(pose_to_go, vel_to_go, uav_state.current_pose);
+          follower.calculate_vel(target_pose, vel_to_go, uav_state.current_pose, last_traj_received.times[target_pose_idx]);
 
       // yaw
       tf2::Quaternion desired_q(
-          last_traj_received.orientations[target_pose].x(),
-          last_traj_received.orientations[target_pose].y(),
-          last_traj_received.orientations[target_pose].z(),
-          last_traj_received.orientations[target_pose].w());
+          last_traj_received.orientations[target_pose_idx].x(),
+          last_traj_received.orientations[target_pose_idx].y(),
+          last_traj_received.orientations[target_pose_idx].z(),
+          last_traj_received.orientations[target_pose_idx].w());
       tf2::Quaternion current_q(
           uav_state.current_orientation.x(), uav_state.current_orientation.y(),
           uav_state.current_orientation.z(), uav_state.current_orientation.w());
@@ -219,10 +232,14 @@ int Follower::cal_pose_look_ahead(
   return positions.size();
 }
 
-Eigen::Vector3f Follower::calculate_vel(const Eigen::Vector3f &pose,
+Eigen::Vector3f Follower::calculate_vel(const Eigen::Vector3f &target_pose,
                               const Eigen::Vector3f &vel,
-                              const Eigen::Vector3f &current_pose) {
-  Eigen::Vector3f vel_to_command = (pose - current_pose).normalized();
-  double vel_module = vel.norm() + velocity_error;
-  return vel_to_command * vel_module;
+                              const Eigen::Vector3f &current_pose,
+                              const float target_time) {
+  auto end = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<float> current_time = end-time_last_traj;
+
+  Eigen::Vector3f vel_unitary = (target_pose - current_pose).normalized();
+  double vel_module = (target_pose-current_pose).norm()/ (target_time-current_time.count());
+  return vel_unitary * vel_module;
 }
