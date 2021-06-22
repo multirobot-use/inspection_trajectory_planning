@@ -110,14 +110,15 @@ int main(int _argc, char **_argv) {
   auto sub_traj = pnh.subscribe<trajectory_msgs::JointTrajectory>(
       "trajectory_to_follow", 1, trajectoryCallback);
   // ual state subscriber
-  auto ualPoseCallback = [&uav_state](
-                             const geometry_msgs::PoseStamped::ConstPtr &msg) {
-    uav_state.position = Eigen::Vector3f(
-        msg->pose.position.x, msg->pose.position.y, msg->pose.position.z);
-    uav_state.orientation =
-        Eigen::Quaternionf(msg->pose.orientation.x, msg->pose.orientation.y,
-                           msg->pose.orientation.z, msg->pose.orientation.w);
-  };
+  auto ualPoseCallback =
+      [&uav_state](const geometry_msgs::PoseStamped::ConstPtr &msg) {
+        uav_state.position = Eigen::Vector3f(
+            msg->pose.position.x, msg->pose.position.y, msg->pose.position.z);
+        uav_state.orientation.x() = msg->pose.orientation.x;
+        uav_state.orientation.y() = msg->pose.orientation.y;
+        uav_state.orientation.z() = msg->pose.orientation.z;
+        uav_state.orientation.w() = msg->pose.orientation.w;
+      };
   auto pose_sub =
       nh.subscribe<geometry_msgs::PoseStamped>("ual/pose", 1, ualPoseCallback);
 
