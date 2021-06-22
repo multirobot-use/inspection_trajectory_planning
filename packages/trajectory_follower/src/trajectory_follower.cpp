@@ -22,7 +22,7 @@ struct Trajectory {
 };
 struct State {
   Eigen::Vector3f current_pose;
-  geometry_msgs::Quaternion current_orientation;
+  Eigen::Quaternionf current_orientation;
   Eigen::Vector3f current_vel;
 };
 
@@ -51,11 +51,11 @@ int main(int _argc, char **_argv) {
   Trajectory last_traj_received;
   State uav_state;
   Follower follower;
-
+  //// publishers and subscribers
   ros::Publisher tracking_pub =
       nh.advertise<nav_msgs::Path>("follower/trajectory_to_follow", 1);
 
-  // trajectory subscriber
+  // trajectory callback
   auto trajectoryCallback =
       [&last_traj_received, &follower,
        tracking_pub](const trajectory_msgs::JointTrajectory::ConstPtr &msg) {
@@ -101,10 +101,10 @@ int main(int _argc, char **_argv) {
       [&uav_state](const geometry_msgs::PoseStamped::ConstPtr &msg) {
         uav_state.current_pose = Eigen::Vector3f(
             msg->pose.position.x, msg->pose.position.y, msg->pose.position.z);
-        uav_state.current_orientation.x = msg->pose.orientation.x;
-        uav_state.current_orientation.y = msg->pose.orientation.y;
-        uav_state.current_orientation.z = msg->pose.orientation.z;
-        uav_state.current_orientation.w = msg->pose.orientation.w;
+        uav_state.current_orientation.x() = msg->pose.orientation.x;
+        uav_state.current_orientation.y() = msg->pose.orientation.y;
+        uav_state.current_orientation.z() = msg->pose.orientation.z;
+        uav_state.current_orientation.w() = msg->pose.orientation.w;
       };
   auto pose_sub =
       nh.subscribe<geometry_msgs::PoseStamped>("ual/pose", 1, ualPoseCallback);
@@ -162,8 +162,8 @@ int main(int _argc, char **_argv) {
           last_traj_received.orientations[target_pose].z(),
           last_traj_received.orientations[target_pose].w());
       tf2::Quaternion current_q(
-          uav_state.current_orientation.x, uav_state.current_orientation.y,
-          uav_state.current_orientation.z, uav_state.current_orientation.w);
+          uav_state.current_orientation.x(), uav_state.current_orientation.y(),
+          uav_state.current_orientation.z(), uav_state.current_orientation.w());
 
       float current_yaw = tf2::getYaw(current_q);
       float desired_yaw = tf2::getYaw(desired_q);
