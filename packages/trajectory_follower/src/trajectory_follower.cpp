@@ -1,6 +1,4 @@
-#include <geometry_msgs/Point.h>
 #include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/Quaternion.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <handy_tools/pid_controller.h>
 #include <nav_msgs/Path.h>
@@ -9,35 +7,36 @@
 #include <trajectory_msgs/JointTrajectory.h>
 #include <Eigen/Eigen>
 #include <chrono>
-#include <thread>
 
 const float YAW_PID_P{0.4};
 const float YAW_PID_I{0.02};
-const float YAW_PI_D{0.0};
+const float YAW_PID_D{0.4};
 
 struct State {
-  Eigen::Vector3f position{0,0,0};
-  Eigen::Quaternionf orientation;
-  Eigen::Vector3f vel{0,0,0};
+  Eigen::Vector3f position{0, 0, 0};
+  Eigen::Quaternionf orientation{0, 0, 0, 0};
+  Eigen::Vector3f vel{0, 0, 0};
   float time{0.0};
 };
 
 struct Trajectory {
+  std::vector<State> trajectory;
 
-  std::vector<State> trajectory; 
-
-  void calculateTimes(const float step_size){
-    for(int i=0;i<trajectory.size();i++){
+  void calculateTimes(const float step_size) {
+    for (int i = 0; i < trajectory.size(); i++) {
       trajectory[i].time = i * step_size;
     }
   }
 
   bool calculateTimes() {
-    if (trajectory.empty()) { return false;}
+    if (trajectory.empty()) {
+      return false;
+    }
     trajectory[0].time = 0.0;
-    for(int i = 0; i<trajectory.size()-1;i++){
-      trajectory[i].time = (trajectory[i + 1].position - trajectory[i].position).norm() /
-                      trajectory[i].vel.norm();
+    for (int i = 0; i < trajectory.size() - 1; i++) {
+      trajectory[i].time =
+          (trajectory[i + 1].position - trajectory[i].position).norm() /
+          trajectory[i].vel.norm();
     }
   }
 };
@@ -67,7 +66,7 @@ int main(int _argc, char **_argv) {
   Trajectory last_traj_received;
   State uav_state;
   Follower follower;
-  //// ROS publishers and subscribers /////////////
+  //// ROS publishers and subscribers //////////
   ros::Publisher tracking_pub =
       nh.advertise<nav_msgs::Path>("follower/trajectory_to_follow", 1);
 
@@ -75,7 +74,6 @@ int main(int _argc, char **_argv) {
   auto trajectoryCallback =
       [&last_traj_received, &follower,
        tracking_pub](const trajectory_msgs::JointTrajectory::ConstPtr &msg) {
-
         last_traj_received.trajectory.resize(msg->points.size());
         follower.time_last_traj = std::chrono::high_resolution_clock::now();
         follower.pose_on_path = 0;
@@ -84,24 +82,34 @@ int main(int _argc, char **_argv) {
         nav_msgs::Path path_to_publish;
         path_to_publish.header.frame_id = "map";
 
-        for (int i=0; i<msg->points.size();i++) {
+        for (int i = 0; i < msg->points.size(); i++) {
           pose_stamped.pose.position.x = msg->points[i].positions[0];
           pose_stamped.pose.position.y = msg->points[i].positions[1];
           pose_stamped.pose.position.z = msg->points[i].positions[2];
 
-          last_traj_received.trajectory[i].position[0] = msg->points[i].positions[0];
-          last_traj_received.trajectory[i].position[1] = msg->points[i].positions[1];
-          last_traj_received.trajectory[i].position[2] = msg->points[i].positions[2];
+          last_traj_received.trajectory[i].position[0] =
+              msg->points[i].positions[0];
+          last_traj_received.trajectory[i].position[1] =
+              msg->points[i].positions[1];
+          last_traj_received.trajectory[i].position[2] =
+              msg->points[i].positions[2];
 
-          last_traj_received.trajectory[i].orientation.x() = msg->points[i].positions[3];
-          last_traj_received.trajectory[i].orientation.y() = msg->points[i].positions[4];
-          last_traj_received.trajectory[i].orientation.z() = msg->points[i].positions[5];
-          last_traj_received.trajectory[i].orientation.w() = msg->points[i].positions[6];
+          last_traj_received.trajectory[i].orientation.x() =
+              msg->points[i].positions[3];
+          last_traj_received.trajectory[i].orientation.y() =
+              msg->points[i].positions[4];
+          last_traj_received.trajectory[i].orientation.z() =
+              msg->points[i].positions[5];
+          last_traj_received.trajectory[i].orientation.w() =
+              msg->points[i].positions[6];
 
-          last_traj_received.trajectory[i].vel[0] = msg->points[i].velocities[0];
-          last_traj_received.trajectory[i].vel[1] = msg->points[i].velocities[1];
-          last_traj_received.trajectory[i].vel[2] = msg->points[i].velocities[2];
-  
+          last_traj_received.trajectory[i].vel[0] =
+              msg->points[i].velocities[0];
+          last_traj_received.trajectory[i].vel[1] =
+              msg->points[i].velocities[1];
+          last_traj_received.trajectory[i].vel[2] =
+              msg->points[i].velocities[2];
+
           path_to_publish.poses.push_back(pose_stamped);
         }
         last_traj_received.calculateTimes(follower.step_size);
@@ -125,8 +133,8 @@ int main(int _argc, char **_argv) {
   ros::Publisher velocity_ual_pub =
       nh.advertise<geometry_msgs::TwistStamped>("ual/set_velocity", 1);
   /////////////////////////
-  // PID controller for yaw 
-  grvc::utils::PidController yaw_pid("yaw", YAW_PID_P, YAW_PID_I, YAW_PID_P);
+  // PID controller for yaw
+  grvc::utils::PidController yaw_pid("yaw", YAW_PID_P, YAW_PID_I, YAW_PID_D);
 
   /////// main loop   //////////////
   while (ros::ok) {
@@ -146,16 +154,11 @@ int main(int _argc, char **_argv) {
       Eigen::Vector3f target_pose =
           last_traj_received.trajectory[target_pose_idx].position;
 
-      Eigen::Vector3f velocity_to_command =
-          follower.calculate_vel(target_pose, uav_state.position,
-                                 last_traj_received.trajectory[target_pose_idx].time);
+      Eigen::Vector3f velocity_to_command = follower.calculate_vel(
+          target_pose, uav_state.position,
+          last_traj_received.trajectory[target_pose_idx].time);
 
-      // yaw
-      
-      // std::cout<<"current quat"<<uav_state.orientation.x()<<", "<<uav_state.orientation.y()<<
-      // ", "<<uav_state.orientation.z()<<", "<<
-      // uav_state.orientation.w()<<std::endl;
-      // std::cout<<"current quat"<<uav_state.orientation<<std::endl;
+      // controlling yaw
       tf2::Quaternion desired_q(
           last_traj_received.trajectory[target_pose_idx].orientation.x(),
           last_traj_received.trajectory[target_pose_idx].orientation.y(),
@@ -211,7 +214,9 @@ int Follower::cal_pose_on_path(const std::vector<State> &trajectory,
 
 int Follower::cal_pose_look_ahead(const std::vector<State> &trajectory) {
   for (int i = pose_on_path; i < trajectory.size(); i++) {
-    if ((trajectory[i].position - trajectory[pose_on_path].position).norm() > look_ahead) return i;
+    if ((trajectory[i].position - trajectory[pose_on_path].position).norm() >
+        look_ahead)
+      return i;
   }
   return trajectory.size();
 }
