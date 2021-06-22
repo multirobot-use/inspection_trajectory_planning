@@ -59,7 +59,6 @@ struct Follower {
                        const Eigen::Vector3f &current_pose);
   int cal_pose_look_ahead(const std::vector<Eigen::Vector3f> &positions);
   Eigen::Vector3f calculate_vel(const Eigen::Vector3f &target_pose,
-                                const Eigen::Vector3f &vel,
                                 const Eigen::Vector3f &current_pose,
                                 const float target_time);
 };
@@ -72,7 +71,7 @@ int main(int _argc, char **_argv) {
   Trajectory last_traj_received{40, 0.1};
   State uav_state;
   Follower follower;
-  //// publishers and subscribers
+  //// ROS publishers and subscribers /////////////
   ros::Publisher tracking_pub =
       nh.advertise<nav_msgs::Path>("follower/trajectory_to_follow", 1);
 
@@ -135,11 +134,11 @@ int main(int _argc, char **_argv) {
 
   ros::Publisher velocity_ual_pub =
       nh.advertise<geometry_msgs::TwistStamped>("ual/set_velocity", 1);
-
+  /////////////////////////
   // PID controller for yaw 
   grvc::utils::PidController yaw_pid("yaw", YAW_PID_P, YAW_PID_I, YAW_PID_P);
 
-  // main loop
+  /////// main loop   //////////////
   while (ros::ok) {
     // wait for receiving trajectories
     while (!last_traj_received.positions.empty()) {
@@ -158,11 +157,8 @@ int main(int _argc, char **_argv) {
       Eigen::Vector3f target_pose =
           last_traj_received.positions[target_pose_idx];
 
-      Eigen::Vector3f vel_to_go =
-          last_traj_received.velocities[follower.pose_on_path];
-
       Eigen::Vector3f velocity_to_command =
-          follower.calculate_vel(target_pose, vel_to_go, uav_state.current_pose,
+          follower.calculate_vel(target_pose, uav_state.current_pose,
                                  last_traj_received.times[target_pose_idx]);
 
       // yaw
@@ -228,7 +224,6 @@ int Follower::cal_pose_look_ahead(
 }
 
 Eigen::Vector3f Follower::calculate_vel(const Eigen::Vector3f &target_pose,
-                                        const Eigen::Vector3f &vel,
                                         const Eigen::Vector3f &current_pose,
                                         const float target_time) {
   auto end = std::chrono::high_resolution_clock::now();
