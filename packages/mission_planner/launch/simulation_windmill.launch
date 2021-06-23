@@ -52,6 +52,9 @@
     <!-- Launch camera for drone id=2 -->
     <node name="rqt_image_view_2" pkg="rqt_image_view" type="rqt_image_view" args="/drone_2/cgo3_camera/image_raw"/>
 
+    <node pkg="tf" type="static_transform_publisher" name="link1_broadcaster" args="0 0 0 0 0 0.707 0.707 drone_1/base_link drone_1/velodyne 100" />
+
+
     <!-- Launch robot id=3 -->
 	<!-- <include file="$(find px4_bringup)/launch/spawn_robot.launch" ns="drone_3">
 		<arg name="id" value="3"/>
