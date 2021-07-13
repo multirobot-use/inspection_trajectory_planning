@@ -1,0 +1,15 @@
+<launch>
+    <arg name="drone_id" default="1"/>
+    <arg name="home_poseX" default="-10"/>
+    <arg name="home_poseY" default="0"/>
+    <arg name="home_poseZ" default="0"/>
+    <include file="$(find px4_bringup)/launch/spawn_robot.launch" ns="$(arg drone_id)">
+		<arg name="id" value="1"/>
+        <arg name="robot_model" value="typhoon_h480"/>
+		<arg name="material" value="Indigo"/>
+        <arg name="x" value="$(arg home_poseX)"/>
+        <arg name="y" value="$(arg home_poseY)"/>
+        <arg name="z" value="$(arg home_poseZ)"/>
+        <arg name="yaw" value="0"/>
+	</include>
+</launch>

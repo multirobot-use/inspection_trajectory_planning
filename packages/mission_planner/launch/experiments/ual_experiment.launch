@@ -1,0 +1,11 @@
+<launch>
+    <arg name="drone_id" default="1"/>
+    <arg name="home_poseX" default="-10"/>
+    <arg name="home_poseY" default="0"/>
+    <arg name="home_poseZ" default="0"/>
+    <node pkg="ual_backend_mavros" type="ual_backend_mavros_server" name="ual" output="screen" ns="drone_$(arg drone_id)">
+        <param name="uav_id" value="$(arg drone_id)"/>
+        <param name="pose_frame_id" value="map"/>
+        <rosparam param="home_pose">[$(arg home_poseX), $(arg home_poseY), $(arg home_poseZ)]</rosparam>
+    </node>
+</launch>
