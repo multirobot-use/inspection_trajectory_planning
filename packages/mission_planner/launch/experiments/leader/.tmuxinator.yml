@@ -2,35 +2,35 @@ name: leader_launch
 root: ./
 
 windows:
-  - roscore:
-      layout: even-vertical
-      panes:
-        - roscore
-  - mavros:
-      layout: even-vertical
-      panes:
-        - roslaunch mission_planner mavros.launch drone_id:=1 home_poseX=-12 home_poseY=0 home_poseZ=0
+  # - roscore:
+  #     layout: even-vertical
+  #     panes:
+  #       - roscore
+  # - mavros:
+  #     layout: even-vertical
+  #     panes:
+  #       - roslaunch mission_planner mavros_experiment.launch id:=1
   - ual:
       layout: even-vertical
       panes:
-        - sleep 1; roslaunch mission_planner ual.launch drone_id:=1 home_poseX=-12 home_poseY=0 home_poseZ=0
-  - leader:
+        - sleep 1; roslaunch mission_planner ual_experiment.launch drone_id:=1 start_poseX:=-12 start_poseY:=0 start_poseZ:=0
+  - mission_leader:
       layout: even-vertical
       panes:
-        - sleep 2; roslaunch mission_planner mission_planner.launch drone_id:=1 leader:=true
+        - sleep 2; roslaunch mission_planner mission_planner_leader_experiment.launch drone_id:=1 leader:=true
   - camera:
       layout: even-vertical
       panes:
-          - sleep 2; roslaunch mission_planner camera_experiment.launch drone_id=1
+        - sleep 2; roslaunch mission_planner camera_experiment.launch drone_id:=1
   - trajectory_follower:
       layout: even-vertical
       panes:
-        - sleep 3; roslaunch trajectory_follower trajectory_follower.launch drone_id:=1
-  - rviz:
-      layout: even-vertical
-      panes:
-        - sleep 5; roslaunch mission_planner rviz.launch
+        - sleep 3; roslaunch mission_planner trajectory_follower_experiment.launch drone_id:=1
+  # - rviz:
+  #     layout: even-vertical
+  #     panes:
+  #       - sleep 5; roslaunch mission_planner rviz_experiment.launch
   # - rosbag:
   #     layout: even-vertical
   #     panes:
-  #       - sleep 10; roslaunch mission_planner rosbag_recorder.launch
+  #       - sleep 20; roslaunch mission_planner rosbag_recorder_experiment.launch
