@@ -15,6 +15,8 @@ from std_srvs.srv import Empty
 from std_msgs.msg import Bool
 from uav_abstraction_layer.srv import TakeOff
 from uav_abstraction_layer.srv import TakeOffRequest
+from uav_abstraction_layer.srv import Land
+from uav_abstraction_layer.srv import LandRequest
 from uav_abstraction_layer.srv import GoToWaypoint
 from uav_abstraction_layer.srv import GoToWaypointRequest
 from uav_abstraction_layer.msg import State
@@ -82,7 +84,9 @@ class Drone:
         point_to_inspect_url = drone_ns + "/mission_planner_ros/point_to_inspect"
         distance_url         = drone_ns + "/mission_planner_ros/distance_to_inspect"
         relative_angle_url   = drone_ns + "/mission_planner_ros/change_relative_angle"
-        take_off_url   = drone_ns + "/ual/take_off"
+        take_off_url         = drone_ns + "/ual/take_off"
+        land_url             = drone_ns + "/ual/land"
+        go_to_waypoint_url   = drone_ns + "/ual/go_to_waypoint"
 
         rospy.wait_for_service(activate_planner_url)
         self.activate_planner_service = rospy.ServiceProxy(activate_planner_url, SetBool)
@@ -102,12 +106,15 @@ class Drone:
         rospy.wait_for_service(relative_angle_url)
         self.relative_angle_service = rospy.ServiceProxy(relative_angle_url, AngleSrv)
 
-        # TakeOff service --> make a for loop when necessary
+        # TakeOff service
         rospy.wait_for_service(take_off_url)
         self.take_off_service = rospy.ServiceProxy(take_off_url, TakeOff)
+        
+        # Land service
+        rospy.wait_for_service(land_url)
+        self.land_service = rospy.ServiceProxy(land_url, Land)
 
         # GoToWaypoint service
-        go_to_waypoint_url      = drone_ns + "/ual/go_to_waypoint"
         rospy.wait_for_service(go_to_waypoint_url)
         self.go_to_waypoint_service  = rospy.ServiceProxy(go_to_waypoint_url, GoToWaypoint)
 
@@ -153,9 +160,21 @@ class Drone:
             take_off.height     = height
             take_off.blocking   = True
             
-            # Leader drone service
             self.take_off_service(take_off)
             print "Taking off the drone"
+        except rospy.ServiceException, e:
+            print "Service call failed: %s" %e
+            
+    def land(self):
+        try:
+            land            = LandRequest()
+            land.blocking   = False
+            
+            # Stop the mission before calling the service of landing
+            self.stop_mission()
+            
+            self.land_service(land)
+            print "Landing the drone"
         except rospy.ServiceException, e:
             print "Service call failed: %s" %e
 
@@ -263,59 +282,60 @@ def show_menu(params,drones):
 
     # Menu
     print "\n\nWelcome to the main menu. Put the number of the desired option:\n"
-    print "\t1. Take off and send the drones to their initial points"
-    print "\t2. Start the mission"
-    print "\t3. Stop the mission"
-    print "\t4. Add waypoint"
-    print "\t5. Clear all the waypoints"
-    print "\t6. Change relative angles between followers and leader"
-    print "\t7. Change distance to inspection point"
-    print "\t8. Change inspection point"
-    print "\t9. Joystick simulator"
+    print "\t0. Take off and send the drones to their initial points"
+    print "\t1. Start the mission"
+    print "\t2. Stop the mission"
+    print "\t3. Add waypoint"
+    print "\t4. Clear all the waypoints"
+    print "\t5. Change relative angles between followers and leader"
+    print "\t6. Change distance to inspection point"
+    print "\t7. Change inspection point"
+    print "\t8. Joystick simulator"
+    print "\t9. Land the drones"
     
     option = ord(raw_input (">> "))
-    while (option < (48+1) or option > (48+9)): # ASCII for make sure there is no error of inputs. Zero --> 48
+    while (option < (48+0) or option > (48+9)): # ASCII for make sure there is no error of inputs. Zero --> 48
         option = ord(raw_input("Please, choose a valid option: "))
 
     option = option - 48
 
-    if option == 1: #prepare drones
-        height = raw_input("Please, introduce a height to take off: ")
+    if option == 0: #prepare drones
+        # height = raw_input("Please, introduce a height to take off: ")
         #taking of drones
         for drone in drones:
             drone.take_off(params.height)
 
-    elif option == 2: #start mission
+    elif option == 1: #start mission
         for drone in drones:
             drone.start_mission()
             
-    elif option == 3:
+    elif option == 2:
         for drone in drones:
             drone.stop_mission()
             
-    elif option == 4: # add waypoint
+    elif option == 3: # add waypoint
         px = float(raw_input("X pose (meters): "))
         py = float(raw_input("Y pose (meters): "))
         pz = float(raw_input("Z pose (meters): "))
         wp = [px, py, pz]
         drones[0].add_one_waypoint(wp)
         
-    elif option == 5:
+    elif option == 4:
         drones[0].clear_all_waypoints()
         
-    elif option == 6:
+    elif option == 5:
         print "Please, enter the desired relative angle between follower drones and the leader drone (Manual mode)\n"
         angle = (3.1415/180)*float(raw_input("Angle (degrees): "))
         for drone in drones:
             drone.change_relative_angle(angle)
         
-    elif option == 7:
+    elif option == 6:
         print "Please, enter the desired distance to the inspection point (Manual mode)\n"
         distance = float(raw_input("Distance (meters): "))
         for drone in drones:
             drone.set_distance_inspection(distance)
         
-    elif option == 8:
+    elif option == 7:
         print "Please, enter the desired inspection point (Manual mode):\n"
         waypoint = [0, 0, 0]
         waypoint[0] = (float(raw_input("X (meters): ")))
@@ -324,8 +344,12 @@ def show_menu(params,drones):
         for drone in drones:
             drone.change_inspection_point(waypoint)
     
-    elif option == 9:
+    elif option == 8:
         drones[0].joystick_simulator()
+    
+    elif option == 9:
+        for drone in drones:
+            drone.land()
         
     else:
         print ("Option n " + str(option) + " does not exist!")
