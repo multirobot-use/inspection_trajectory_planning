@@ -2,10 +2,9 @@ auto: True
 drone_ids : [1,2]
 leader_start_point: [3, 3, 3]
 follower_start_point: [3, 3, 3]
-take_off_height: 2
+take_off_height: 3
 take_off_blocking: False
 inspect: [0,0,0,6.5] # x,y,z,r
-
 
 relative_angle: 0.6
 
@@ -16,3 +15,5 @@ waypoints:
   - [-2, -1, 5]
   - [4, 1, 5]
   - [-5, 0, 5]
+  - [2, -3, 5]
+  - [5, 0, 5]
