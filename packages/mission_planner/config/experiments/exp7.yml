@@ -1,8 +1,8 @@
 auto: True
 drone_ids : [1,2,3]
-drone1_home: [-10, 5, 0]
-drone2_home: [-8, 0, 0]
-drone3_home: [-12, 2, 0]
+drone1_home: [3, 2, 3]
+drone2_home: [1, 0, 3]
+drone3_home: [1, 4, 3]
 take_off_height: 3
 take_off_blocking: True
 inspect: [0,0,0,6.5] # x,y,z,r
