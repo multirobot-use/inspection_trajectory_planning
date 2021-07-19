@@ -290,7 +290,7 @@ def auto_function(params,drones):
     for drone in drones:
         drone.stop_mission()
     
-    time.sleep(1)
+    time.sleep(3)
     raw_input("Press ENTER to send each drone to their home position\n")
     print "Sending each drone to their home position\n"
     aux = 0
