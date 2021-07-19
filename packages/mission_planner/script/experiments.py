@@ -20,50 +20,17 @@ from uav_abstraction_layer.srv import LandRequest
 from uav_abstraction_layer.srv import GoToWaypoint
 from uav_abstraction_layer.srv import GoToWaypointRequest
 from uav_abstraction_layer.msg import State
-from mission_planner.srv import WaypointSrvRequest
-from mission_planner.srv import WaypointSrv
 from mission_planner.srv import PointToInspectSrvRequest
 from mission_planner.srv import PointToInspectSrv
 from mission_planner.srv import DistanceSrvRequest
 from mission_planner.srv import DistanceSrv
 from mission_planner.srv import AngleSrvRequest
 from mission_planner.srv import AngleSrv
+from mission_planner.srv import WaypointSrvRequest
+from mission_planner.srv import WaypointSrv
 import signal
 import sys
 from collections import namedtuple
-
-# FOR KEYBOARD
-from pynput import keyboard
-global pressed_key
-
-def on_press(key):
-    global pressed_key
-    try:
-        # print('alphanumeric key {0} pressed'.format(
-        #     key.char))
-        pressed_key = key.char
-    except AttributeError:
-        pass
-        # print('special key {0} pressed'.format(
-        #     key))
-
-def on_release(key):
-    global pressed_key
-    pressed_key = 'p' # put a value that does not interfeer with the functionality
-    # print('{0} released'.format(
-    #     key))
-    # if key == keyboard.Key.esc:
-        # Stop listener
-        # return False
-
-# ...or, in a non-blocking fashion:
-listener = keyboard.Listener(
-    on_press=on_press,
-    on_release=on_release)
-
-listener.start()
-
-# END KEYBOARD
 
 class Drone:
     state = 0
@@ -73,14 +40,13 @@ class Drone:
         # subscribe topics
         rospy.Subscriber(drone_ns+"/ual/state", State, self.callbackState)
         
-        # # Publishers (only one drone topic needed for each one)
+        # Publishers (only one drone topic needed for each one)
         self.distance_inspection_pub = rospy.Publisher('/drone_1/mission_planner_ros/distance_to_inspection_point', Bool, queue_size = 1)
         self.relative_angle_pub      = rospy.Publisher('/drone_1/mission_planner_ros/relative_angle', Bool, queue_size = 1)
 
         # wait for services
         activate_planner_url = drone_ns + "/mission_planner_ros/activate_planner"
         add_waypoint_url     = drone_ns + "/mission_planner_ros/add_waypoint"
-        clear_waypoints_url  = drone_ns + "/mission_planner_ros/clear_waypoints"
         point_to_inspect_url = drone_ns + "/mission_planner_ros/point_to_inspect"
         distance_url         = drone_ns + "/mission_planner_ros/distance_to_inspect"
         relative_angle_url   = drone_ns + "/mission_planner_ros/change_relative_angle"
@@ -95,11 +61,7 @@ class Drone:
         # Add waypoint service
         rospy.wait_for_service(add_waypoint_url)
         self.add_waypoint_service     = rospy.ServiceProxy(add_waypoint_url, WaypointSrv)
-
-        # Clear waypoints service
-        rospy.wait_for_service(clear_waypoints_url)
-        self.clear_waypoints_service  = rospy.ServiceProxy(clear_waypoints_url, Empty)
-
+        
         # Change point to inspect service
         rospy.wait_for_service(point_to_inspect_url)
         self.point_to_inspect_service = rospy.ServiceProxy(point_to_inspect_url, PointToInspectSrv)
@@ -115,7 +77,7 @@ class Drone:
         # TakeOff service
         rospy.wait_for_service(take_off_url)
         self.take_off_service = rospy.ServiceProxy(take_off_url, TakeOff)
-        
+
         # Land service
         rospy.wait_for_service(land_url)
         self.land_service = rospy.ServiceProxy(land_url, Land)
@@ -123,44 +85,6 @@ class Drone:
         # GoToWaypoint service
         rospy.wait_for_service(go_to_waypoint_url)
         self.go_to_waypoint_service  = rospy.ServiceProxy(go_to_waypoint_url, GoToWaypoint)
-
-    # Distance to inspect method
-    def set_distance_inspection(self, distance):
-        r_inspect = DistanceSrvRequest()
-        r_inspect.distance = distance
-        
-        try:
-            self.distance_service(r_inspect)
-            print "Distance to the inspection point changed successfully!"
-        
-        except:
-            print("Failed calling distance_to_inspect service")
-
-    # Change relative angle method
-    def change_relative_angle(self, angle):
-        relative_angle = AngleSrvRequest()
-        relative_angle.angle = angle
-        try:
-            self.relative_angle_service(relative_angle)
-            print "Relative angle changed successfully!"
-
-        except:
-            print("Failed calling change_relative_angle service")
-
-    # Change inspection point method
-    def change_inspection_point(self, point):
-        inspection_point = PointToInspectSrvRequest()
-    
-        inspection_point.point.x = point[0]
-        inspection_point.point.y = point[1]
-        inspection_point.point.z = point[2]
-
-        try:
-            self.point_to_inspect_service(inspection_point)
-            print "Inspection point changed successfully!"
-
-        except:
-            print("Failed calling point_to_inspect service")
 
     # Take off drones method
     def take_off(self, height):
@@ -232,6 +156,22 @@ class Drone:
             
         except:
             print("Failed calling add_waypoint service")
+    
+    # Send home method
+    def send_home(self, point):
+        home = GoToWaypointRequest()
+        # TODO
+        home.waypoint.pose.position.x = point[0]
+        home.waypoint.pose.position.y = point[1]
+        home.waypoint.pose.position.z = point[2]
+        home.blocking                 = True # Send one by one
+        #print point
+        try:
+            self.go_to_waypoint_service(home)
+            print "Sending drone to home position"
+            
+        except:
+            print "Failed calling go_to_waypoint service"
 
     # Stop mission method
     def stop_mission(self):
@@ -243,50 +183,44 @@ class Drone:
         
         except rospy.ServiceException, e:
             print("Failed calling stop_mission service")
-
-    # Clear all waypoints method
-    def clear_all_waypoints(self):
-        try:
-            self.clear_waypoints_service()
-            print "Waypoints cleared!"
-        except:
-            print("Failed calling clear_waypoints service")
     
-    # Joystick simulator method
-    def joystick_simulator(self):
-        global pressed_key
-        print "\t ----- JOYSTICK SIMULATOR -----\n\n"
-        print "\tTo increase distance to inspection point, press W\n"
-        print "\tTo decrease distance to inspection point, press S\n"
-        print "\tTo increase the relative angle, press D\n"
-        print "\tTo decrease the relative angle, press A\n"
-        print "\tTo quit, press Q\n\n"
+    # Distance to inspect method
+    def set_distance_inspection(self, distance):
+        r_inspect = DistanceSrvRequest()
+        r_inspect.distance = distance
         
-        # Initialize
-        inc_distance = True
-        inc_angle = True       
+        try:
+            self.distance_service(r_inspect)
+            print "Distance to the inspection point changed successfully!"
         
-        while (not (pressed_key == 'q' or pressed_key == 'Q')):
-            # Add a pause in order to have a better control of pressed key
-            
-            if (pressed_key == 'w' or pressed_key == 'W'):
-                inc_distance = True
-                self.distance_inspection_pub.publish(inc_distance)
-                # print " "
-            elif (pressed_key == 's' or pressed_key == 'S'):
-                inc_distance = False
-                self.distance_inspection_pub.publish(inc_distance)
-                # print " "
-            elif (pressed_key == 'a' or pressed_key == 'A'):
-                inc_angle = False
-                self.relative_angle_pub.publish(inc_angle)
-                # print " "
-            elif (pressed_key == 'd' or pressed_key == 'D'):
-                inc_angle = True
-                self.relative_angle_pub.publish(inc_angle)
-                # print " "
-            
-            time.sleep(0.1)
+        except:
+            print("Failed calling distance_to_inspect service")
+
+    # Change relative angle method
+    def change_relative_angle(self, angle):
+        relative_angle = AngleSrvRequest()
+        relative_angle.angle = angle
+        try:
+            self.relative_angle_service(relative_angle)
+            print "Relative angle changed successfully!"
+
+        except:
+            print("Failed calling change_relative_angle service")
+
+    # Change inspection point method
+    def change_inspection_point(self, point):
+        inspection_point = PointToInspectSrvRequest()
+    
+        inspection_point.point.x = point[0]
+        inspection_point.point.y = point[1]
+        inspection_point.point.z = point[2]
+
+        try:
+            self.point_to_inspect_service(inspection_point)
+            print "Inspection point changed successfully!"
+
+        except:
+            print("Failed calling point_to_inspect service")
     
     # Callback state
     def callbackState(self, data):
@@ -295,105 +229,45 @@ class Drone:
 
    
 # Menu function
-def show_menu(params,drones):
+def show_experiments_menu():
 
     # Menu
-    print "\n\nWelcome to the main menu. Put the number of the desired option:\n"
-    print "\t0. Take off and send the drones to their initial points"
-    print "\t1. Start the mission"
-    print "\t2. Stop the mission"
-    print "\t3. Add waypoint"
-    print "\t4. Clear all the waypoints"
-    print "\t5. Change relative angles between followers and leader"
-    print "\t6. Change distance to inspection point"
-    print "\t7. Change inspection point"
-    print "\t8. Joystick simulator"
-    print "\t9. Land the drones"
+    print "\n\nWelcome to the main menu. Put the number of the desired experiment:\n"
+    print "  Experiment 0: simple path going twice around the inspection point (2 drones)"
+    print "  Experiment 1: simple path changing the direction once (2 drones)"
+    print "  Experiment 2: simple path changing the direction repeatedly (2 drones)"
+    print "  Experiment 3: simple path, but changing the height between waypoints (2 drones)"
+    print "  Experiment 4: complex path changing height and direction (2 drones)"
+    print "  Experiment 5: simple path going twice around the inspection point (3 drones)"
+    print "  Experiment 6: simple path changing the direction once (3 drones)"
+    print "  Experiment 7: simple path changing the direction repeatedly (3 drones)"
+    print "  Experiment 8: simple path, but changing the height between waypoints (3 drones)"
+    print "  Experiment 9: complex path changing height and direction (3 drones)"
     
     option = ord(raw_input (">> "))
     while (option < (48+0) or option > (48+9)): # ASCII for make sure there is no error of inputs. Zero --> 48
         option = ord(raw_input("Please, choose a valid option: "))
 
-    option = option - 48
-
-    # Take off
-    if option == 0: 
-        # height = raw_input("Please, introduce a height to take off: ")
-        #taking of drones
-        for drone in drones:
-            drone.take_off(params.height)
-
-    # Start mission
-    elif option == 1:
-        for drone in drones:
-            drone.start_mission()
-    
-    # Stop mission
-    elif option == 2:
-        for drone in drones:
-            drone.stop_mission()
-    
-    # Add waypoint
-    elif option == 3:
-        px = float(raw_input("X pose (meters): "))
-        py = float(raw_input("Y pose (meters): "))
-        pz = float(raw_input("Z pose (meters): "))
-        wp = [px, py, pz]
-        drones[0].add_one_waypoint(wp)
-    
-    # Clear all the waypoints
-    elif option == 4:
-        drones[0].clear_all_waypoints()
-    
-    # Change relative angle
-    elif option == 5:
-        print "Please, enter the desired relative angle between follower drones and the leader drone (Manual mode)\n"
-        angle = (3.1415/180)*float(raw_input("Angle (degrees): "))
-        for drone in drones:
-            drone.change_relative_angle(angle)
-    
-    # Change distance to inspection point
-    elif option == 6:
-        print "Please, enter the desired distance to the inspection point (Manual mode)\n"
-        distance = float(raw_input("Distance (meters): "))
-        for drone in drones:
-            drone.set_distance_inspection(distance)
-    
-    # Change inspection point
-    elif option == 7:
-        print "Please, enter the desired inspection point (Manual mode):\n"
-        waypoint = [0, 0, 0]
-        waypoint[0] = (float(raw_input("X (meters): ")))
-        waypoint[1] = (float(raw_input("Y (meters): ")))
-        waypoint[2] = (float(raw_input("Z (meters): ")))
-        for drone in drones:
-            drone.change_inspection_point(waypoint)
-    
-    # Launch joystick simulator
-    elif option == 8:
-        drones[0].joystick_simulator()
-    
-    # Land the drones
-    elif option == 9:
-        for drone in drones:
-            drone.land()
-        
-    else:
-        print ("Option n " + str(option) + " does not exist!")
+    # Return the desired experiment
+    return (option - 48)    
 
 # Finish the execution directly when Ctrl+C is pressed (signal.SIGINT received), without escalating to SIGTERM.
 def signal_handler(sig, frame):
     print('Ctrl+C pressed, signal.SIGINT received.')
     sys.exit(0)    
         
-
 # Auto function: take off the drones, set the parameters up and start the mission of each drone
 def auto_function(params,drones):
 
+    # Go through the different steps of the experiment by pressing keys
+    raw_input("Press ENTER to take off the drones\n")
     # Taking of drones
     for drone in drones:
         drone.take_off(params.height)
-
+    
+    time.sleep(1)
+    raw_input("Press ENTER to set up the parameters of each drone and add the waypoints\n")
+    print "Adding configuration and waypoints\n"
     # Set up the parameters of each drone
     for drone in drones:
         drone.set_distance_inspection(params.inspect_point[3])
@@ -402,9 +276,34 @@ def auto_function(params,drones):
         for wp in params.waypoints:
             drone.add_one_waypoint(wp)
     
-    # Starting mission
+    time.sleep(1)
+    raw_input("Press ENTER to START the mission\n")
+    print "Starting the mission\n"
+    
     for drone in drones:
         drone.start_mission()
+    
+    time.sleep(1)
+    raw_input("Press ENTER to STOP the mission\n")
+    print "Stopping the mission\n"
+    
+    for drone in drones:
+        drone.stop_mission()
+    
+    time.sleep(1)
+    raw_input("Press ENTER to send each drone to their home position\n")
+    print "Sending each drone to their home position\n"
+    aux = 0
+    for drone in drones:
+        drone.send_home(params.drone_home_position[aux])
+        aux = aux + 1
+    
+    time.sleep(1)
+    raw_input("Press ENTER to land the drones and finish the experiment")
+    print "Landing the drones and finishing the experiment"
+
+    for drone in drones:
+        drone.land()
 
 
 # Main function
@@ -415,9 +314,10 @@ if __name__ == "__main__":
     # Create the node
     rospy.init_node("operator", anonymous=True)
 
-    # read yml config file
+    # Choose the experiment and read yml config file
     rospack = rospkg.RosPack()
-    f_route = rospack.get_path('mission_planner')+'/config/param.yml'
+    experiment = show_experiments_menu()
+    f_route = rospack.get_path('mission_planner') + '/config/experiments/exp' + str(experiment) + '.yml'
     yml_file    = open(f_route, 'r')
     yml_content = yaml.load(yml_file)
 
@@ -426,12 +326,17 @@ if __name__ == "__main__":
     for id in drone_ids:
         drones.append(Drone("/drone_"+str(id)))
 
-    params = namedtuple('params', 'auto height inspect_point waypoints relative_angle')
+    params = namedtuple('params', 'auto height inspect_point waypoints relative_angle drone_home_position')
     params.auto                      = yml_content.get('auto')
     params.height                    = yml_content.get('take_off_height')
     params.waypoints                 = yml_content.get('waypoints')
     params.inspect_point             = yml_content.get('inspect')
     params.relative_angle            = yml_content.get('relative_angle')
+
+    # CHECK IF THIS IS DONE CORRECTLY
+    params.drone_home_position = []
+    for id in drone_ids:
+        params.drone_home_position.append(yml_content.get('drone' + str(id) + '_home'))
 
     # check all drones are landed armed
     cont = 0
@@ -446,8 +351,3 @@ if __name__ == "__main__":
     if params.auto:
         print "Using the automatic interface"
         auto_function(params, drones)
-
-    # menu mode
-    while (not rospy.is_shutdown()):
-        show_menu(params, drones)            
-        time.sleep(1)

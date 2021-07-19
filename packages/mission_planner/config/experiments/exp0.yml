@@ -1,9 +1,9 @@
 auto: True
 drone_ids : [1,2]
-leader_start_point: [3, 3, 3]
-follower_start_point: [3, 3, 3]
+drone1_home: [3, 2, 3]
+drone2_home: [1, 0, 3]
 take_off_height: 3
-take_off_blocking: False
+take_off_blocking: True
 inspect: [0,0,0,6.5] # x,y,z,r
 
 relative_angle: 0.7
