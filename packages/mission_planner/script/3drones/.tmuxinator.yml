@@ -5,7 +5,7 @@ windows:
   - gazebo:
       layout: even-vertical
       panes:
-        - roslaunch mission_planner simulation_windmill.launch
+        - roslaunch mission_planner simulation_windmill_3drones.launch
   - leader:
       layout: even-vertical
       panes:
@@ -13,25 +13,25 @@ windows:
   - follower1:
       layout: even-vertical
       panes:
-        - sleep 15; roslaunch mission_planner mission_planner_follower.launch drone_id:=2 leader:=false
+        - sleep 16; roslaunch mission_planner mission_planner_follower.launch drone_id:=2 leader:=false
   - follower2:
       layout: even-vertical
       panes:
-        - sleep 15; roslaunch mission_planner mission_planner_follower.launch drone_id:=3 leader:=false
+        - sleep 17; roslaunch mission_planner mission_planner_follower.launch drone_id:=3 leader:=false
   - trajectory_follower:
       layout: even-vertical
       panes:
-        - sleep 15; roslaunch trajectory_follower trajectory_follower.launch drone_id:=1
-        - sleep 15; roslaunch trajectory_follower trajectory_follower.launch drone_id:=2
-        - sleep 15; roslaunch trajectory_follower trajectory_follower.launch drone_id:=3
+        - sleep 18; roslaunch trajectory_follower trajectory_follower.launch drone_id:=1
+        - sleep 19; roslaunch trajectory_follower trajectory_follower.launch drone_id:=2
+        - sleep 20; roslaunch trajectory_follower trajectory_follower.launch drone_id:=3
   - rviz:
       layout: even-vertical
       panes:
-        - sleep 10; roslaunch mission_planner rviz.launch
+        - sleep 12; roslaunch mission_planner rviz.launch
   - python script:  
       layout: even-vertical
       panes:
-        - sleep 17; python ../experiments.py
+        - sleep 20; python ../experiments.py
   # - rosbag:
   #     layout: even-vertical
   #     panes:
