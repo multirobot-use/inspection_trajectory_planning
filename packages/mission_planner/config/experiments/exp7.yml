@@ -7,7 +7,7 @@ take_off_height: 3
 take_off_blocking: True
 inspect: [0,0,0,6.5] # x,y,z,r
 
-relative_angle: 0.7
+relative_angle: 1.0
 
 waypoints: 
   - [0, 5, 5]
