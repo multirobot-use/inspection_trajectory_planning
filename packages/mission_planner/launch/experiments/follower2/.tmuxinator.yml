@@ -1,0 +1,28 @@
+name: follower_launch
+root: ./
+
+windows:
+  # - roscore:
+  #     layout: even-vertical
+  #     panes:
+  #       - roscore
+  # - mavros:
+  #     layout: even-vertical
+  #     panes:
+  #       - roslaunch mission_planner mavros_experiment.launch id:=3
+  - ual:
+      layout: even-vertical
+      panes:
+        - sleep 1; roslaunch mission_planner ual_experiment.launch drone_id:=3 start_poseX:=-5 start_poseY:=10 start_poseZ:=0
+  - mission_follower:
+      layout: even-vertical
+      panes:
+        - sleep 2; roslaunch mission_planner mission_planner_follower_experiment.launch drone_id:=3 leader:=false
+  - camera:
+      layout: even-vertical
+      panes:
+        - sleep 2; roslaunch mission_planner camera_experiment.launch drone_id:=3
+  - trajectory_follower:
+      layout: even-vertical
+      panes:
+        - sleep 3; roslaunch mission_planner trajectory_follower_experiment.launch drone_id:=3
