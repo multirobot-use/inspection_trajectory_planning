@@ -1,5 +1,5 @@
 <launch>
 
  <node pkg="rosbag" type="record" name="rosbag_record_topics"
-       args="record --duration=2m -o simulation -e (.*)/follower/trajectory_to_follow (.*)/ual/pose (.*)/ual/velocity (.*)/mission_planner_ros/ref_traj (.*)/mission_planner_ros/relative_angle (.*)/mission_planner_ros/solved_traj (.*)/mission_planner_ros/distance_to_inspection_point (.*)/mission_planner_ros/points_to_inspect (.*)/cgo3_camera/image_raw/compressed"/>
+       args="record --duration=2m -o simulation -e (.*)/follower/trajectory_to_follow (.*)/ual/pose (.*)/ual/velocity (.*)/mission_planner_ros/ref_traj (.*)/mission_planner_ros/relative_angle (.*)/mission_planner_ros/solved_traj (.*)/mission_planner_ros/distance_to_inspection_point (.*)/mission_planner_ros/points_to_inspect_transformed (.*)/cgo3_camera/image_raw/compressed"/>
 </launch>

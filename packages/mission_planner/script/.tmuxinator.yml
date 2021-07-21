@@ -26,8 +26,9 @@ windows:
   - python script:  
       layout: even-vertical
       panes:
-        - sleep 17; python experiments.py
+        - sleep 17; python mission_script.py
+        # - sleep 17; python experiments.py
   - rosbag:
       layout: even-vertical
       panes:
-        - sleep 40; roslaunch mission_planner rosbag_recorder_experiment.launch
+        - sleep 40; roslaunch mission_planner rosbag_recorder.launch
