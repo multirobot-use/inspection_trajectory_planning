@@ -16,7 +16,6 @@ link_directories(${ACADO_LIBRARY_DIRS})
 
 include_directories(${EIGEN3_INCLUDE_DIR} ${PCL_INCLUDE_DIRS} ${ACADO_INCLUDE_DIRS} include )
 
-
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
@@ -27,6 +26,11 @@ find_package(catkin REQUIRED COMPONENTS
   nav_msgs
   trajectory_msgs
   trajectory_planner
+)
+
+add_message_files(
+  FILES
+  Float32withHeader.msg
 )
 
 add_service_files(
