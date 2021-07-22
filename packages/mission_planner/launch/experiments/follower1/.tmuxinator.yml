@@ -26,3 +26,7 @@ windows:
       layout: even-vertical
       panes:
         - sleep 5; roslaunch mission_planner trajectory_follower_experiment.launch drone_id:=2
+  - rosbag:
+      layout: even-vertical
+      panes:
+        - sleep 20; roslaunch mission_planner rosbag_recorder_experiment.launch id:=2 record_duration:=120
