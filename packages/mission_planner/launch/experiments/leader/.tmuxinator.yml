@@ -33,4 +33,4 @@ windows:
   - rosbag:
       layout: even-vertical
       panes:
-        - sleep 20; roslaunch mission_planner rosbag_recorder_experiment.launch id:=1 record_duration:=120
+        - sleep 25; roslaunch mission_planner rosbag_recorder_experiment.launch id:=1 record_duration:=120

@@ -69,14 +69,14 @@ class Drone:
     state = 0
     def __init__(self, drone_ns):
         print("I'm a python constructor")
-                
+        print "aaa"
         # subscribe topics
         rospy.Subscriber(drone_ns+"/ual/state", State, self.callbackState)
         
         # # Publishers (only one drone topic needed for each one)
         self.distance_inspection_pub = rospy.Publisher('/drone_1/mission_planner_ros/distance_to_inspection_point', Bool, queue_size = 1)
         self.relative_angle_pub      = rospy.Publisher('/drone_1/mission_planner_ros/relative_angle', Bool, queue_size = 1)
-
+        print "bbb"
         # wait for services
         activate_planner_url = drone_ns + "/mission_planner_ros/activate_planner"
         add_waypoint_url     = drone_ns + "/mission_planner_ros/add_waypoint"
@@ -87,42 +87,43 @@ class Drone:
         take_off_url         = drone_ns + "/ual/take_off"
         land_url             = drone_ns + "/ual/land"
         go_to_waypoint_url   = drone_ns + "/ual/go_to_waypoint"
-
+        print "ccc"
         # Activate planner service
         rospy.wait_for_service(activate_planner_url)
         self.activate_planner_service = rospy.ServiceProxy(activate_planner_url, SetBool)
-
+        print "ddd"
         # Add waypoint service
         rospy.wait_for_service(add_waypoint_url)
         self.add_waypoint_service     = rospy.ServiceProxy(add_waypoint_url, WaypointSrv)
-
+        print "eee"
         # Clear waypoints service
         rospy.wait_for_service(clear_waypoints_url)
         self.clear_waypoints_service  = rospy.ServiceProxy(clear_waypoints_url, Empty)
-
+        print "fff"
         # Change point to inspect service
         rospy.wait_for_service(point_to_inspect_url)
         self.point_to_inspect_service = rospy.ServiceProxy(point_to_inspect_url, PointToInspectSrv)
-
+        print "ggg"
         # Change distance to inspect service
         rospy.wait_for_service(distance_url)
         self.distance_service = rospy.ServiceProxy(distance_url, DistanceSrv)
-
+        print "hhh"
         # Change relative angle service
         rospy.wait_for_service(relative_angle_url)
         self.relative_angle_service = rospy.ServiceProxy(relative_angle_url, AngleSrv)
-
+        print "iii"
         # TakeOff service
         rospy.wait_for_service(take_off_url)
         self.take_off_service = rospy.ServiceProxy(take_off_url, TakeOff)
-        
+        print "jjj"
         # Land service
         rospy.wait_for_service(land_url)
         self.land_service = rospy.ServiceProxy(land_url, Land)
-
+        print "kkk"
         # GoToWaypoint service
         rospy.wait_for_service(go_to_waypoint_url)
         self.go_to_waypoint_service  = rospy.ServiceProxy(go_to_waypoint_url, GoToWaypoint)
+        print "lll"
 
     # Distance to inspect method
     def set_distance_inspection(self, distance):
@@ -417,7 +418,7 @@ if __name__ == "__main__":
 
     # read yml config file
     rospack = rospkg.RosPack()
-    f_route = rospack.get_path('mission_planner')+'/config/param.yml'
+    f_route = rospack.get_path('mission_planner')+'/config/experiments/exp5.yml'
     yml_file    = open(f_route, 'r')
     yml_content = yaml.load(yml_file)
 
@@ -425,14 +426,14 @@ if __name__ == "__main__":
     drones = []
     for id in drone_ids:
         drones.append(Drone("/drone_"+str(id)))
-
+    print "a"
     params = namedtuple('params', 'auto height inspect_point waypoints relative_angle')
     params.auto                      = yml_content.get('auto')
     params.height                    = yml_content.get('take_off_height')
     params.waypoints                 = yml_content.get('waypoints')
     params.inspect_point             = yml_content.get('inspect')
     params.relative_angle            = yml_content.get('relative_angle')
-
+    print "b"
     # check all drones are landed armed
     cont = 0
     while cont != len(drones):
@@ -441,12 +442,12 @@ if __name__ == "__main__":
             if drone.state == State.LANDED_ARMED:
                 cont +=1
         time.sleep(1)
-
+    print "c"
     # auto mode
     if params.auto:
         print "Using the automatic interface"
         auto_function(params, drones)
-
+    print "d"
     # menu mode
     while (not rospy.is_shutdown()):
         show_menu(params, drones)            
