@@ -18,12 +18,19 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
     const state &initial_pose) {
   
   std::vector<state> trajectory_to_optimize;
+  Eigen::Quaterniond rotation;
 
   if (!solved_trajectories_[inspection_params_.leader_id].empty()) {
     refreshGoals();
     state aux;
     trajectory_to_optimize.push_back(initial_pose);
-    Eigen::Quaterniond rotation = trajectory_planner::eulerToQuat(0, 0, relative_angle_);
+    if (param_.drone_id == 2) {
+      rotation = trajectory_planner::eulerToQuat(0, 0, relative_angle_);
+    }
+    else {
+      rotation = trajectory_planner::eulerToQuat(0, 0, -relative_angle_);
+    }
+      
     Eigen::Matrix3d rotMat = rotation.toRotationMatrix();
     Eigen::Vector3d aux_point_to_inspect = point_to_inspect_;
     aux_point_to_inspect(2) = 0;
