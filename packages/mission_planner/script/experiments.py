@@ -36,7 +36,7 @@ class Drone:
     state = 0
     def __init__(self, drone_ns):
         print("I'm a python constructor")
-                
+
         # subscribe topics
         rospy.Subscriber(drone_ns+"/ual/state", State, self.callbackState)
         
@@ -61,7 +61,7 @@ class Drone:
         # Add waypoint service
         rospy.wait_for_service(add_waypoint_url)
         self.add_waypoint_service     = rospy.ServiceProxy(add_waypoint_url, WaypointSrv)
-        
+   
         # Change point to inspect service
         rospy.wait_for_service(point_to_inspect_url)
         self.point_to_inspect_service = rospy.ServiceProxy(point_to_inspect_url, PointToInspectSrv)

@@ -6,23 +6,27 @@ windows:
   #     layout: even-vertical
   #     panes:
   #       - roscore
-  # - mavros:
-  #     layout: even-vertical
-  #     panes:
-  #       - roslaunch mission_planner mavros_experiment.launch id:=2
+  - mavros:
+      layout: even-vertical
+      panes:
+        - roslaunch mission_planner mavros_experiment.launch id:=2
   - ual:
       layout: even-vertical
       panes:
-        - sleep 1; roslaunch mission_planner ual_experiment.launch drone_id:=2 pose:=[-8,0,0]
-  - mission_follower:
+        - sleep 3; roslaunch mission_planner ual_experiment.launch drone_id:=2 pose:=[-8,0,0]
+  - mission_follower1:
       layout: even-vertical
       panes:
-        - sleep 2; roslaunch mission_planner mission_planner_follower_experiment.launch drone_id:=2 leader:=false
+        - sleep 4; roslaunch mission_planner mission_planner_follower_experiment.launch drone_id:=2 leader:=false
   - camera:
       layout: even-vertical
       panes:
-        - sleep 2; roslaunch mission_planner camera_experiment.launch drone_id:=2
+        - sleep 4; roslaunch mission_planner camera_experiment.launch drone_id:=2
   - trajectory_follower:
       layout: even-vertical
       panes:
-        - sleep 3; roslaunch mission_planner trajectory_follower_experiment.launch drone_id:=2
+        - sleep 5; roslaunch mission_planner trajectory_follower_experiment.launch drone_id:=2
+  # - rosbag:
+  #     layout: even-vertical
+  #     panes:
+  #       - sleep 25; roslaunch mission_planner rosbag_recorder_experiment.launch id:=2 record_duration:=120

@@ -23,6 +23,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 
     <!-- Run mavros node -->
-    <node pkg="px4_bringup" type="run_mavros.py" name="run_mavros_$(arg id)" output="screen" if="$(arg use_mavros)" args="-id=$(arg id) -mode=$(arg mode) -fcu_url=$(arg fcu_url) -gcs_url=$(arg gcs_url) -rtcm_topic=$(arg rtcm_topic)" />
+    <node pkg="px4_bringup" type="run_mavros.py" name="run_mavros_$(arg id)" output="screen" ns="drone_$(arg id)" if="$(arg use_mavros)" args="-id=$(arg id) -mode=$(arg mode) -fcu_url=$(arg fcu_url) -gcs_url=$(arg gcs_url) -rtcm_topic=$(arg rtcm_topic)" />
 
 </launch>

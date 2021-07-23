@@ -13,6 +13,7 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   trajectory_planner::safeGetParam(nh_, "frame", param_.frame);
   trajectory_planner::safeGetParam(nh_, "drone_id", param_.drone_id);
   trajectory_planner::safeGetParam(nh_, "inspection_dist", inspection_params_.inspection_dist);
+  trajectory_planner::safeGetParam(nh_, "topics_rate", param_.topics_rate);
   trajectory_planner::safeGetParam(nh_, "visualization_rate", param_.visualization_rate);
   trajectory_planner::safeGetParam(nh_, "leader_id", inspection_params_.leader_id);
   trajectory_planner::safeGetParam(nh_, "inc_distance", inspection_params_.inc_distance);
@@ -70,8 +71,11 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
                                &MissionPlannerRos::replanCB, this);
   pubVis_ = nh_.createTimer(ros::Duration(param_.visualization_rate),
                             &MissionPlannerRos::pubVisCB, this);
+  pubTopics_ = nh_.createTimer(ros::Duration(param_.topics_rate),
+                            &MissionPlannerRos::pubTopicsCB, this);
   planTimer_.stop();
   pubVis_.start();
+  pubTopics_.start();
 
   // publishers
   points_pub_ =
@@ -89,6 +93,14 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   tracking_pub_trajectory_ = nh_.advertise<trajectory_msgs::JointTrajectory>(
       "/drone_" + std::to_string(param_.drone_id) +
           "/trajectory_follower_node/trajectory_to_follow",
+      1);
+  distance_pub_ = nh_.advertise<mission_planner::Float32withHeader>(
+      "/drone_" + std::to_string(param_.drone_id) +
+          "/absolute_distance_to_inspect",
+      1);
+  angle_pub_ = nh_.advertise<mission_planner::Float32withHeader>(
+      "/drone_" + std::to_string(param_.drone_id) +
+          "/absolute_relative_angle",
       1);
 
   // Services
@@ -247,6 +259,11 @@ void MissionPlannerRos::pubVisCB(const ros::TimerEvent &e) {
   publishSphere(sphere_pub_, Colors::YELLOW);
 }
 
+void MissionPlannerRos::pubTopicsCB(const ros::TimerEvent &e) {
+  publishDistance(distance_pub_);
+  publishRelativeAngle(angle_pub_);
+}
+
 void MissionPlannerRos::distanceToInspectionPointCallback(
     const std_msgs::Bool::ConstPtr &distance, int id) {
 
@@ -360,6 +377,28 @@ void MissionPlannerRos::publishPoints(
 
   points.points = _points;
   pub_points.publish(points);
+}
+
+void MissionPlannerRos::publishDistance(const ros::Publisher &pub_distance) {
+  mission_planner::Float32withHeader dist;
+
+  dist.header.frame_id = param_.frame;
+  dist.header.stamp = ros::Time::now();
+  dist.data = mission_planner_ptr_ -> getDistanceToInspect();
+
+  pub_distance.publish(dist);
+
+}
+
+void MissionPlannerRos::publishRelativeAngle(const ros::Publisher &pub_angle) {
+  mission_planner::Float32withHeader angle;
+
+  angle.header.frame_id = param_.frame;
+  angle.header.stamp = ros::Time::now();
+  angle.data = mission_planner_ptr_ -> getRelativeAngle();
+
+  pub_angle.publish(angle);
+
 }
 
 void MissionPlannerRos::publishPath(const ros::Publisher &pub_path,

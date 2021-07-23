@@ -8,6 +8,7 @@
 #include <mission_planner/DistanceSrv.h>
 #include <mission_planner/PointToInspectSrv.h>
 #include <mission_planner/WaypointSrv.h>
+#include <mission_planner/Float32withHeader.h>
 #include <nav_msgs/Odometry.h>
 #include <nav_msgs/Path.h>
 #include <std_msgs/Bool.h>
@@ -42,6 +43,7 @@ class MissionPlannerRos {
   std::unique_ptr<MissionPlannerInspection> mission_planner_ptr_;
   ros::Timer planTimer_;
   ros::Timer pubVis_;
+  ros::Timer pubTopics_;
 
   std::vector<geometry_msgs::Point> points_;
 
@@ -61,6 +63,8 @@ class MissionPlannerRos {
   ros::Publisher tracking_pub_;
   ros::Publisher tracking_pub_trajectory_;
   ros::Publisher sphere_pub_;
+  ros::Publisher distance_pub_;
+  ros::Publisher angle_pub_;
 
   // Services
   ros::ServiceServer service_activate_planner;
@@ -129,6 +133,12 @@ class MissionPlannerRos {
    * \param TimerEvent structure passed to callback invoked by ros::Timer
    */
   void pubVisCB(const ros::TimerEvent &e);
+
+  /*! \brief Callback for timer that publishes distance and relative angle topics
+   * \param TimerEvent structure passed to callback invoked by ros::Timer
+   */
+  void pubTopicsCB(const ros::TimerEvent &e);
+
   /*! \brief Callback for plan timer.
    *   \param TimerEvent structure passed to callback invoked by ros::Timer
    */
@@ -184,6 +194,16 @@ class MissionPlannerRos {
    *   \param color color of the cylinder
    */
   void publishSphere(const ros::Publisher &pub_sphere, const Colors &color);
+
+  /*! \brief function to publish the absolute distance to the inspection point
+   *   \param pub_distance publisher
+   */
+  void publishDistance(const ros::Publisher &pub_distance);
+
+  /*! \brief function to publish the absolute relative angle between drones 
+   *   \param pub_angle publisher
+   */
+  void publishRelativeAngle(const ros::Publisher &pub_angle);
 
   /*! \brief function to set the marker's color on RViz
    *   \param marker marker

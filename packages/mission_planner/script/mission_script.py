@@ -417,7 +417,7 @@ if __name__ == "__main__":
 
     # read yml config file
     rospack = rospkg.RosPack()
-    f_route = rospack.get_path('mission_planner')+'/config/param.yml'
+    f_route = rospack.get_path('mission_planner')+'/config/experiments/exp5.yml'
     yml_file    = open(f_route, 'r')
     yml_content = yaml.load(yml_file)
 
@@ -425,7 +425,7 @@ if __name__ == "__main__":
     drones = []
     for id in drone_ids:
         drones.append(Drone("/drone_"+str(id)))
-
+    
     params = namedtuple('params', 'auto height inspect_point waypoints relative_angle')
     params.auto                      = yml_content.get('auto')
     params.height                    = yml_content.get('take_off_height')

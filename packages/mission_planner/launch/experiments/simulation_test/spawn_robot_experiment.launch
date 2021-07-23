@@ -43,6 +43,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
     <node pkg="ual_teleop" type="simulate_safety_pilot.py" name="safety_pilot" output="screen" if="$(arg simulate_safety_pilot)" args="-id=$(arg id) -joy_name=saitek_p3200 -use_mavros=$(arg use_mavros)" />
 
     <!-- Run mavros node -->
-    <node pkg="px4_bringup" type="run_mavros.py" name="run_mavros_$(arg id)" output="screen" if="$(arg use_mavros)" args="-id=$(arg id) -mode=$(arg mode) -fcu_url=$(arg fcu_url) -gcs_url=$(arg gcs_url) -rtcm_topic=$(arg rtcm_topic)" />
+    <!-- <node pkg="px4_bringup" type="run_mavros.py" name="run_mavros_$(arg id)" output="screen" if="$(arg use_mavros)" args="-id=$(arg id) -mode=$(arg mode) -fcu_url=$(arg fcu_url) -gcs_url=$(arg gcs_url) -rtcm_topic=$(arg rtcm_topic)" /> -->
 
 </launch>
