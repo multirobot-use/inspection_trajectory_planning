@@ -19,7 +19,7 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
   
   std::vector<state> trajectory_to_optimize;
 
-  if (hasSolvedTrajectories()) {
+  if (!solved_trajectories_[inspection_params_.leader_id].empty()) {
     refreshGoals();
     state aux;
     trajectory_to_optimize.push_back(initial_pose);

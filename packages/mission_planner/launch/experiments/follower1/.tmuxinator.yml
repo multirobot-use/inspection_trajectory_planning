@@ -1,4 +1,4 @@
-name: follower_launch1
+name: follower_launch_1
 root: ./
 
 windows:
@@ -26,7 +26,7 @@ windows:
       layout: even-vertical
       panes:
         - sleep 5; roslaunch mission_planner trajectory_follower_experiment.launch drone_id:=2
-  - rosbag:
-      layout: even-vertical
-      panes:
-        - sleep 25; roslaunch mission_planner rosbag_recorder_experiment.launch id:=2 record_duration:=120
+  # - rosbag:
+  #     layout: even-vertical
+  #     panes:
+  #       - sleep 25; roslaunch mission_planner rosbag_recorder_experiment.launch id:=2 record_duration:=120
