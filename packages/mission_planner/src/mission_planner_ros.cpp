@@ -102,7 +102,7 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
       "/drone_" + std::to_string(param_.drone_id) +
           "/absolute_relative_angle",
       1);
-  mission_status_pub_ = nh_.advertise<std_msgs::Bool>(
+  mission_status_pub_ = nh_.advertise<mission_planner::BoolWithHeader>(
       "/drone_" + std::to_string(param_.drone_id) +
           "/mission_status",
       1);
@@ -409,7 +409,10 @@ void MissionPlannerRos::publishRelativeAngle(const ros::Publisher &pub_angle) {
 }
 
 void MissionPlannerRos::publishMissionStatus(const ros::Publisher &pub_status) {
-  std_msgs::Bool mission_status;
+  mission_planner::BoolWithHeader mission_status;
+
+  mission_status.header.frame_id = param_.frame;
+  mission_status.header.stamp = ros::Time::now();
   mission_status.data = mission_planner_ptr_ -> getMissionStatus();
 
   pub_status.publish(mission_status);
