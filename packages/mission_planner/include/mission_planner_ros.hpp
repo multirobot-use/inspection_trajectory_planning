@@ -9,6 +9,7 @@
 #include <mission_planner/PointToInspectSrv.h>
 #include <mission_planner/WaypointSrv.h>
 #include <mission_planner/Float32withHeader.h>
+#include <mission_planner/BoolWithHeader.h>
 #include <nav_msgs/Odometry.h>
 #include <nav_msgs/Path.h>
 #include <std_msgs/Bool.h>
