@@ -87,6 +87,20 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
   float getRelativeAngle() { return relative_angle_; }
 
   /**
+   * @brief gives the mission status
+   *
+   * @return mission status: true if activated, false if not activated
+   */
+  float getMissionStatus() { return mission_status_; }
+
+  /**
+   * @brief changes the desired relative angle of the drones
+   *
+   * @param _status mission status
+   */
+  void setMissionStatus(const bool &_status) { mission_status_ = _status; }
+
+  /**
    * @brief increases/decreases the relative angle of the drones
    *
    * @param _distance true if increase, false if decrease
@@ -106,6 +120,7 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
   Eigen::Vector3d pointOnCircle(const Eigen::Vector3d point);
 
  protected:
+  bool mission_status_ = false;
   Eigen::Vector3d point_to_inspect_ = Eigen::Vector3d::Zero();
   float distance_to_inspect_point_ = 3;
   float relative_angle_ = 0.7;

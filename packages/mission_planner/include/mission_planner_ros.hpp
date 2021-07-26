@@ -65,6 +65,7 @@ class MissionPlannerRos {
   ros::Publisher sphere_pub_;
   ros::Publisher distance_pub_;
   ros::Publisher angle_pub_;
+  ros::Publisher mission_status_pub_;
 
   // Services
   ros::ServiceServer service_activate_planner;
@@ -204,6 +205,11 @@ class MissionPlannerRos {
    *   \param pub_angle publisher
    */
   void publishRelativeAngle(const ros::Publisher &pub_angle);
+
+  /*! \brief function to publish the mission status 
+   *   \param pub_status publisher
+   */
+  void publishMissionStatus(const ros::Publisher &pub_status);
 
   /*! \brief function to set the marker's color on RViz
    *   \param marker marker

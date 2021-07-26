@@ -417,7 +417,7 @@ if __name__ == "__main__":
 
     # read yml config file
     rospack = rospkg.RosPack()
-    f_route = rospack.get_path('mission_planner')+'/config/experiments/exp5.yml'
+    f_route = rospack.get_path('mission_planner')+'/config/experiments/exp2.yml'
     yml_file    = open(f_route, 'r')
     yml_content = yaml.load(yml_file)
 
