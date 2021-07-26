@@ -65,6 +65,7 @@ for i = 1:size(time_vector,2)
 end
 
 %% Get drones accelerations by derivating the position twice
+% LINEAR: X, Y, Z
 d1_acc.t = d1_pose.t;
 d2_acc.t = d2_pose.t;
 if n_drones == 3
@@ -138,8 +139,86 @@ else
 end
 
 if save_plots
-    saveas(gcf, ['~/bagfiles/plots/Experiment_', experiment_date, '_Drones_acceleration.png']);
+    saveas(gcf, ['~/bagfiles/plots/Experiment_', experiment_date, '_Drones_linear_acceleration.png']);
 end
+
+
+
+
+
+% ANGULAR: Z (Yaw)
+
+% for i = 1:(size(d1_pose.p, 1) - 1)
+%     d1_der_vel.a(i,3) = (d1_pose.p(i+1,3) - d1_pose.a(i,3))/inc_time_pose;
+%     d2_der_vel.a(i,3) = (d2_pose.p(i+1,3) - d2_pose.a(i,3))/inc_time_pose;
+% end
+% 
+% d1_der_vel.a(size(d1_pose.p, 1), :) = d1_der_vel.a(i, 3);
+% d2_der_vel.a(size(d1_pose.p, 1), :) = d2_der_vel.a(i, 3);
+
+
+for i = 1:(size(d1_pose.p, 1) - 1)
+    d1_acc.a(i, 3) = (d1_velocity.a(i+1, 3) - d1_velocity.a(i, 3))/inc_time_pose;
+    d2_acc.a(i, 3) = (d2_velocity.a(i+1, 3) - d2_velocity.a(i, 3))/inc_time_pose;
+end
+
+d1_acc.a(size(d1_pose.p, 1), 3) = d1_acc.a(i, 3);
+d2_acc.a(size(d1_pose.p, 1), 3) = d2_acc.a(i, 3);
+
+if n_drones == 3
+%     for i = 1:(size(d1_pose.p, 1) - 1)
+%         d3_der_vel.a(i, 3) = (d3_pose.p(i+1, 3) - d3_pose.p(i, 3))/inc_time_pose;
+%     end
+%     
+%     d3_der_vel.a(size(d1_pose.p, 1), 3) = d3_der_vel.l(i-1, 3);
+    
+    for i = 1:(size(d1_pose.p, 1) - 1)
+        d3_acc.a(i, 3) = (d3_velocity.a(i+1, 3) - d3_velocity.a(i, 3))/inc_time_pose;
+    end
+    
+    d3_acc.a(size(d1_pose.p, 1), 3) = d3_acc.a(i-1, 3);
+    
+end
+
+% Module of acceleration
+% d1_mod_acc = sqrt(d1_acc.a(:,1).^2 + d1_acc.a(:,2).^2 + d1_acc.a(:,3).^2);
+% d2_mod_acc = sqrt(d2_acc.a(:,1).^2 + d2_acc.a(:,2).^2 + d2_acc.a(:,3).^2);
+
+figure(3); set(gcf, 'Position', get(0, 'Screensize'));
+if n_drones == 3
+%     d3_mod_acc = sqrt(d3_acc.a(:,1).^2 + d3_acc.a(:,2).^2 + d3_acc.a(:,3).^2);
+    subplot(3,1,1);
+    plot(d1_acc.t, d1_acc.a(:, 3), 'b', 'LineWidth', 1.5); grid on;
+    xlabel('Time (s)'); ylabel('Angular acceleration (rad/s²)'); title('Evolution of the yaw acceleration of Drone 1');
+    legend('Drone_{1}', 'Location', 'Best'); axis tight;
+
+    subplot(3,1,2);
+    plot(d2_acc.t, d2_acc.a(:, 3), 'b', 'LineWidth', 1.5); grid on;
+    xlabel('Time (s)'); ylabel('Angular acceleration (rad/s²)'); title('Evolution of the yaw acceleration of Drone 2');
+    legend('Drone_{2}', 'Location', 'Best'); axis tight;
+
+    subplot(3,1,3);
+    plot(d3_acc.t, d3_acc.a(:, 3), 'b', 'LineWidth', 1.5); grid on;
+    xlabel('Time (s)'); ylabel('Angular acceleration (rad/s²)'); title('Evolution of the yaw acceleration of Drone 3');
+    legend('Drone_{3}', 'Location', 'Best'); axis tight;
+else
+    subplot(2,1,1);
+    plot(d1_acc.t, d1_acc.a(:, 3), 'b', 'LineWidth', 1.5); grid on;
+    xlabel('Time (s)'); ylabel('Angular acceleration (rad/s²)'); title('Evolution of the yaw acceleration of Drone 1');
+    legend('Drone_{1}', 'Location', 'Best'); axis tight;
+
+    subplot(2,1,2);
+    plot(d2_acc.t, d2_acc.a(:, 3), 'b', 'LineWidth', 1.5); grid on;
+    xlabel('Time (s)'); ylabel('Angular acceleration (rad/s²)'); title('Evolution of the yaw acceleration of Drone 2');
+    legend('Drone_{2}', 'Location', 'Best'); axis tight;
+end
+
+if save_plots
+    saveas(gcf, ['~/bagfiles/plots/Experiment_', experiment_date, '_Drones_yaw_acceleration.png']);
+end
+
+
+
 
 %% EVOLUTION OF DISTANCE TO INSPECTION POINT
 % Calculate the evolution of the distance to inspection point
@@ -172,7 +251,7 @@ else
     end
 end
 
-figure(3); set(gcf, 'Position', get(0, 'Screensize'));
+figure(4); set(gcf, 'Position', get(0, 'Screensize'));
 if n_drones == 3
     subplot(3,1,1);
     plot(d1_pose.t, d1_d2ip, 'b', 'LineWidth', 1.5); grid on; hold on;
@@ -275,7 +354,7 @@ if n_drones == 3
     end
 end
 
-figure(4); set(gcf, 'Position', get(0, 'Screensize'));
+figure(5); set(gcf, 'Position', get(0, 'Screensize'));
 if n_drones == 3
     subplot(2,1,1);
     plot(d2_pose.t, d12_rel_ang, 'b', 'LineWidth', 1.5); grid on; hold on;
