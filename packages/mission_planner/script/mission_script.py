@@ -287,6 +287,8 @@ class Drone:
                 # print " "
             
             time.sleep(0.1)
+        
+        raw_input(">> Press ENTER to quit the terminal")
     
     # Callback state
     def callbackState(self, data):
@@ -417,7 +419,7 @@ if __name__ == "__main__":
 
     # read yml config file
     rospack = rospkg.RosPack()
-    f_route = rospack.get_path('mission_planner')+'/config/experiments/exp2.yml'
+    f_route = rospack.get_path('mission_planner')+'/config/experiments/exp0.yml'
     yml_file    = open(f_route, 'r')
     yml_content = yaml.load(yml_file)
 
