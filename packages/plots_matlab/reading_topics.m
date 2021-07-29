@@ -133,6 +133,23 @@ if n_drones == 3
     end
 end
 
+%% MISSION STATUS (should be the same for all the topics)
+% Selection of topics
+topic_select = select(bagfile1, 'Topic', topic_mission_status(1));
+mission_status_ = readMessages(topic_select, 'DataFormat', 'struct');
+start = 1;
+final = length(mission_status_);
+interpolate = 1;
+
+for k = start:interpolate:final
+    % Get time
+    t = double(mission_status_{k,1}.Header.Stamp.Sec) + double(mission_status_{k,1}.Header.Stamp.Nsec) * 1e-9;
+    mission_status.t(k, 1) = t;
+    
+    % Status
+    mission_status.d(k,1)  = mission_status_{k,1}.Data;
+end
+
 
 %% POINTS TO INSPECT (should be the same for all the topics)
 % Selection of topics
