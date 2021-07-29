@@ -1,7 +1,7 @@
 # PARAMS for mission planner 
 
 horizon_length: 40 # steps
-n_drones: 2        # drones
+n_drones: 3        # drones
 leader_id: 1        #drone_id
 step_size: 0.1     # seconds
 planning_rate: 1   # sec
@@ -10,7 +10,7 @@ topics_rate: 1 # sec
 vel_max: 0.7         # m/s
 acc_max: 1         # m/s²
 inspection_dist: 6 # m 
-inc_distance: 0.1 # m
-inc_angle: 0.01 # rad
+inc_distance: 0.05 # m
+inc_angle: 0.002 # rad
 
 frame: "map"

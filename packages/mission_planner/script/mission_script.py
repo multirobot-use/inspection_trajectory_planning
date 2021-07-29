@@ -300,8 +300,8 @@ class Drone:
 def show_menu(params,drones):
 
     # Menu
-    print "\n\nWelcome to the main menu. Put the number of the desired option:\n"
-    print "\t0. Take off and send the drones to their initial points"
+    print "\n\n Welcome to the main menu. Put the number of the desired option:\n"
+    print "\t0. Take off the drones"
     print "\t1. Start the mission"
     print "\t2. Stop the mission"
     print "\t3. Add waypoint"
@@ -312,7 +312,7 @@ def show_menu(params,drones):
     print "\t8. Joystick simulator"
     print "\t9. Land the drones"
     
-    option = ord(raw_input (">> "))
+    option = ord(raw_input (" >> "))
     while (option < (48+0) or option > (48+9)): # ASCII for make sure there is no error of inputs. Zero --> 48
         option = ord(raw_input("Please, choose a valid option: "))
 
@@ -419,7 +419,7 @@ if __name__ == "__main__":
 
     # read yml config file
     rospack = rospkg.RosPack()
-    f_route = rospack.get_path('mission_planner')+'/config/experiments/exp0.yml'
+    f_route = rospack.get_path('mission_planner')+'/config/experiments/exp5.yml'
     yml_file    = open(f_route, 'r')
     yml_content = yaml.load(yml_file)
 
