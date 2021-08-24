@@ -4,6 +4,7 @@ This repository is about an operator-oriented inspection task of cylindrical str
 
 This work has developed on Ubuntu 18.04 with ROS Melodic and has not been tested in other Ubuntu/ROS versions.
 [Ubuntu 18.04](https://releases.ubuntu.com/18.04.5/)
+
 [ROS Melodic](wiki.ros.org/melodic)
 
 In order to get the optimal paths, ACADO has been used. For more information:
