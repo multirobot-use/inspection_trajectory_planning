@@ -3,6 +3,11 @@
 This repository is about an operator-oriented inspection task of cylindrical structures, in this case, of wind turbines, with optimal trajectory planning of a multi UAV formation. To generate the optimal trajectory planning, a reference path is given to an optimal solver in order to minimize the accelerations of each drone, making their paths smooth and avoiding jerky movements and going through the optimal path at a constant speed (cruising speed). This also encourages to have a good image taken from the drones, that is intended to build an AR image where some interesting information from the mission is placed.
 
 This work has developed on Ubuntu 18.04 with ROS Melodic and has not been tested in other Ubuntu/ROS versions.
+[Ubuntu 18.04](https://releases.ubuntu.com/18.04.5/)
+[ROS Melodic](wiki.ros.org/melodic)
+
+In order to get the optimal paths, ACADO has been used. For more information:
+[ACADO Webpage](https://acado.github.io/)
 
 ## How to launch simulations and experiments
 There are two ways to launch the simulations: simulation-oriented and experiment-oriented; but only one way to launch the experiments in real life: experiment-oriented.
