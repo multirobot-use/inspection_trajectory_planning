@@ -45,7 +45,6 @@ class MissionPlannerRos {
   ros::Timer planTimer_;
   ros::Timer pubVis_;
   ros::Timer pubTopics_;
-
   std::vector<geometry_msgs::Point> points_;
 
   // Subscriptions
@@ -53,7 +52,6 @@ class MissionPlannerRos {
   std::map<int, ros::Subscriber> cur_vel_sub_;
   std::map<int, ros::Subscriber> solved_trajectories_sub_;
   std::map<int, ros::Subscriber> distance_to_inspection_point_sub_;
-
   std::map<int, ros::Subscriber> relative_angle_sub_;
 
   // Publishers
@@ -76,8 +74,8 @@ class MissionPlannerRos {
   ros::ServiceServer service_distance_to_inspect;
   ros::ServiceServer service_relative_angle;
 
-  //! Callback prototypes
 
+  //! Callback prototypes
   /**
    * @brief Callback for the solved trajectories from others
    *
@@ -217,4 +215,5 @@ class MissionPlannerRos {
    *   \param color color of the marker
    */
   void setMarkerColor(visualization_msgs::Marker &marker, const Colors &color);
+  
 };

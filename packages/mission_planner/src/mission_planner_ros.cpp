@@ -237,7 +237,6 @@ void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
   if (mission_planner_ptr_->getStatus() != trajectory_planner::PlannerStatus::FIRST_PLAN) {
     publishTrajectoryJoint(tracking_pub_trajectory_,
                            mission_planner_ptr_->getLastTrajectory());
-    // publishPath(tracking_pub_, mission_planner_ptr_->last_trajectory_);
     publishPath(pub_path_, mission_planner_ptr_->getLastTrajectory());
     publishPath(pub_ref_path_, mission_planner_ptr_->getReferenceTrajectory());
   }
@@ -390,29 +389,27 @@ void MissionPlannerRos::publishDistance(const ros::Publisher &pub_distance) {
   mission_planner::Float32withHeader dist;
 
   dist.header.frame_id = param_.frame;
-  dist.header.stamp = ros::Time::now();
+  dist.header.stamp    = ros::Time::now();
   dist.data = mission_planner_ptr_ -> getDistanceToInspect();
 
   pub_distance.publish(dist);
-
 }
 
 void MissionPlannerRos::publishRelativeAngle(const ros::Publisher &pub_angle) {
   mission_planner::Float32withHeader angle;
 
   angle.header.frame_id = param_.frame;
-  angle.header.stamp = ros::Time::now();
+  angle.header.stamp    = ros::Time::now();
   angle.data = mission_planner_ptr_ -> getRelativeAngle();
 
   pub_angle.publish(angle);
-
 }
 
 void MissionPlannerRos::publishMissionStatus(const ros::Publisher &pub_status) {
   mission_planner::BoolWithHeader mission_status;
 
   mission_status.header.frame_id = param_.frame;
-  mission_status.header.stamp = ros::Time::now();
+  mission_status.header.stamp    = ros::Time::now();
   mission_status.data = mission_planner_ptr_ -> getMissionStatus();
 
   pub_status.publish(mission_status);
@@ -422,16 +419,20 @@ void MissionPlannerRos::publishPath(const ros::Publisher &pub_path,
                                     const std::vector<state> &trajectory) {
   nav_msgs::Path path_to_publish;
   geometry_msgs::PoseStamped aux_pose;
+
   path_to_publish.header.frame_id = param_.frame;
-  path_to_publish.header.stamp = ros::Time::now();
+  path_to_publish.header.stamp    = ros::Time::now();
+
   for (const auto &state : trajectory) {
     aux_pose.pose.position.x = state.pos(0);
     aux_pose.pose.position.y = state.pos(1);
     aux_pose.pose.position.z = state.pos(2);
+
     aux_pose.pose.orientation.x = state.orientation.x();
     aux_pose.pose.orientation.y = state.orientation.y();
     aux_pose.pose.orientation.z = state.orientation.z();
     aux_pose.pose.orientation.w = state.orientation.w();
+
     path_to_publish.poses.push_back(aux_pose);
   }
   try {

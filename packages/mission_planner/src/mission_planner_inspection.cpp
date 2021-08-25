@@ -13,7 +13,6 @@ MissionPlannerInspection::MissionPlannerInspection(const trajectory_planner::par
 
 MissionPlannerInspection::~MissionPlannerInspection() {}
 
-
 Eigen::Vector3d MissionPlannerInspection::pointOnCircle(const Eigen::Vector3d point) {
   Eigen::Vector2d point_2D, inspection_point_2D, point_on_circle_2D;
   Eigen::Vector3d point_on_circle_3D;
@@ -35,7 +34,6 @@ Eigen::Vector3d MissionPlannerInspection::pointOnCircle(const Eigen::Vector3d po
 
   return point_on_circle_3D;
 }
-
 
 bool MissionPlannerInspection::isInspectionZone(const Eigen::Vector3d &drone_pose) {
   Eigen::Vector2d drone_pose2d, point_to_inspect2d;

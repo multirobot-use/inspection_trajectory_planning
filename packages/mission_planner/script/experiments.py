@@ -37,14 +37,14 @@ class Drone:
     def __init__(self, drone_ns):
         print("I'm a python constructor")
 
-        # subscribe topics
-        rospy.Subscriber(drone_ns+"/ual/state", State, self.callbackState)
+        # Subscribe topics
+        rospy.Subscriber(drone_ns + "/ual/state", State, self.callbackState)
         
         # Publishers (only one drone topic needed for each one)
         self.distance_inspection_pub = rospy.Publisher('/drone_1/mission_planner_ros/distance_to_inspection_point', Bool, queue_size = 1)
         self.relative_angle_pub      = rospy.Publisher('/drone_1/mission_planner_ros/relative_angle', Bool, queue_size = 1)
 
-        # wait for services
+        # Wait for services
         activate_planner_url = drone_ns + "/mission_planner_ros/activate_planner"
         add_waypoint_url     = drone_ns + "/mission_planner_ros/add_waypoint"
         point_to_inspect_url = drone_ns + "/mission_planner_ros/point_to_inspect"
@@ -60,7 +60,7 @@ class Drone:
 
         # Add waypoint service
         rospy.wait_for_service(add_waypoint_url)
-        self.add_waypoint_service     = rospy.ServiceProxy(add_waypoint_url, WaypointSrv)
+        self.add_waypoint_service = rospy.ServiceProxy(add_waypoint_url, WaypointSrv)
    
         # Change point to inspect service
         rospy.wait_for_service(point_to_inspect_url)
@@ -84,7 +84,7 @@ class Drone:
 
         # GoToWaypoint service
         rospy.wait_for_service(go_to_waypoint_url)
-        self.go_to_waypoint_service  = rospy.ServiceProxy(go_to_waypoint_url, GoToWaypoint)
+        self.go_to_waypoint_service = rospy.ServiceProxy(go_to_waypoint_url, GoToWaypoint)
 
     # Take off drones method
     def take_off(self, height):
@@ -95,6 +95,7 @@ class Drone:
             
             self.take_off_service(take_off)
             print "Taking off the drone"
+            
         except rospy.ServiceException, e:
             print "Service call failed: %s" %e
     
@@ -106,9 +107,9 @@ class Drone:
             
             # Stop the mission before calling the service of landing
             self.stop_mission()
-            
             self.land_service(land)
             print "Landing the drone"
+            
         except rospy.ServiceException, e:
             print "Service call failed: %s" %e
 
@@ -131,25 +132,27 @@ class Drone:
     def start_mission(self):
         if self.state == State.FLYING_AUTO:
             try:
-                req = SetBoolRequest()
+                req      = SetBoolRequest()
                 req.data = True
                 self.activate_planner_service(req)
                 print "Mission has started!"
 
             except rospy.ServiceException, e:
                 print("Failed calling start_mission service")
+                
         else:
             print("Start mission aborted, drone is not flying auto")
 
     # Add waypoint method
     def add_one_waypoint(self, waypoint):
-        
         add_waypoint_req = WaypointSrvRequest()
         add_waypoint_req.waypoint.pose.pose.position.x      = waypoint[0]
         add_waypoint_req.waypoint.pose.pose.position.y      = waypoint[1]
         add_waypoint_req.waypoint.pose.pose.position.z      = waypoint[2]
+        
         print "Waypoint sent"
         print(waypoint)
+        
         try:
             self.add_waypoint_service(add_waypoint_req)
             print "Waypoint added!"
@@ -159,13 +162,13 @@ class Drone:
     
     # Send home method
     def send_home(self, point):
+        
         home = GoToWaypointRequest()
-        # TODO
         home.waypoint.pose.position.x = point[0]
         home.waypoint.pose.position.y = point[1]
         home.waypoint.pose.position.z = point[2]
         home.blocking                 = True # Send one by one
-        #print point
+        
         try:
             self.go_to_waypoint_service(home)
             print "Sending drone to home position"
@@ -176,7 +179,7 @@ class Drone:
     # Stop mission method
     def stop_mission(self):
         try:
-            req = SetBoolRequest()
+            req      = SetBoolRequest()
             req.data = False
             self.activate_planner_service(req)
             print "Mission has been stopped!"
@@ -186,7 +189,7 @@ class Drone:
     
     # Distance to inspect method
     def set_distance_inspection(self, distance):
-        r_inspect = DistanceSrvRequest()
+        r_inspect          = DistanceSrvRequest()
         r_inspect.distance = distance
         
         try:
@@ -198,7 +201,7 @@ class Drone:
 
     # Change relative angle method
     def change_relative_angle(self, angle):
-        relative_angle = AngleSrvRequest()
+        relative_angle       = AngleSrvRequest()
         relative_angle.angle = angle
         try:
             self.relative_angle_service(relative_angle)
@@ -227,7 +230,6 @@ class Drone:
         self.state = data.state
         
 
-   
 # Menu function
 def show_experiments_menu():
 
@@ -251,10 +253,12 @@ def show_experiments_menu():
     # Return the desired experiment
     return (option - 48)    
 
+
 # Finish the execution directly when Ctrl+C is pressed (signal.SIGINT received), without escalating to SIGTERM.
 def signal_handler(sig, frame):
     print('Ctrl+C pressed, signal.SIGINT received.')
     sys.exit(0)    
+
         
 # Auto function: take off the drones, set the parameters up and start the mission of each drone
 def auto_function(params,drones):
@@ -273,6 +277,7 @@ def auto_function(params,drones):
         drone.set_distance_inspection(params.inspect_point[3])
         drone.change_relative_angle(params.relative_angle)
         drone.change_inspection_point(params.inspect_point)
+        
         for wp in params.waypoints:
             drone.add_one_waypoint(wp)
     

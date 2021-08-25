@@ -24,6 +24,7 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
     refreshGoals();
     state aux;
     trajectory_to_optimize.push_back(initial_pose);
+
     if (param_.drone_id == 2) {
       rotation = trajectory_planner::eulerToQuat(0, 0, relative_angle_);
     }
@@ -34,6 +35,7 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
     Eigen::Matrix3d rotMat = rotation.toRotationMatrix();
     Eigen::Vector3d aux_point_to_inspect = point_to_inspect_;
     aux_point_to_inspect(2) = 0;
+    
     for (int i = 1; i < param_.horizon_length; i++) {
       aux.pos = rotMat * (solved_trajectories_[inspection_params_.leader_id][i].pos -
                           aux_point_to_inspect) +
@@ -42,7 +44,8 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
     }
 
     return trajectory_to_optimize;
-  }else{
+  }
+  else{
     return trajectory_to_optimize;
   }
 }
