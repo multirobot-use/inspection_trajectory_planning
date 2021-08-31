@@ -31,7 +31,7 @@ windows:
   - python script:  
       layout: even-vertical
       panes:
-        - sleep 20; python ../experiments.py
+        - sleep 20; python ../mission_script.py
   # - rosbag:
   #     layout: even-vertical
   #     panes:

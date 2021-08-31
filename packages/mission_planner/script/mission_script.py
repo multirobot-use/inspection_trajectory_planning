@@ -288,7 +288,7 @@ class Drone:
             
             time.sleep(0.1)
         
-        raw_input(">> Press ENTER to quit the terminal")
+        raw_input("\n>> Press ENTER to quit the terminal")
     
     # Callback state
     def callbackState(self, data):
@@ -419,7 +419,7 @@ if __name__ == "__main__":
 
     # read yml config file
     rospack = rospkg.RosPack()
-    f_route = rospack.get_path('mission_planner')+'/config/experiments/exp0.yml'
+    f_route = rospack.get_path('mission_planner')+'/config/experiments/exp5.yml'
     yml_file    = open(f_route, 'r')
     yml_content = yaml.load(yml_file)
 
@@ -444,6 +444,7 @@ if __name__ == "__main__":
                 cont +=1
         time.sleep(1)
 
+    raw_input(">> Press any key to start the AUTO interface ")
     # auto mode
     if params.auto:
         print "Using the automatic interface"
