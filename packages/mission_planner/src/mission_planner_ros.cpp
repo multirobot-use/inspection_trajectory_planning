@@ -102,6 +102,10 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
       "/drone_" + std::to_string(param_.drone_id) +
           "/absolute_relative_angle",
       1);
+  mission_status_pub_ = nh_.advertise<mission_planner::BoolWithHeader>(
+      "/drone_" + std::to_string(param_.drone_id) +
+          "/mission_status",
+      1);
 
   // Services
   service_activate_planner = nh_.advertiseService(
@@ -137,10 +141,12 @@ bool MissionPlannerRos::activationPlannerServiceCallback(
     ROS_INFO("[%s]: Planning deactivated.", ros::this_node::getName().c_str());
     res.message = "Planning deactivated.";
     planTimer_.stop();
+    mission_planner_ptr_ -> setMissionStatus(false);
   } else {
     ROS_INFO("[%s]: Planning activated.", ros::this_node::getName().c_str());
     res.message = "Planning activated.";
     planTimer_.start();
+    mission_planner_ptr_ -> setMissionStatus(true);
   }
   return true;
 }
@@ -262,6 +268,7 @@ void MissionPlannerRos::pubVisCB(const ros::TimerEvent &e) {
 void MissionPlannerRos::pubTopicsCB(const ros::TimerEvent &e) {
   publishDistance(distance_pub_);
   publishRelativeAngle(angle_pub_);
+  publishMissionStatus(mission_status_pub_);
 }
 
 void MissionPlannerRos::distanceToInspectionPointCallback(
@@ -399,6 +406,16 @@ void MissionPlannerRos::publishRelativeAngle(const ros::Publisher &pub_angle) {
 
   pub_angle.publish(angle);
 
+}
+
+void MissionPlannerRos::publishMissionStatus(const ros::Publisher &pub_status) {
+  mission_planner::BoolWithHeader mission_status;
+
+  mission_status.header.frame_id = param_.frame;
+  mission_status.header.stamp = ros::Time::now();
+  mission_status.data = mission_planner_ptr_ -> getMissionStatus();
+
+  pub_status.publish(mission_status);
 }
 
 void MissionPlannerRos::publishPath(const ros::Publisher &pub_path,

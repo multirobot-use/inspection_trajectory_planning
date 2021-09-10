@@ -287,6 +287,8 @@ class Drone:
                 # print " "
             
             time.sleep(0.1)
+        
+        raw_input("\n>> Press ENTER to quit the terminal")
     
     # Callback state
     def callbackState(self, data):
@@ -298,8 +300,8 @@ class Drone:
 def show_menu(params,drones):
 
     # Menu
-    print "\n\nWelcome to the main menu. Put the number of the desired option:\n"
-    print "\t0. Take off and send the drones to their initial points"
+    print "\n\n Welcome to the main menu. Put the number of the desired option:\n"
+    print "\t0. Take off the drones"
     print "\t1. Start the mission"
     print "\t2. Stop the mission"
     print "\t3. Add waypoint"
@@ -310,7 +312,7 @@ def show_menu(params,drones):
     print "\t8. Joystick simulator"
     print "\t9. Land the drones"
     
-    option = ord(raw_input (">> "))
+    option = ord(raw_input (" >> "))
     while (option < (48+0) or option > (48+9)): # ASCII for make sure there is no error of inputs. Zero --> 48
         option = ord(raw_input("Please, choose a valid option: "))
 
@@ -442,6 +444,7 @@ if __name__ == "__main__":
                 cont +=1
         time.sleep(1)
 
+    raw_input(">> Press any key to start the AUTO interface ")
     # auto mode
     if params.auto:
         print "Using the automatic interface"
