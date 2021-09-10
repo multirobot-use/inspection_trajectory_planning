@@ -28,6 +28,9 @@ find_package(catkin REQUIRED COMPONENTS
   trajectory_planner
 )
 
+ find_package(decomp_util REQUIRED)
+ include_directories(${DECOMP_UTIL_INCLUDE_DIRS})
+
 add_message_files(
   FILES
   Float32withHeader.msg
