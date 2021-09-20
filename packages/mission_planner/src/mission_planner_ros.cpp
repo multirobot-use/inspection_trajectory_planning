@@ -16,6 +16,8 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   trajectory_planner::safeGetParam(nh_, "leader_id", inspection_params_.leader_id);
   trajectory_planner::safeGetParam(nh_, "inc_distance", inspection_params_.inc_distance);
   trajectory_planner::safeGetParam(nh_, "inc_angle", inspection_params_.inc_angle);
+  trajectory_planner::safeGetParam(nh_,"pcl_filepath", param_.pcd_file_path);
+
 
   // initialize mission planner
   if (leader) {
@@ -73,6 +75,9 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   pubVis_.start();
 
   // publishers
+  corridor_pub_ =
+      nh_.advertise<decomp_ros_msgs::PolyhedronArray>("polyhedrons_out", 1);
+  pub_point_cloud_ = nh_.advertise<sensor_msgs::PointCloud2>("pcl_map_out", 1);
   points_pub_ =
       nh_.advertise<visualization_msgs::Marker>("points_to_inspect", 1);
   points_trans_pub_ = nh_.advertise<visualization_msgs::Marker>(
@@ -235,6 +240,8 @@ void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
     // publishPath(tracking_pub_, mission_planner_ptr_->last_trajectory_);
     publishPath(pub_path_, mission_planner_ptr_->getLastTrajectory());
     publishPath(pub_ref_path_, mission_planner_ptr_->getReferenceTrajectory());
+    mission_planner_ptr_->safe_corridor_generator_->publishCorridor(
+        corridor_pub_);
   }
   mission_planner_ptr_->plan();
   publishDistance(distance_pub_);

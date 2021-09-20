@@ -66,6 +66,8 @@ class MissionPlannerRos {
   ros::Publisher distance_pub_;
   ros::Publisher angle_pub_;
   ros::Publisher mission_status_pub_;
+  ros::Publisher corridor_pub_;
+  ros::Publisher pub_point_cloud_;
 
   // Services
   ros::ServiceServer service_activate_planner;
