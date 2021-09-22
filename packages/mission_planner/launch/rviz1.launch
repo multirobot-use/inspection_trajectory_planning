@@ -1,0 +1,3 @@
+<launch>
+    <node pkg="rviz" name="rviz" type="rviz" args="-d $(find mission_planner)/rviz/simulation1.rviz"/>  
+</launch>
