@@ -137,7 +137,7 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
 
  private:
 
-  const float TOL_INSPECTION_ZONE = 1;
+  const float TOL_INSPECTION_ZONE = 2;
   /**
    * @brief returns an initial trajectory to inspect for the drone according to
    * the initial pose
