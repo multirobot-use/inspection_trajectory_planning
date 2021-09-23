@@ -444,7 +444,7 @@ if __name__ == "__main__":
                 cont +=1
         time.sleep(1)
 
-    raw_input(">> Press any key to start the AUTO interface ")
+    # raw_input(">> Press any key to start the AUTO interface ")
     # auto mode
     if params.auto:
         print "Using the automatic interface"

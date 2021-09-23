@@ -1,7 +1,7 @@
 # PARAMS for mission planner 
 
 horizon_length: 40 # steps
-n_drones: 2        # drones
+n_drones: 3        # drones
 leader_id: 1        #drone_id
 step_size: 0.2     # seconds
 planning_rate: 2   # sec
