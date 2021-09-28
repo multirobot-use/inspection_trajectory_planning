@@ -28,7 +28,7 @@ cd inspection_trajectory_planning/packages
 
 ```
 git clone https://github.com/alfalcmar/acado.git
-git clone (link repo safe_corridor NOT AVAILABLE YET)
+git clone https://github.com/alfalcmar/safe_corridor_generator
 git clone https://github.com/catkin/catkin_simple
 git clone https://github.com/grvcTeam/grvc-ual
 git clone https://github.com/aguramos93/seeker-ros
@@ -122,10 +122,16 @@ cd ~/your_ws/src/inspection_trajectory_planning
 ```
 
 ## Automatic installation
-There is a .sh file available to install the necessary packages automatically, except for the safe_corridor package. An interface for grvc-ual package will appear in the middle of the installation, it is only necessary to select MAVROS and the dependencies.
+There is a .sh file available to install the necessary packages automatically (including ROS Melodic), except for the safe_corridor package. An interface for grvc-ual package will appear in the middle of the installation, it is only necessary to select MAVROS and the dependencies.
 
 ```
-cd ~/your_ws/src/inspection_trajectory_planning/
+cd ~
+mkdir -p inspection_ws
+cd inspection_ws
+mkdir -p src
+cd src
+git clone https://github.com/grvcTeam/inspection_trajectory_planning
+cd inspection_trajectory_planning
 ./install_packages.sh
 ./install.sh
 ```

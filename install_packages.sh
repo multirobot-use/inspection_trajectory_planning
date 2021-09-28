@@ -5,10 +5,25 @@ SCRIPT_PATH="$( cd "$(dirname "$0")" ; pwd -P )"
 WORKSPACE_PATH="$( cd .. ; pwd -P )"
 
 
+## ROS Melodic installation
+sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+sudo apt install curl
+curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
+sudo apt update
+sudo apt install ros-melodic-desktop-full
+echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
+source ~/.bashrc
+sudo apt install python-rosdep python-rosinstall python-rosinstall-generator python-wstool build-essential
+sudo apt install python-rosdep
+sudo rosdep init
+rosdep update
+
+
 ## Install necessary packages
 sudo apt-get install sudo apt-get install libeigen3-dev ros-$(rosversion -d)-geodesy ros-$(rosversion -d)-joy
 sudo apt install tmuxinator
 sudo pip install pynput
+sudo pip3 install gitman
 
 
 ## Clone packages
@@ -16,7 +31,7 @@ echo "Cloning necessary packages"
 cd $WORKSPACE_PATH/inspection_trajectory_planning/packages
 
 git clone https://github.com/alfalcmar/acado.git
-# git clone (link repo safe_corridor) # Pending
+git clone https://github.com/alfalcmar/safe_corridor_generator
 git clone https://github.com/catkin/catkin_simple
 git clone https://github.com/grvcTeam/grvc-ual
 git clone https://github.com/aguramos93/seeker-ros
@@ -48,18 +63,18 @@ fi
 
 
 ## Install safe_corridor (uncomment if the package is downloaded)
-# echo "Installing safe_corridor"
-# cd $WORKSPACE_PATH/inspection_trajectory_planning/packages/safe_corridor_generator/thirdparty/jps3d
-# mkdir -p build
-# cd build
-# cmake ..
-# make
-# cd ../..
-# cd DecompROS/DecompUtil
-# mkdir -p build
-# cd build
-# cmake ..
-# make
+echo "Installing safe_corridor"
+cd $WORKSPACE_PATH/inspection_trajectory_planning/packages/safe_corridor_generator/thirdparty/jps3d
+mkdir -p build
+cd build
+cmake ..
+make
+cd ../..
+cd DecompROS/DecompUtil
+mkdir -p build
+cd build
+cmake ..
+make
 
 
 ## Install and configure UAL. Only MAVROS needed. Dependencies
@@ -87,3 +102,29 @@ git checkout v1.10.2
 git submodule update --init --recursive
 make
 make px4_sitl_default gazebo
+
+
+## Compile
+cd $WORKSPACE_PATH
+catkin build
+
+
+## Set the ROS environment variables
+# set bashrc
+num=`cat ~/.bashrc | grep "$WORKSPACE_PATH" | wc -l`
+if [ "$num" -lt "1" ]; then
+
+  # set bashrc
+  echo "
+source $WORKSPACE_PATH/devel/setup.bash" >> ~/.bashrc
+  
+fi
+
+# set zshrc
+num=`cat ~/.zshrc | grep "$WORKSPACE_PATH" | wc -l`
+if [ "$num" -lt "1" ]; then
+
+  echo "
+source $WORKSPACE_PATH/devel/setup.zsh" >> ~/.zshrc
+
+fi
