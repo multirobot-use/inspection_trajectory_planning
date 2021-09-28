@@ -18,6 +18,13 @@ sudo apt install python-rosdep
 sudo rosdep init
 rosdep update
 
+## Catkin tools
+sudo sh \
+    -c 'echo "deb http://packages.ros.org/ros/ubuntu `lsb_release -sc` main" \
+        > /etc/apt/sources.list.d/ros-latest.list'
+wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
+sudo apt-get update
+sudo apt-get install python3-catkin-tools
 
 ## Install necessary packages
 sudo apt-get install sudo apt-get install libeigen3-dev ros-$(rosversion -d)-geodesy ros-$(rosversion -d)-joy
@@ -35,6 +42,16 @@ git clone https://github.com/alfalcmar/safe_corridor_generator
 git clone https://github.com/catkin/catkin_simple
 git clone https://github.com/grvcTeam/grvc-ual
 git clone https://github.com/aguramos93/seeker-ros
+git clone https://github.com/grvcTeam/grvc-utils
+
+# Temporary fix for submodules
+cd $WORKSPACE_PATH/inspection_trajectory_planning/packages/trajectory_follower
+git clone https://github.com/alfalcmar/trajectory_follower
+cd $WORKSPACE_PATH/inspection_trajectory_planning/packages/trajectory_planner
+git clone https://github.com/alfalcmar/trajectory_planner
+
+# git submodule init
+# git submodule update
 
 
 ## Install acado
@@ -64,7 +81,11 @@ fi
 
 ## Install safe_corridor (uncomment if the package is downloaded)
 echo "Installing safe_corridor"
-cd $WORKSPACE_PATH/inspection_trajectory_planning/packages/safe_corridor_generator/thirdparty/jps3d
+cd $WORKSPACE_PATH/inspection_trajectory_planning/packages/safe_corridor_generator/thirdparty/
+rm -r jps3d
+tar -xvf jps3d_new.tar.xz
+mv jps3d_new jps3d
+cd jps3d
 mkdir -p build
 cd build
 cmake ..
