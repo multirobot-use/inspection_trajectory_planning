@@ -18,6 +18,7 @@ sudo apt install python-rosdep
 sudo rosdep init
 rosdep update
 
+
 ## Catkin tools
 sudo sh \
     -c 'echo "deb http://packages.ros.org/ros/ubuntu `lsb_release -sc` main" \
@@ -26,11 +27,13 @@ wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
 sudo apt-get update
 sudo apt-get install python3-catkin-tools
 
+
 ## Install necessary packages
 sudo apt-get install sudo apt-get install libeigen3-dev ros-$(rosversion -d)-geodesy ros-$(rosversion -d)-joy
 sudo apt install tmuxinator
 sudo pip install pynput
 sudo pip3 install gitman
+sudo apt install xz-utils
 
 
 ## Clone packages
@@ -45,10 +48,15 @@ git clone https://github.com/aguramos93/seeker-ros
 git clone https://github.com/grvcTeam/grvc-utils
 
 # Temporary fix for submodules
-cd $WORKSPACE_PATH/inspection_trajectory_planning/packages/trajectory_follower
+cd $WORKSPACE_PATH/inspection_trajectory_planning/packages/
+rm -r trajectory_follower
+rm -r trajectory_planner
 git clone https://github.com/alfalcmar/trajectory_follower
-cd $WORKSPACE_PATH/inspection_trajectory_planning/packages/trajectory_planner
 git clone https://github.com/alfalcmar/trajectory_planner
+# Necessary to change the branch of trajectory_planner
+cd trajectory_planner
+git checkout safe_corridor_integration
+
 
 # git submodule init
 # git submodule update
@@ -112,24 +120,6 @@ sudo usermod -a -G dialout $USER
 sudo apt remove modemmanager
 
 
-## Install PX4 for SITL simulations
-echo "Installing PX4 for SITL simulations"
-sudo apt install libgstreamer1.0-dev python-jinja2 python-pip
-pip install numpy toml
-cd $WORKSPACE_PATH/inspection_trajectory_planning/packages
-git clone https://github.com/PX4/Firmware.git
-cd Firmware
-git checkout v1.10.2
-git submodule update --init --recursive
-make
-make px4_sitl_default gazebo
-
-
-## Compile
-cd $WORKSPACE_PATH
-catkin build
-
-
 ## Set the ROS environment variables
 # set bashrc
 num=`cat ~/.bashrc | grep "$WORKSPACE_PATH" | wc -l`
@@ -149,3 +139,16 @@ if [ "$num" -lt "1" ]; then
 source $WORKSPACE_PATH/devel/setup.zsh" >> ~/.zshrc
 
 fi
+
+
+## Install PX4 for SITL simulations
+echo "Installing PX4 for SITL simulations"
+sudo apt install libgstreamer1.0-dev python-jinja2 python-pip
+pip install numpy toml
+cd $WORKSPACE_PATH/inspection_trajectory_planning/packages
+git clone https://github.com/PX4/Firmware.git
+cd Firmware
+git checkout v1.10.2
+git submodule update --init --recursive
+make
+make px4_sitl_default gazebo

@@ -42,12 +42,30 @@ Catkin tools: https://catkin-tools.readthedocs.io/en/latest/installing.html
 ```
 sudo apt install tmuxinator
 sudo pip install pynput
+sudo apt install xz-utils
+sudo apt-get install python3-catkin-tools
+```
+
+**Note**: temporary fix for submodules:
+
+```
+cd ~/your_ws/src/inspection_trajectory_planning/packages
+rm -r trajectory_follower
+rm -r trajectory_planner
+git clone https://github.com/alfalcmar/trajectory_follower
+git clone https://github.com/alfalcmar/trajectory_planner
+cd trajectory_planner
+git checkout safe_corridor_integration
 ```
 
 4. Install safe_corridor_generator packages
 
 ```
-cd ~/your_ws/src/inspection_trajectory_planning/packages/safe_corridor_generator/thirdparty/jps3d
+cd ~/your_ws/src/inspection_trajectory_planning/packages/safe_corridor_generator/thirdparty/
+rm -r jps3d
+tar -xvf jps3d_new.tar.xz
+mv jps3d_new jps3d
+cd jps3d
 mkdir -p build
 cd build
 cmake ..
@@ -71,8 +89,15 @@ mkdir -p build
 cd build
 cmake ..
 make
-echo "source ~/your_ws/src/inspection_trajectory_planning/packages/acado/build/acado_env.sh" >> ~/.bashrc
 ```
+
+**Note**: add the source to the .bashrc or in the .zshrc
+
+```
+echo "source ~/your_ws/src/inspection_trajectory_planning/packages/acado/build/acado_env.sh" >> ~/.bashrc
+echo "source ~/your_ws/src/inspection_trajectory_planning/packages/acado/build/acado_env.sh" >> ~/.zshrc
+```
+
 
 6. Configure and setup UAL. Only MAVROS needed. Install dependencies
 
@@ -120,6 +145,21 @@ make px4_sitl_default gazebo
 cd ~/your_ws/src/inspection_trajectory_planning
 ./install.sh
 ```
+
+11. Build and source
+
+```
+cd ~/your_ws/
+catkin build
+```
+
+**Note**: add the source to the .bashrc or in the .zshrc
+
+```
+echo "source ~/your_ws/devel/setup.bash" >> ~/.bashrc
+echo "source ~/your_ws/devel/setup.zsh" >> ~/.zshrc
+```
+
 
 ## Automatic installation
 There is a .sh file available to install the necessary packages automatically (including ROS Melodic), except for the safe_corridor package. An interface for grvc-ual package will appear in the middle of the installation, it is only necessary to select MAVROS and the dependencies.
