@@ -124,6 +124,8 @@ cd ~/your_ws/src/inspection_trajectory_planning
 ## Automatic installation
 There is a .sh file available to install the necessary packages automatically (including ROS Melodic), except for the safe_corridor package. An interface for grvc-ual package will appear in the middle of the installation, it is only necessary to select MAVROS and the dependencies.
 
+**Note**: make sure you are in the corridor_integration branch. It is the only version where the installation file is available, at least for now.
+
 ```
 cd ~
 mkdir -p inspection_ws
