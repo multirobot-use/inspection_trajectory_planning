@@ -36,6 +36,5 @@ packages/PX4/
 packages/acado/
 packages/grvc-utils/
 packages/grvc_ual/
-packages/grvc_utils/
-
+packages/catkin_simple/
 packages/upat_follower/

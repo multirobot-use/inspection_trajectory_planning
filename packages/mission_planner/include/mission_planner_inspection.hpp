@@ -136,8 +136,6 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
   }
 
  private:
-
-  const float TOL_INSPECTION_ZONE = 1;
   /**
    * @brief returns an initial trajectory to inspect for the drone according to
    * the initial pose
@@ -165,12 +163,5 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
    */
   virtual void initialOrientation(std::vector<state> &traj);
 
-  /**
-   * @brief Utility function that checks if the drone is near the inspection
-   * zone
-   *
-   * @param drone_pose drone's current pose
-   */
-  bool isInspectionZone(const Eigen::Vector3d &drone_pose);
 
 };

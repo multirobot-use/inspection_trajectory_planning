@@ -44,7 +44,7 @@ class MissionPlannerRos {
   std::unique_ptr<MissionPlannerInspection> mission_planner_ptr_;
   ros::Timer planTimer_;
   ros::Timer pubVis_;
-  ros::Timer pubTopics_;
+
   std::vector<geometry_msgs::Point> points_;
 
   // Subscriptions
@@ -65,6 +65,8 @@ class MissionPlannerRos {
   ros::Publisher distance_pub_;
   ros::Publisher angle_pub_;
   ros::Publisher mission_status_pub_;
+  ros::Publisher corridor_pub_;
+  ros::Publisher pub_point_cloud_;
 
   // Services
   ros::ServiceServer service_activate_planner;
@@ -133,11 +135,6 @@ class MissionPlannerRos {
    * \param TimerEvent structure passed to callback invoked by ros::Timer
    */
   void pubVisCB(const ros::TimerEvent &e);
-
-  /*! \brief Callback for timer that publishes distance and relative angle topics
-   * \param TimerEvent structure passed to callback invoked by ros::Timer
-   */
-  void pubTopicsCB(const ros::TimerEvent &e);
 
   /*! \brief Callback for plan timer.
    *   \param TimerEvent structure passed to callback invoked by ros::Timer
