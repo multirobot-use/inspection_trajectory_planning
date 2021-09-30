@@ -4,3 +4,6 @@
 [submodule "packages/trajectory_follower"]
 	path = packages/trajectory_follower
 	url = https://github.com/alfalcmar/trajectory_follower.git
+[submodule "packages/safe_corridor_generator"]
+	path = packages/safe_corridor_generator
+	url = https://github.com/alfalcmar/safe_corridor_generator.git
