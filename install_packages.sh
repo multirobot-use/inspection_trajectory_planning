@@ -36,30 +36,20 @@ sudo pip3 install gitman
 sudo apt install xz-utils
 
 
+## Submodule init & update
+cd $WORKSPACE_PATH/inspection_trajectory_planning
+git submodule update --init
+
+
 ## Clone packages
 echo "Cloning necessary packages"
 cd $WORKSPACE_PATH/inspection_trajectory_planning/packages
 
 git clone https://github.com/alfalcmar/acado.git
-git clone https://github.com/alfalcmar/safe_corridor_generator
 git clone https://github.com/catkin/catkin_simple
 git clone https://github.com/grvcTeam/grvc-ual
 git clone https://github.com/aguramos93/seeker-ros
 git clone https://github.com/grvcTeam/grvc-utils
-
-# Temporary fix for submodules
-cd $WORKSPACE_PATH/inspection_trajectory_planning/packages/
-rm -r trajectory_follower
-rm -r trajectory_planner
-git clone https://github.com/alfalcmar/trajectory_follower
-git clone https://github.com/alfalcmar/trajectory_planner
-# Necessary to change the branch of trajectory_planner
-cd trajectory_planner
-git checkout safe_corridor_integration
-
-
-# git submodule init
-# git submodule update
 
 
 ## Install acado
@@ -89,11 +79,7 @@ fi
 
 ## Install safe_corridor (uncomment if the package is downloaded)
 echo "Installing safe_corridor"
-cd $WORKSPACE_PATH/inspection_trajectory_planning/packages/safe_corridor_generator/thirdparty/
-rm -r jps3d
-tar -xvf jps3d_new.tar.xz
-mv jps3d_new jps3d
-cd jps3d
+cd $WORKSPACE_PATH/inspection_trajectory_planning/packages/safe_corridor_generator/thirdparty/jps3d 
 mkdir -p build
 cd build
 cmake ..

@@ -21,14 +21,20 @@ cd src
 
 ```
 git clone https://github.com/grvcTeam/inspection_trajectory_planning
-cd inspection_trajectory_planning/packages
 ```
 
-3. Clone the necessary packages, which are: ACADO, safe_corridor, catkin_simple, grvc-ual, seeker-ros, grvc-utils
+3. Initialize and update submodules
 
 ```
+cd ~/your_ws/src/inspection_trajectory_planning
+git submodule update --init
+```
+
+4. Clone the necessary packages, which are: ACADO, safe_corridor, catkin_simple, grvc-ual, seeker-ros, grvc-utils
+
+```
+cd ~/your_ws/src/inspection_trajectory_planning/packages
 git clone https://github.com/alfalcmar/acado.git
-git clone https://github.com/alfalcmar/safe_corridor_generator
 git clone https://github.com/catkin/catkin_simple
 git clone https://github.com/grvcTeam/grvc-ual
 git clone https://github.com/aguramos93/seeker-ros
@@ -46,26 +52,10 @@ sudo apt install xz-utils
 sudo apt-get install python3-catkin-tools
 ```
 
-**Note**: temporary fix for submodules:
+5. Install safe_corridor_generator packages
 
 ```
-cd ~/your_ws/src/inspection_trajectory_planning/packages
-rm -r trajectory_follower
-rm -r trajectory_planner
-git clone https://github.com/alfalcmar/trajectory_follower
-git clone https://github.com/alfalcmar/trajectory_planner
-cd trajectory_planner
-git checkout safe_corridor_integration
-```
-
-4. Install safe_corridor_generator packages
-
-```
-cd ~/your_ws/src/inspection_trajectory_planning/packages/safe_corridor_generator/thirdparty/
-rm -r jps3d
-tar -xvf jps3d_new.tar.xz
-mv jps3d_new jps3d
-cd jps3d
+cd ~/your_ws/src/inspection_trajectory_planning/packages/safe_corridor_generator/thirdparty/jps3d
 mkdir -p build
 cd build
 cmake ..
@@ -78,7 +68,7 @@ cmake ..
 make
 ```
 
-5. Install ACADO
+6. Install ACADO
 
 https://acado.github.io/install_linux.html
 
@@ -99,7 +89,7 @@ echo "source ~/your_ws/src/inspection_trajectory_planning/packages/acado/build/a
 ```
 
 
-6. Configure and setup UAL. Only MAVROS needed. Install dependencies
+7. Configure and setup UAL. Only MAVROS needed. Install dependencies
 
 https://github.com/grvcTeam/grvc-ual/wiki/How-to-build-and-install-grvc-ual
 
@@ -108,13 +98,13 @@ cd ~/your_ws/src/inspection_trajectory_planning/packages/grvc-ual
 ./configure.py
 ```
 
-7. Install dependencies of grvc-ual
+8. Install dependencies of grvc-ual
 
 ```
 sudo apt-get install libeigen3-dev ros-$(rosversion -d)-geodesy ros-$(rosversion -d)-joy
 ```
 
-8. MAVROS
+9. MAVROS
 
 ```
 sudo apt install -y ros-$(rosversion -d)-mavros ros-$(rosversion -d)-mavros-extras
@@ -123,7 +113,7 @@ sudo usermod -a -G dialout $USER
 sudo apt remove modemmanager
 ```
 
-9. PX4 SITL Simulations
+10. PX4 SITL Simulations
 
 https://github.com/grvcTeam/grvc-ual/wiki/Setup-instructions:-PX4-SITL
 
@@ -139,14 +129,14 @@ make
 make px4_sitl_default gazebo
 ```
 
-10. Execute install.sh
+11. Execute install.sh
 
 ```
 cd ~/your_ws/src/inspection_trajectory_planning
 ./install.sh
 ```
 
-11. Build and source
+12. Build and source
 
 ```
 cd ~/your_ws/
