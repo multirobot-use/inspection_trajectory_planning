@@ -47,7 +47,7 @@ Catkin tools: https://catkin-tools.readthedocs.io/en/latest/installing.html
 
 ```
 sudo apt install tmuxinator
-sudo pip install pynput
+pip install pynput
 sudo apt install xz-utils
 sudo apt-get install python3-catkin-tools
 ```
@@ -165,6 +165,27 @@ cd inspection_trajectory_planning
 ./install_packages.sh
 ```
 
+## Test to verify everything is installated correctly
+In order to ensure that the installation has been completed successfully, you have to run a simple test of the mission, only executing one UAV in a simulation-oriented environment.
+
+First, modify the parameter *n_drones*, which represents the number of drones which the mission will operate with, and put this value to 1. You can find this parameter in the file *mission_planner.yml* which has several parameters concerning to the mission.
+
+```
+packages/mission_planner/param/mission_planner.yml
+```
+
+Second, we have to launch the tmuxinator file that is on the folder *packages/mission_planner/script/1drone*. 
+
+**Note**: If you do not know what is tmuxinator, it allows to create and manage tmux sessions easily. This way, we can execute several launch files in the same terminal at the same time. To do that, in this case:
+
+```
+cd packages/mission_planner/script/1drone
+tmuxinator
+```
+
+**Note**: It is important to mention that, if you want to change the tab of the tmux, you have to press Ctrl + B + *number of desired tab*. Also, if you want to close the whole tmux session, you have to put *tmux kill-server* on any of the tabs.
+
+In case that the installation did not go well, try to reinstall.
 
 ## How to launch simulations and experiments
 There are two ways to launch the simulations: simulation-oriented and experiment-oriented; but only one way to launch the experiments in real life: experiment-oriented.
@@ -248,7 +269,8 @@ Launch terminal 5 (Independent follower2 drone) (Only if 3 drones were chosen):
 ```
 
 #### Additional information
-There are some parameters that can be of your interest to modify, for instance, the cruising speed of the UAVs, the step size, the number of steps of the receding horizon, the increasing amount of relative angle or distance of the joystick, among others. Those things can be changed on:
+There are some parameters that can be of your interest to modify, for instance, the cruising speed of the UAVs, the step size, the number of steps of the receding horizon, the increasing amount of relative angle or distance of the joystick, among others. Those things can be changed in the file:
 
-    mission_planner/param/mission_planner.yml
-
+```
+packages/mission_planner/param/mission_planner.yml
+```
