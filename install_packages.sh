@@ -15,6 +15,7 @@ echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
 source ~/.bashrc
 sudo apt install python-rosdep python-rosinstall python-rosinstall-generator python-wstool build-essential
 sudo apt install python-rosdep
+sudo apt install git make
 sudo rosdep init
 rosdep update
 
@@ -31,6 +32,7 @@ sudo apt-get install python3-catkin-tools
 ## Install necessary packages
 sudo apt-get install sudo apt-get install libeigen3-dev ros-$(rosversion -d)-geodesy ros-$(rosversion -d)-joy
 sudo apt install tmuxinator
+#echo "alias kmux='tmux kill-server'" >> ~/.bashrc 
 sudo pip install pynput
 sudo pip3 install gitman
 sudo apt install xz-utils
