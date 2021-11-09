@@ -33,8 +33,11 @@
 
 
 packages/PX4/
+packages/Firmware/
 packages/acado/
 packages/grvc-utils/
-packages/grvc_ual/
+packages/grvc-ual/
 packages/catkin_simple/
 packages/upat_follower/
+packages/seeker-ros/
+packages/safe_corridor_generator/
