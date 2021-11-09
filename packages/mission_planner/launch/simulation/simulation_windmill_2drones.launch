@@ -3,7 +3,7 @@
     <!-- Launch Gazebo simulation -->
 	<rosparam param="/use_sim_time">true</rosparam>
     <node pkg="px4_bringup" type="launch_gzworld.py" name="gazebo_world" output="screen"
-    args="-physics=ode -world=$(find grvc_gazebo_worlds)/worlds/windmill.world
+    args="-physics=ode -world=$(find grvc_gazebo_worlds)/worlds/complex_test_collision.world
 		  -add_model_path=$(find grvc_gazebo_worlds)/models
 		  -description_package=robots_description">
 		<rosparam param="sim_origin">[38.138728, -3.173825, 0]</rosparam>  <!-- [lat,lon,alt] -->
@@ -37,7 +37,7 @@
         <arg name="robot_model" value="typhoon_h480"/>
 		<arg name="material" value="Indigo"/>
         <arg name="x" value="-8"/>
-        <arg name="y" value="0"/>
+        <arg name="y" value="-5"/>
         <arg name="z" value="0"/>
         <arg name="yaw" value="0"/>
 	</include>
@@ -46,7 +46,7 @@
     <node pkg="ual_backend_mavros" type="ual_backend_mavros_server" name="ual" output="screen" ns="drone_2">
         <param name="uav_id" value="2"/>
         <param name="pose_frame_id" value="map"/>
-        <rosparam param="home_pose">[-8, 0, 0.0]</rosparam>
+        <rosparam param="home_pose">[-8, -5, 0.0]</rosparam>
     </node>
 
     <!-- Launch camera for drone id=2 -->

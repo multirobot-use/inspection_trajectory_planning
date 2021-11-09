@@ -3,7 +3,7 @@
     <!-- Launch Gazebo simulation -->
 	<rosparam param="/use_sim_time">true</rosparam>
     <node pkg="px4_bringup" type="launch_gzworld.py" name="gazebo_world" output="screen"
-    args="-physics=ode -world=$(find grvc_gazebo_worlds)/worlds/windmill.world
+    args="-physics=ode -world=$(find grvc_gazebo_worlds)/worlds/complex_test_collision.world
 		  -add_model_path=$(find grvc_gazebo_worlds)/models
 		  -description_package=robots_description">
 		<rosparam param="sim_origin">[38.138728, -3.173825, 0]</rosparam>  <!-- [lat,lon,alt] -->
