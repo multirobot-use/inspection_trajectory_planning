@@ -42,7 +42,7 @@ std::vector<state> MissionPlannerInspectionLeader::initialTrajectory(
     float t_k = (param_.vel_max * param_.step_size * k) / curve_length;
 
     // Saturation of t_k value
-    if (t_k > 1)  t_k = 1;
+    // if (t_k > 1)  t_k = 1;
 
     // calculate point with parameter tk
     k_point_polar(0) = initial_pose_polar(0) +
