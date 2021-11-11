@@ -25,11 +25,15 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
     state aux;
     trajectory_to_optimize.push_back(initial_pose);
 
+    // Corrector angle: additional angle rotation because of lack synchronization
+    float corrector_angle = MissionPlannerInspectionFollower::calculateAngleCorrector();
+    // float corrector_angle = 0;
+
     if (param_.drone_id == 2) {
-      rotation = trajectory_planner::eulerToQuat(0, 0, relative_angle_);
+      rotation = trajectory_planner::eulerToQuat(0, 0, (relative_angle_ + corrector_angle));
     }
     else {
-      rotation = trajectory_planner::eulerToQuat(0, 0, -relative_angle_);
+      rotation = trajectory_planner::eulerToQuat(0, 0, -(relative_angle_ + corrector_angle));
     }
       
     Eigen::Matrix3d rotMat = rotation.toRotationMatrix();
@@ -48,4 +52,11 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
   else{
     return trajectory_to_optimize;
   }
+}
+
+float MissionPlannerInspectionFollower::calculateAngleCorrector(){
+  // Angle = (distance_traveled_in_planning_rate / total_curve_length) * 2*pi
+  float angle = (param_.planning_rate*param_.vel_max)/(distance_to_inspect_point_);
+
+  return angle;
 }

@@ -28,6 +28,14 @@ class MissionPlannerInspectionFollower : public MissionPlannerInspection {
   bool checks();
 
   /**
+   * @brief function that infers the additional correction angle of the formation
+   *
+   * @return true if all checks are passed
+   * @return false if any ot the check is not passed
+   */
+  float calculateAngleCorrector();
+
+  /**
    * @brief returns an initial trajectory to inspect for the drone according to
    * the initial pose
    *
