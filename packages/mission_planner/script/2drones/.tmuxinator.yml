@@ -6,6 +6,7 @@ windows:
       layout: even-vertical
       panes:
         - roslaunch mission_planner simulation_windmill_2drones.launch
+        # - roslaunch mission_planner simulation_windmill_2drones_light.launch
   - leader:
       layout: even-vertical
       panes:
@@ -27,7 +28,7 @@ windows:
       layout: even-vertical
       panes:
         - sleep 17; python ../mission_script_2drones.py
-  # - rosbag:
-  #     layout: even-vertical
-  #     panes:
-  #       - sleep 40; roslaunch mission_planner rosbag_recorder.launch
+  - rosbag:
+      layout: even-vertical
+      panes:
+        - sleep 40; roslaunch mission_planner rosbag_recorder.launch

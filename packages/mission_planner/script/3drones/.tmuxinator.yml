@@ -5,34 +5,35 @@ windows:
   - gazebo:
       layout: even-vertical
       panes:
-        - roslaunch mission_planner simulation_windmill_3drones.launch
+        # - roslaunch mission_planner simulation_windmill_3drones.launch
+        - roslaunch mission_planner simulation_windmill_3drones_light.launch
   - leader:
       layout: even-vertical
       panes:
-        - sleep 15; roslaunch mission_planner mission_planner.launch drone_id:=1 leader:=true
+        - sleep 10; roslaunch mission_planner mission_planner.launch drone_id:=1 leader:=true
   - follower1:
       layout: even-vertical
       panes:
-        - sleep 16; roslaunch mission_planner mission_planner_follower.launch drone_id:=2 leader:=false
+        - sleep 11; roslaunch mission_planner mission_planner_follower.launch drone_id:=2 leader:=false
   - follower2:
       layout: even-vertical
       panes:
-        - sleep 17; roslaunch mission_planner mission_planner_follower.launch drone_id:=3 leader:=false
+        - sleep 12; roslaunch mission_planner mission_planner_follower.launch drone_id:=3 leader:=false
   - trajectory_follower:
       layout: even-vertical
       panes:
-        - sleep 18; roslaunch trajectory_follower trajectory_follower.launch drone_id:=1
-        - sleep 19; roslaunch trajectory_follower trajectory_follower.launch drone_id:=2
-        - sleep 20; roslaunch trajectory_follower trajectory_follower.launch drone_id:=3
-  - rviz:
-      layout: even-vertical
-      panes:
-        - sleep 12; roslaunch mission_planner rviz_experiment3.launch
+        - sleep 13; roslaunch trajectory_follower trajectory_follower.launch drone_id:=1
+        - sleep 14; roslaunch trajectory_follower trajectory_follower.launch drone_id:=2
+        - sleep 15; roslaunch trajectory_follower trajectory_follower.launch drone_id:=3
+  # - rviz:
+  #     layout: even-vertical
+  #     panes:
+  #       - sleep 12; roslaunch mission_planner rviz_experiment3.launch
   - python script:  
       layout: even-vertical
       panes:
-        - sleep 20; python ../mission_script.py
-  # - rosbag:
-  #     layout: even-vertical
-  #     panes:
-  #       - sleep 40; roslaunch mission_planner rosbag_recorder.launch
+        - sleep 16; python ../mission_script.py
+  - rosbag:
+      layout: even-vertical
+      panes:
+        - sleep 50; roslaunch mission_planner rosbag_recorder.launch
