@@ -29,11 +29,16 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
     float corrector_angle = MissionPlannerInspectionFollower::calculateAngleCorrector();
     // float corrector_angle = 0;
 
+    // Need to know if the trajectory is being described clockwise or anticlockwise
+    bool clockwise = MissionPlannerInspectionFollower::isClockwise();
+
     if (param_.drone_id == 2) {
-      rotation = trajectory_planner::eulerToQuat(0, 0, (relative_angle_ + corrector_angle));
+      if (clockwise){  rotation = trajectory_planner::eulerToQuat(0, 0, (relative_angle_ - corrector_angle));}
+      else{            rotation = trajectory_planner::eulerToQuat(0, 0, -(relative_angle_ + corrector_angle));}
     }
     else {
-      rotation = trajectory_planner::eulerToQuat(0, 0, -(relative_angle_ + corrector_angle));
+      if (clockwise){  rotation = trajectory_planner::eulerToQuat(0, 0, -(relative_angle_ + corrector_angle));}
+      else{            rotation = trajectory_planner::eulerToQuat(0, 0, (relative_angle_ - corrector_angle));}
     }
       
     Eigen::Matrix3d rotMat = rotation.toRotationMatrix();
@@ -59,4 +64,20 @@ float MissionPlannerInspectionFollower::calculateAngleCorrector(){
   float angle = (param_.planning_rate*param_.vel_max)/(distance_to_inspect_point_);
 
   return angle;
+}
+
+bool MissionPlannerInspectionFollower::isClockwise(){
+  // Know the direction based on the angle of first point and of the second point of the leader's trajectory
+  Eigen::Vector3d point1 = solved_trajectories_[inspection_params_.leader_id][1].pos;
+  Eigen::Vector3d point2 = solved_trajectories_[inspection_params_.leader_id][2].pos;
+
+  float angle1 = getPointAngle(point1);
+  float angle2 = getPointAngle(point2);
+  float angle_diff = angle2 - angle1;
+
+  if (angle_diff < -M_PI){         std::cout << "ANTICLOCKWISE" << std::endl;  return false;}
+  else if (angle_diff > M_PI){     std::cout << "CLOCKWISE" << std::endl;      return true;}
+  else if (angle_diff < 0){        std::cout << "CLOCKWISE" << std::endl;      return true;}
+  else{                            std::cout << "ANTICLOCKWISE" << std::endl;  return false;}
+
 }

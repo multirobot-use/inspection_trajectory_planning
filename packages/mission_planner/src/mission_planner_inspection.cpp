@@ -42,3 +42,12 @@ void MissionPlannerInspection::initialOrientation(std::vector<state> &traj) {
     point.orientation = trajectory_planner::eulerToQuat(0, 0, atan2(aux(1), aux(0)));
   }
 }
+
+float MissionPlannerInspection::getPointAngle(const Eigen::Vector3d &_point){
+  Eigen::Vector3d relative_position = _point - point_to_inspect_;
+  float angle = atan2(relative_position(1), relative_position(0));
+
+  if (angle > M_PI)   angle = angle + 2*M_PI;
+
+  return angle;
+}

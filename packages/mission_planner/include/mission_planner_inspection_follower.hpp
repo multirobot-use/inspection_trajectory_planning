@@ -30,10 +30,17 @@ class MissionPlannerInspectionFollower : public MissionPlannerInspection {
   /**
    * @brief function that infers the additional correction angle of the formation
    *
-   * @return true if all checks are passed
-   * @return false if any ot the check is not passed
+   * @return the angle corrector to apply
    */
   float calculateAngleCorrector();
+
+  /**
+   * @brief function that returns if the trajectory that is being described is clockwise or anticlockwise
+   *
+   * @return true if clockwise
+   * @return false if anticlockwise
+   */
+  bool isClockwise();
 
   /**
    * @brief returns an initial trajectory to inspect for the drone according to
