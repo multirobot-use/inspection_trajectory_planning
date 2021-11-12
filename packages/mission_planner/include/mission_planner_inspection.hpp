@@ -62,7 +62,7 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
    */
   void incDistanceToInspect(const bool &_distance) {
     if (_distance)  setDistanceToInspect(distance_to_inspect_point_ + inspection_params_.inc_distance);
-    else                    setDistanceToInspect(distance_to_inspect_point_ - inspection_params_.inc_distance);
+    else            setDistanceToInspect(distance_to_inspect_point_ - inspection_params_.inc_distance);
   }
 
   /**
@@ -94,7 +94,7 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
   float getMissionStatus() { return mission_status_; }
 
   /**
-   * @brief changes the desired relative angle of the drones
+   * @brief sets the mission status
    *
    * @param _status mission status
    */
@@ -107,7 +107,7 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
    */
   void incRelativeAngle(const bool &_angle) {
     if (_angle)  setRelativeAngle(relative_angle_ + inspection_params_.inc_angle);
-    else                 setRelativeAngle(relative_angle_ - inspection_params_.inc_angle);
+    else         setRelativeAngle(relative_angle_ - inspection_params_.inc_angle);
   }
 
   /**
@@ -118,6 +118,14 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
    * @return point on the cylinder/circle
    */
   Eigen::Vector3d pointOnCircle(const Eigen::Vector3d point);
+
+  /**
+   * @brief gets the angle of a given point based on the inspection point
+   *
+   * @param point desired point to infer its angle
+   * @return angle (between 0 and PI)
+   */
+  float getPointAngle(const Eigen::Vector3d &_point);
 
  protected:
   bool mission_status_ = false;

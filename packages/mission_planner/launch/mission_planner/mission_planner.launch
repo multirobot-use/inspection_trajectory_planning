@@ -1,6 +1,6 @@
 <launch>
     <arg name="drone_id" default="1"/>
-    <arg name="pcl_map_filename" default="$(find trajectory_planner)/maps/complex_test_collision.pcd" />
+    <arg name="pcl_map_filename" default="$(find trajectory_planner)/maps/empty.pcd" />
 
 
     <node pkg="mission_planner" type="mission_planner_node" name="mission_planner_ros" output="screen" ns="drone_$(arg drone_id)" launch-prefix="">

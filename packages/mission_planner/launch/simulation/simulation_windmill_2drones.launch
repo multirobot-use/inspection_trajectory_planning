@@ -3,7 +3,7 @@
     <!-- Launch Gazebo simulation -->
 	<rosparam param="/use_sim_time">true</rosparam>
     <node pkg="px4_bringup" type="launch_gzworld.py" name="gazebo_world" output="screen"
-    args="-physics=ode -world=$(find grvc_gazebo_worlds)/worlds/simple_test_collision.world
+    args="-physics=ode -world=$(find grvc_gazebo_worlds)/worlds/windmill.world
 		  -add_model_path=$(find grvc_gazebo_worlds)/models
 		  -description_package=robots_description">
 		<rosparam param="sim_origin">[38.138728, -3.173825, 0]</rosparam>  <!-- [lat,lon,alt] -->
@@ -28,7 +28,7 @@
     </node> 
 
     <!-- Launch camera for drone id=1 -->
-    <node name="rqt_image_view_1" pkg="rqt_image_view" type="rqt_image_view" args="/drone_1/cgo3_camera/image_raw"/>
+    <!-- <node name="rqt_image_view_1" pkg="rqt_image_view" type="rqt_image_view" args="/drone_1/cgo3_camera/image_raw"/> -->
 
 
     <!-- Launch robot id=2 -->
@@ -50,7 +50,7 @@
     </node>
 
     <!-- Launch camera for drone id=2 -->
-    <node name="rqt_image_view_2" pkg="rqt_image_view" type="rqt_image_view" args="/drone_2/cgo3_camera/image_raw"/>
+    <!-- <node name="rqt_image_view_2" pkg="rqt_image_view" type="rqt_image_view" args="/drone_2/cgo3_camera/image_raw"/> -->
 
     <node pkg="tf" type="static_transform_publisher" name="link1_broadcaster" args="0 0 0 0 0 0.707 0.707 drone_1/base_link drone_1/velodyne 100" />
 
