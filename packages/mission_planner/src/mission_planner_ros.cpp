@@ -287,7 +287,13 @@ void MissionPlannerRos::solvedTrajCallback(const nav_msgs::Path::ConstPtr &msg,
                                            int id) {
   state aux_state;
   std::vector<state> path;
+
+  auto time_first_point = ros::Time::now();
+  int i = 0;
+
   for (auto pose : msg->poses) {
+    aux_state.time_stamp = pose.header.stamp.sec + (pose.header.stamp.nsec / 1000000000) + i*param_.step_size;
+    i = i + 1;
     aux_state.pos(0) = pose.pose.position.x;
     aux_state.pos(1) = pose.pose.position.y;
     aux_state.pos(2) = pose.pose.position.z;
@@ -424,7 +430,14 @@ void MissionPlannerRos::publishPath(const ros::Publisher &pub_path,
   path_to_publish.header.frame_id = param_.frame;
   path_to_publish.header.stamp    = ros::Time::now();
 
+  int i = 0;
+  div_t time_result;
+
   for (const auto &state : trajectory) {
+    div_t = div(path_to_publish.header.stamp.sec + ( (path_to_publish.header.stamp.nsec / 1000000000) + i*param_.step_size ), 1000000000);
+    aux_pose.header.stamp.sec   = time_result.quot;
+    aux_pose.header.stamp.nsec  = time_result.rem * 1000000000;
+
     aux_pose.pose.position.x = state.pos(0);
     aux_pose.pose.position.y = state.pos(1);
     aux_pose.pose.position.z = state.pos(2);
@@ -435,6 +448,7 @@ void MissionPlannerRos::publishPath(const ros::Publisher &pub_path,
     aux_pose.pose.orientation.w = state.orientation.w();
 
     path_to_publish.poses.push_back(aux_pose);
+    i = i + 1;
   }
   try {
     pub_path.publish(path_to_publish);

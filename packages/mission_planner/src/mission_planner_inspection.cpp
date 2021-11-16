@@ -7,6 +7,7 @@ MissionPlannerInspection::MissionPlannerInspection(const trajectory_planner::par
   // initialize solved trajectory
   solved_trajectories_[param_.drone_id] =
       std::vector<state>(param_.horizon_length);
+
   // initialize logger
   logger_ = std::make_unique<trajectory_planner::Logger>(param_.drone_id);
 }

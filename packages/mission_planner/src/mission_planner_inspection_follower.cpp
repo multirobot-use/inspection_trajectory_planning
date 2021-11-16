@@ -24,7 +24,7 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
     refreshGoals();
     state aux;
     trajectory_to_optimize.push_back(initial_pose);
-
+    
     // Corrector angle: additional angle rotation because of lack synchronization
     // float corrector_angle = MissionPlannerInspectionFollower::calculateAngleCorrector();
     float corrector_angle = 0;
@@ -46,16 +46,36 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
     Eigen::Vector3d aux_point_to_inspect = point_to_inspect_;
     aux_point_to_inspect(2) = 0;
 
+    // Start mutex
+    // mtx_leader_traj_.lock();
+    std::cout << "  Time leader: "
+              << solved_trajectories_[inspection_params_.leader_id][0].time_stamp
+              << std::endl
+              << "  Time follower: "
+              << solved_trajectories_[2][0].time_stamp
+              << std::endl << std::endl;
+
     // Discard the points of the trajectory that have a time_stamp older than the current time.
-    auto current_time = std::chrono::high_resolution_clock::now();
+    std::chrono::time_point<std::chrono::high_resolution_clock> current_timer = std::chrono::high_resolution_clock::now();
+    std::time_t current_time = std::chrono::system_clock::to_time_t(current_timer) - start_time_;
     int current_i = 0;
 
-    for (int i = 1; i < param_.horizon_length; i++){
-      if (solved_trajectories_[inspection_params_.leader_id][i].time_stamp > std::chrono::system_clock::to_time_t(current_time)){
+    for (int i = 0; i < param_.horizon_length; i++){
+      if (solved_trajectories_[inspection_params_.leader_id][i].time_stamp > current_time){
         current_i = i;
         break;
       }
     }
+
+    // std::cout << "  Time of the leader's trajectory: "
+    //           << solved_trajectories_[inspection_params_.leader_id][0].time_stamp
+    //           << std::endl
+    //           << "  Time of the CURRENT follower's trajectory: "
+    //           << current_time
+    //           << std::endl
+    //           << "  Time of the SYNCHRONIZED (i = " << current_i << ") follower's trajectory: "
+    //           << solved_trajectories_[inspection_params_.leader_id][current_i].time_stamp
+    //           << std::endl << std::endl;
     
     for (int i = current_i; i < param_.horizon_length; i++) {
       aux.pos = rotMat * (solved_trajectories_[inspection_params_.leader_id][i].pos -
@@ -64,6 +84,8 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
       trajectory_to_optimize.push_back(std::move(aux));
     }
 
+    // End mutex
+    // mtx_leader_traj_.unlock();
     return trajectory_to_optimize;
   }
   else{

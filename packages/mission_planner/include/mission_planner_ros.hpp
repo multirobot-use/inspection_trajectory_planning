@@ -20,6 +20,7 @@
 #include "mission_planner_inspection_follower.hpp"
 #include "mission_planner_inspection_leader.hpp"
 #include "ros/ros.h"
+#include <math.h>
 
 enum Colors { RED = 0, BLUE = 2, YELLOW = 3 };
 
