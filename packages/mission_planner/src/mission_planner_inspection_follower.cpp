@@ -26,8 +26,8 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
     trajectory_to_optimize.push_back(initial_pose);
 
     // Corrector angle: additional angle rotation because of lack synchronization
-    float corrector_angle = MissionPlannerInspectionFollower::calculateAngleCorrector();
-    // float corrector_angle = 0;
+    // float corrector_angle = MissionPlannerInspectionFollower::calculateAngleCorrector();
+    float corrector_angle = 0;
 
     // Need to know if the trajectory is being described clockwise or anticlockwise
     bool clockwise = MissionPlannerInspectionFollower::isClockwise();
@@ -40,12 +40,24 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
       if (clockwise){  rotation = trajectory_planner::eulerToQuat(0, 0, -(relative_angle_ + corrector_angle));}
       else{            rotation = trajectory_planner::eulerToQuat(0, 0, (relative_angle_ - corrector_angle));}
     }
+    
       
     Eigen::Matrix3d rotMat = rotation.toRotationMatrix();
     Eigen::Vector3d aux_point_to_inspect = point_to_inspect_;
     aux_point_to_inspect(2) = 0;
+
+    // Discard the points of the trajectory that have a time_stamp older than the current time.
+    auto current_time = std::chrono::high_resolution_clock::now();
+    int current_i = 0;
+
+    for (int i = 1; i < param_.horizon_length; i++){
+      if (solved_trajectories_[inspection_params_.leader_id][i].time_stamp > std::chrono::system_clock::to_time_t(current_time)){
+        current_i = i;
+        break;
+      }
+    }
     
-    for (int i = 1; i < param_.horizon_length; i++) {
+    for (int i = current_i; i < param_.horizon_length; i++) {
       aux.pos = rotMat * (solved_trajectories_[inspection_params_.leader_id][i].pos -
                           aux_point_to_inspect) +
                 aux_point_to_inspect;

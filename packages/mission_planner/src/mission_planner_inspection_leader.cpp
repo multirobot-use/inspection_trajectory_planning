@@ -36,6 +36,9 @@ std::vector<state> MissionPlannerInspectionLeader::initialTrajectory(
   Eigen::Vector3d k_point_xyz;
   state k_state = initial_pose;
 
+  std::time_t time_horizon;
+  auto current_time = std::chrono::high_resolution_clock::now();
+  
   // Generate the reference/initial trajectory
   for (int k = 0; k < param_.horizon_length; k++) {
     // calculate parameter tk
@@ -58,6 +61,12 @@ std::vector<state> MissionPlannerInspectionLeader::initialTrajectory(
         k_point_polar(0) * sin(k_point_polar(1)) + point_to_inspect_(1);
     k_point_xyz(2) = k_point_polar(2);
     k_state.pos = k_point_xyz;
+
+    if (k == 0)   k_state.time_stamp = std::chrono::system_clock::to_time_t(current_time);
+    else{
+      time_horizon = k*param_.step_size;
+      k_state.time_stamp = traj[0].time_stamp + time_horizon;
+    }          
 
     // push back the state
     traj.push_back(std::move(k_state));
