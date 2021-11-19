@@ -56,14 +56,14 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
         std::bind(&MissionPlannerRos::relativeAngleCallback, this,
                   std::placeholders::_1, drone));
 
-    if (drone != param_.drone_id) {
+    // if (drone != param_.drone_id) {
       solved_trajectories_sub_[drone] = nh_.subscribe<nav_msgs::Path>(
           "/drone_" + std::to_string(drone) +
               "/mission_planner_ros/solved_traj",
           1,
           std::bind(&MissionPlannerRos::solvedTrajCallback, this,
                     std::placeholders::_1, drone));
-    }
+    // }
   }
 
   // create timer
@@ -289,10 +289,12 @@ void MissionPlannerRos::solvedTrajCallback(const nav_msgs::Path::ConstPtr &msg,
   std::vector<state> path;
 
   auto time_first_point = ros::Time::now();
+  float time = time_first_point.sec + (time_first_point.nsec / 1000000000);
   int i = 0;
 
+  ROS_INFO("Time of solved trajectory ID %d callback: %f seconds", id, time);
   for (auto pose : msg->poses) {
-    aux_state.time_stamp = pose.header.stamp.sec + (pose.header.stamp.nsec / 1000000000) + i*param_.step_size;
+    aux_state.time_stamp = time_first_point.sec + (time_first_point.nsec / 1000000000) + i*param_.step_size;
     i = i + 1;
     aux_state.pos(0) = pose.pose.position.x;
     aux_state.pos(1) = pose.pose.position.y;
@@ -301,6 +303,7 @@ void MissionPlannerRos::solvedTrajCallback(const nav_msgs::Path::ConstPtr &msg,
   }
   mission_planner_ptr_->setSolvedTrajectories(path, id);
 }
+
 void MissionPlannerRos::uavPoseCallback(
     const geometry_msgs::PoseStamped::ConstPtr &msg, int id) {
   mission_planner_ptr_->states_[id].pos[0] = msg->pose.position.x;

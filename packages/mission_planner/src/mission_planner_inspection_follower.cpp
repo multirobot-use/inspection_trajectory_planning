@@ -67,6 +67,13 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
       }
     }
 
+    std::cout << "  NEW time follower: "
+              << solved_trajectories_[inspection_params_.leader_id][current_i].time_stamp
+              << std::endl
+              << "  Current time: "
+              << current_time
+              << std::endl << std::endl;
+
     // std::cout << "  Time of the leader's trajectory: "
     //           << solved_trajectories_[inspection_params_.leader_id][0].time_stamp
     //           << std::endl
