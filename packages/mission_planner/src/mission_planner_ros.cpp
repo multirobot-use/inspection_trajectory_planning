@@ -434,7 +434,7 @@ void MissionPlannerRos::publishPath(const ros::Publisher &pub_path,
   div_t time_result;
 
   for (const auto &state : trajectory) {
-    div_t = div(path_to_publish.header.stamp.sec + ( (path_to_publish.header.stamp.nsec / 1000000000) + i*param_.step_size ), 1000000000);
+    time_result = div(path_to_publish.header.stamp.sec + ( (path_to_publish.header.stamp.nsec / 1000000000) + i*param_.step_size ), 1000000000);
     aux_pose.header.stamp.sec   = time_result.quot;
     aux_pose.header.stamp.nsec  = time_result.rem * 1000000000;
 
