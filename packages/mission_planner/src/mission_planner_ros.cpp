@@ -13,6 +13,7 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   trajectory_planner::safeGetParam(nh_, "drone_id", param_.drone_id);
   trajectory_planner::safeGetParam(nh_, "inspection_dist", inspection_params_.inspection_dist);
   trajectory_planner::safeGetParam(nh_, "visualization_rate", param_.visualization_rate);
+  trajectory_planner::safeGetParam(nh_, "clock_rate", param_.clock_rate);
   trajectory_planner::safeGetParam(nh_, "leader_id", inspection_params_.leader_id);
   trajectory_planner::safeGetParam(nh_, "inc_distance", inspection_params_.inc_distance);
   trajectory_planner::safeGetParam(nh_, "inc_angle", inspection_params_.inc_angle);
@@ -69,6 +70,8 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   // create timer
   planTimer_ = nh_.createTimer(ros::Duration(param_.planning_rate),
                                &MissionPlannerRos::replanCB, this);
+  clockTimer_ = nh_.createTimer(ros::Duration(param_.clock_rate),
+                            &MissionPlannerRos::clockCB, this);
   pubVis_ = nh_.createTimer(ros::Duration(param_.visualization_rate),
                             &MissionPlannerRos::pubVisCB, this);
   planTimer_.stop();
@@ -248,6 +251,12 @@ void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
   publishMissionStatus(mission_status_pub_);
 }
 
+void MissionPlannerRos::clockCB(const ros::TimerEvent &e) {
+  auto current_time = ros::Time::now();
+  float aux_time = current_time.sec + current_time.nsec/1000000000;
+  mission_planner_ptr_->setCurrentTime(aux_time);
+}
+
 
 void MissionPlannerRos::pubVisCB(const ros::TimerEvent &e) {
   // publish commanded waypoint
@@ -292,9 +301,14 @@ void MissionPlannerRos::solvedTrajCallback(const nav_msgs::Path::ConstPtr &msg,
   float time = time_first_point.sec + (time_first_point.nsec / 1000000000);
   int i = 0;
 
-  ROS_INFO("Time of solved trajectory ID %d callback: %f seconds", id, time);
+  ROS_INFO("SOLVED TRAJ CALLBACK: Time of solved trajectory ID %d callback:  %f seconds", id, time);
   for (auto pose : msg->poses) {
     aux_state.time_stamp = time_first_point.sec + (time_first_point.nsec / 1000000000) + i*param_.step_size;
+
+    if (i == 4){
+      ROS_INFO("SOLVED TRAJ CALLBACK: Time for i == %d:  %f", i, aux_state.time_stamp);
+    }
+
     i = i + 1;
     aux_state.pos(0) = pose.pose.position.x;
     aux_state.pos(1) = pose.pose.position.y;
@@ -434,12 +448,20 @@ void MissionPlannerRos::publishPath(const ros::Publisher &pub_path,
   path_to_publish.header.stamp    = ros::Time::now();
 
   int i = 0;
+  double time_stamp = path_to_publish.header.stamp.sec + (path_to_publish.header.stamp.nsec / 1000000000);
   div_t time_result;
 
+  ROS_INFO("PUBLISH PATH METHOD: Current time sec: %3d  nsec: %3d", path_to_publish.header.stamp.sec, path_to_publish.header.stamp.nsec);
+  ROS_INFO("PUBLISH PATH METHOD: Current time FULL: %f", time_stamp);
+
   for (const auto &state : trajectory) {
-    time_result = div(path_to_publish.header.stamp.sec + ( (path_to_publish.header.stamp.nsec / 1000000000) + i*param_.step_size ), 1000000000);
+    time_result = div((time_stamp + i*param_.step_size), 1);
     aux_pose.header.stamp.sec   = time_result.quot;
-    aux_pose.header.stamp.nsec  = time_result.rem * 1000000000;
+    aux_pose.header.stamp.nsec  = int((time_stamp + i*param_.step_size - time_result.quot)*1000000000); // time_result.rem*1000000000 not working fine
+
+    if (i == 4){
+      ROS_INFO("PUBLISH PATH METHOD: Time for i == %d sec: %d  nsec: %d", i, aux_pose.header.stamp.sec, aux_pose.header.stamp.nsec);
+    }
 
     aux_pose.pose.position.x = state.pos(0);
     aux_pose.pose.position.y = state.pos(1);

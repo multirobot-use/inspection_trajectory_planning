@@ -94,6 +94,11 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
   float getMissionStatus() { return mission_status_; }
 
   /**
+   * @brief sets the 
+   */
+  void setCurrentTime(float time_) {current_time_ = time_;}
+
+  /**
    * @brief sets the mission status
    *
    * @param _status mission status

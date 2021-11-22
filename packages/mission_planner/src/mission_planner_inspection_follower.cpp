@@ -56,12 +56,10 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
               << std::endl << std::endl;
 
     // Discard the points of the trajectory that have a time_stamp older than the current time.
-    std::chrono::time_point<std::chrono::high_resolution_clock> current_timer = std::chrono::high_resolution_clock::now();
-    std::time_t current_time = std::chrono::system_clock::to_time_t(current_timer) - start_time_;
     int current_i = 0;
 
     for (int i = 0; i < param_.horizon_length; i++){
-      if (solved_trajectories_[inspection_params_.leader_id][i].time_stamp > current_time){
+      if (solved_trajectories_[inspection_params_.leader_id][i].time_stamp > current_time_){
         current_i = i;
         break;
       }
@@ -71,14 +69,14 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
               << solved_trajectories_[inspection_params_.leader_id][current_i].time_stamp
               << std::endl
               << "  Current time: "
-              << current_time
+              << current_time_
               << std::endl << std::endl;
 
     // std::cout << "  Time of the leader's trajectory: "
     //           << solved_trajectories_[inspection_params_.leader_id][0].time_stamp
     //           << std::endl
     //           << "  Time of the CURRENT follower's trajectory: "
-    //           << current_time
+    //           << current_time_
     //           << std::endl
     //           << "  Time of the SYNCHRONIZED (i = " << current_i << ") follower's trajectory: "
     //           << solved_trajectories_[inspection_params_.leader_id][current_i].time_stamp

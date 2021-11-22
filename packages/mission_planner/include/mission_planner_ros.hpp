@@ -44,6 +44,7 @@ class MissionPlannerRos {
   inspection_params inspection_params_;
   std::unique_ptr<MissionPlannerInspection> mission_planner_ptr_;
   ros::Timer planTimer_;
+  ros::Timer clockTimer_;
   ros::Timer pubVis_;
 
   std::vector<geometry_msgs::Point> points_;
@@ -141,6 +142,11 @@ class MissionPlannerRos {
    *   \param TimerEvent structure passed to callback invoked by ros::Timer
    */
   void replanCB(const ros::TimerEvent &e);
+
+  /*! \brief Callback for update the current time.
+   *   \param TimerEvent structure passed to callback invoked by ros::Timer
+   */
+  void clockCB(const ros::TimerEvent &e);
 
   /*! \brief Callback for drone's pose
    *   \param msg drone's pose, geometry_msgs/PoseStamped
