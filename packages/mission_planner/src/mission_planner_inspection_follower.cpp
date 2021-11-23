@@ -29,10 +29,12 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
 
     // Know the elapsed time
     float elapsed_time;
+    int current_i;
 
     for (int i = 0; i < param_.horizon_length; i++){
       // std::cout << "  i == " << i << "  Current time: " << current_time_ << "  Solved traj time: " << solved_trajectories_[inspection_params_.leader_id][i].time_stamp << std::endl;
       if (solved_trajectories_[inspection_params_.leader_id][i].time_stamp > current_time_){
+        current_i = i;
         elapsed_time = current_time_ - solved_trajectories_[inspection_params_.leader_id][0].time_stamp;
         std::cout << "  i == " << i << "  Elapsed time: " << elapsed_time << std::endl << std::endl;
         break;
@@ -40,8 +42,8 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
     }
 
     // Corrector angle: additional angle rotation because of lack synchronization
-    float corrector_angle = MissionPlannerInspectionFollower::calculateAngleCorrector(elapsed_time);
-    // float corrector_angle = 0;
+    // float corrector_angle = MissionPlannerInspectionFollower::calculateAngleCorrector(elapsed_time);
+    float corrector_angle = 0;
 
     // Need to know if the trajectory is being described clockwise or anticlockwise
     bool clockwise = MissionPlannerInspectionFollower::isClockwise();
@@ -59,8 +61,8 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
     Eigen::Vector3d aux_point_to_inspect = point_to_inspect_;
     aux_point_to_inspect(2) = 0;
     
-    for (int i = 1; i < param_.horizon_length; i++) {
-      aux.time_stamp = current_time_ + i*param_.step_size;
+    for (int i = current_i; i < param_.horizon_length; i++) {
+      aux.time_stamp = current_time_ + (i - current_i - 1)*param_.step_size;
       aux.pos = rotMat * (solved_trajectories_[inspection_params_.leader_id][i].pos -
                           aux_point_to_inspect) +
                 aux_point_to_inspect;

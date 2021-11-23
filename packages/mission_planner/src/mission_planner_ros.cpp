@@ -306,10 +306,6 @@ void MissionPlannerRos::solvedTrajCallback(const nav_msgs::Path::ConstPtr &msg,
   for (auto pose : msg->poses) {
     aux_state.time_stamp = pose.header.stamp.sec + pose.header.stamp.nsec/1000000000.0;
 
-    if (i == 4){
-      // ROS_INFO("SOLVED TRAJ CALLBACK: Time for i == %d:  %3f", i, aux_state.time_stamp);
-    }
-
     i = i + 1;
     aux_state.pos(0) = pose.pose.position.x;
     aux_state.pos(1) = pose.pose.position.y;
