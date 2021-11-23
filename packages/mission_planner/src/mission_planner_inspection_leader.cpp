@@ -27,7 +27,6 @@ std::vector<state> MissionPlannerInspectionLeader::initialTrajectory(
   Eigen::Vector3d k_point_polar;
   Eigen::Vector3d k_point_xyz;
   state k_state = initial_pose;
-  leader_trajectory_time_ = current_time_;
   
   // Generate the reference/initial trajectory
   for (int k = 0; k < param_.horizon_length; k++) {
