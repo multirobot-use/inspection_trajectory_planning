@@ -6,7 +6,7 @@ leader_id: 1           # drone_id
 step_size: 0.2         # seconds
 planning_rate: 2       # sec
 visualization_rate: 3  # sec
-clock_rate: 0.01       # sec
+clock_rate: 0.05       # sec
 topics_rate: 1         # sec
 vel_max: 0.7           # m/s
 acc_max: 1             # m/s²

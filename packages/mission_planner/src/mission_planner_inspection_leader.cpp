@@ -10,9 +10,6 @@ std::vector<state> MissionPlannerInspectionLeader::initialTrajectory(
   // Refresh the goals (waypoints) in case that either the inspection point or the inspection distance have changed
   refreshGoals();
 
-  // std::cout << "Current inspection distance: " << std::to_string(distance_to_inspect_point_) << " m"
-  //             << std::endl;  
-
   std::vector<state> traj;  // trajectory to return in that function
 
   // transform to polar initial and final point
@@ -20,11 +17,6 @@ std::vector<state> MissionPlannerInspectionLeader::initialTrajectory(
       transformToPolar(initial_pose.pos, point_to_inspect_);
   Eigen::Vector3d final_pose_polar =
       transformToPolar(goals_[0].pos, point_to_inspect_);
-  
-  // std::cout << "GOAL POINT: [" << std::to_string(goals_[0].pos(0))
-  //           << ", " << std::to_string(goals_[0].pos(1))
-  //           << ", " << std::to_string(goals_[0].pos(2))
-  //           << "]"  << std::endl;
 
   // calculate curve length and theta_total
   float theta_total = getTotalAngle(initial_pose_polar(1), final_pose_polar(1));
@@ -35,20 +27,12 @@ std::vector<state> MissionPlannerInspectionLeader::initialTrajectory(
   Eigen::Vector3d k_point_polar;
   Eigen::Vector3d k_point_xyz;
   state k_state = initial_pose;
-
-  std::cout << "  Time leader: "
-            << solved_trajectories_[inspection_params_.leader_id][0].time_stamp
-            << std::endl;
-
-  if (!solved_trajectories_[2].empty()){
-    std::cout << "  Time follower: " << std::endl
-    << solved_trajectories_[2][0].time_stamp
-    << std::endl << std::endl;
-  }
+  leader_trajectory_time_ = current_time_;
   
   // Generate the reference/initial trajectory
   for (int k = 0; k < param_.horizon_length; k++) {
     // calculate parameter tk
+    k_state.time_stamp = current_time_ + k*param_.step_size;
     float t_k = (param_.vel_max * param_.step_size * k) / curve_length;
 
     // Saturation of t_k value

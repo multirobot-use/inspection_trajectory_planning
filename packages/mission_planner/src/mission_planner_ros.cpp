@@ -20,7 +20,7 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   trajectory_planner::safeGetParam(nh_,"pcl_filepath", param_.pcd_file_path);
 
 
-  // initialize mission planner
+  // Initialize mission planner
   if (leader) {
     ROS_INFO("I'm a leader");
     mission_planner_ptr_ =
@@ -57,14 +57,15 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
         std::bind(&MissionPlannerRos::relativeAngleCallback, this,
                   std::placeholders::_1, drone));
 
-    // if (drone != param_.drone_id) {
+    if (drone != param_.drone_id) {
       solved_trajectories_sub_[drone] = nh_.subscribe<nav_msgs::Path>(
           "/drone_" + std::to_string(drone) +
               "/mission_planner_ros/solved_traj",
           1,
           std::bind(&MissionPlannerRos::solvedTrajCallback, this,
                     std::placeholders::_1, drone));
-    // }
+    }
+
   }
 
   // create timer
@@ -253,7 +254,7 @@ void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
 
 void MissionPlannerRos::clockCB(const ros::TimerEvent &e) {
   auto current_time = ros::Time::now();
-  float aux_time = current_time.sec + current_time.nsec/1000000000;
+  float aux_time = current_time.sec + current_time.nsec/1000000000.0;
   mission_planner_ptr_->setCurrentTime(aux_time);
 }
 
@@ -298,15 +299,15 @@ void MissionPlannerRos::solvedTrajCallback(const nav_msgs::Path::ConstPtr &msg,
   std::vector<state> path;
 
   auto time_first_point = ros::Time::now();
-  float time = time_first_point.sec + (time_first_point.nsec / 1000000000);
+  float time = time_first_point.sec + (time_first_point.nsec / 1000000000.0);
   int i = 0;
 
-  ROS_INFO("SOLVED TRAJ CALLBACK: Time of solved trajectory ID %d callback:  %f seconds", id, time);
+  // ROS_INFO("SOLVED TRAJ CALLBACK: Time of solved trajectory ID %d callback:  %3f seconds", id, time);
   for (auto pose : msg->poses) {
-    aux_state.time_stamp = time_first_point.sec + (time_first_point.nsec / 1000000000) + i*param_.step_size;
+    aux_state.time_stamp = pose.header.stamp.sec + pose.header.stamp.nsec/1000000000.0;
 
     if (i == 4){
-      ROS_INFO("SOLVED TRAJ CALLBACK: Time for i == %d:  %f", i, aux_state.time_stamp);
+      // ROS_INFO("SOLVED TRAJ CALLBACK: Time for i == %d:  %3f", i, aux_state.time_stamp);
     }
 
     i = i + 1;
@@ -448,20 +449,16 @@ void MissionPlannerRos::publishPath(const ros::Publisher &pub_path,
   path_to_publish.header.stamp    = ros::Time::now();
 
   int i = 0;
-  double time_stamp = path_to_publish.header.stamp.sec + (path_to_publish.header.stamp.nsec / 1000000000);
+  float time_stamp = trajectory[0].time_stamp;
   div_t time_result;
 
-  ROS_INFO("PUBLISH PATH METHOD: Current time sec: %3d  nsec: %3d", path_to_publish.header.stamp.sec, path_to_publish.header.stamp.nsec);
-  ROS_INFO("PUBLISH PATH METHOD: Current time FULL: %f", time_stamp);
+  // ROS_INFO("PUBLISH PATH METHOD: Current time sec: %3d  nsec: %3d", path_to_publish.header.stamp.sec, path_to_publish.header.stamp.nsec);
+  // ROS_INFO("PUBLISH PATH METHOD: Time of the first point of the trajectory: %f", time_stamp);
 
   for (const auto &state : trajectory) {
-    time_result = div((time_stamp + i*param_.step_size), 1);
+    time_result = div(state.time_stamp, 1);
     aux_pose.header.stamp.sec   = time_result.quot;
-    aux_pose.header.stamp.nsec  = int((time_stamp + i*param_.step_size - time_result.quot)*1000000000); // time_result.rem*1000000000 not working fine
-
-    if (i == 4){
-      ROS_INFO("PUBLISH PATH METHOD: Time for i == %d sec: %d  nsec: %d", i, aux_pose.header.stamp.sec, aux_pose.header.stamp.nsec);
-    }
+    aux_pose.header.stamp.nsec  = int((state.time_stamp - time_result.quot)*1000000000); // time_result.rem*1000000000 not working fine
 
     aux_pose.pose.position.x = state.pos(0);
     aux_pose.pose.position.y = state.pos(1);
@@ -475,6 +472,7 @@ void MissionPlannerRos::publishPath(const ros::Publisher &pub_path,
     path_to_publish.poses.push_back(aux_pose);
     i = i + 1;
   }
+
   try {
     pub_path.publish(path_to_publish);
   } catch (...) {

@@ -88,6 +88,14 @@ class MissionPlannerRos {
    */
   void solvedTrajCallback(const nav_msgs::Path::ConstPtr &msg, int id);
 
+  /**
+   * @brief Callback for the leader's reference trajectory time
+   *
+   * @param msg time
+   * @param id drone id
+   */
+  void leaderInitTrajTimeCallback(const mission_planner::Float32withHeader::ConstPtr &msg, int id);
+
   /*! \brief Callback for the activate planner service.
    *   \param req structure of the request message
    *   \param res structure of the response message
@@ -178,6 +186,10 @@ class MissionPlannerRos {
    */
   void publishPath(const ros::Publisher &pub_path,
                    const std::vector<state> &trajectory);
+
+  /*! \brief function to publish the initial time for the leader's reference trajectory
+   */
+  void publishInitTrajTimeLeader(const ros::Publisher &pub_time_leader);
 
   /*! \brief function to publish trajectory to the solver
    */

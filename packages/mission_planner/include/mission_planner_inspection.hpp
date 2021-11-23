@@ -94,7 +94,7 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
   float getMissionStatus() { return mission_status_; }
 
   /**
-   * @brief sets the 
+   * @brief sets the current time (obtained from ROS::Time)
    */
   void setCurrentTime(float time_) {current_time_ = time_;}
 

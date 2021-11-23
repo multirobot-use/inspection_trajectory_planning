@@ -32,7 +32,7 @@ class MissionPlannerInspectionFollower : public MissionPlannerInspection {
    *
    * @return the angle corrector to apply
    */
-  float calculateAngleCorrector();
+  float calculateAngleCorrector(const float &_elapsed_time);
 
   /**
    * @brief function that returns if the trajectory that is being described is clockwise or anticlockwise
@@ -49,6 +49,6 @@ class MissionPlannerInspectionFollower : public MissionPlannerInspection {
    * @param initial_pose initial pose of the drone
    * @return vector of states of the trajectory
    */
-  virtual std::vector<state> initialTrajectory(
-      const state &initial_pose) override;
+  virtual std::vector<trajectory_planner::state> initialTrajectory(
+      const trajectory_planner::state &initial_pose) override;
 };
