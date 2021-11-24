@@ -185,7 +185,6 @@ tmuxinator
 
 **Note**: It is important to mention that, if you want to change the tab of the tmux, you have to press Ctrl + B + *number of desired tab*. Also, if you want to close the whole tmux session, you have to put *tmux kill-server* on any of the tabs.
 
-In case that the installation did not go well, try to reinstall.
 
 ## How to launch simulations and experiments
 There are two ways to launch the simulations: simulation-oriented and experiment-oriented; but only one way to launch the experiments in real life: experiment-oriented.
@@ -274,3 +273,13 @@ There are some parameters that can be of your interest to modify, for instance, 
 ```
 packages/mission_planner/param/mission_planner.yml
 ```
+
+
+### Frequent issues
+In case that the installation did not go well, try to reinstall. Sometimes, a single package may not be installed correctly and, in case of doubt, it is better to reinstall everything.
+
+Once the repository is correctly installed, it is time to build the packages using *catkin build*. Sometimes, you may notice that your PC freezes in the process. If that occurs, try to reboot your PC and put *catkin build* again. If even in that case freezes, use *catkin clean* and then *catkin build*, maybe twice.
+
+When the workspace has been built, the first try of running a simulation may not work: Gazebo does not start and, if that happens, there is nothing to see. Kill the tmuxinator server by putting on any tab of tmux *tmux kill-server* and try to run it again.
+
+If the formation has taken off and they do not generate trajectories, make sure that the mission has started correctly on the operator's interface and see if the parameter *n_drones* is the correct one as well.
