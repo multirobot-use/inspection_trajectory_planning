@@ -7,6 +7,7 @@
  * Class for leader drones that inherits of the class MissionPlannerInspection
  */
 class MissionPlannerInspectionLeader : public MissionPlannerInspection {
+
  public:
   /**
    * @brief constructor of the class
@@ -25,8 +26,10 @@ class MissionPlannerInspectionLeader : public MissionPlannerInspection {
    */
   void appendGoal(const state &_new_goal);
 
+
  protected:
   float rho;
+
 
  private:
   /**

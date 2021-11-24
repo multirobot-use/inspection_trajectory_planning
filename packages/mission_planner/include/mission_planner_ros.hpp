@@ -30,12 +30,14 @@ enum Colors { RED = 0, BLUE = 2, YELLOW = 3 };
 */
 
 class MissionPlannerRos {
+
  public:
   //! MissionPlannerRos constructor
   MissionPlannerRos(ros::NodeHandle _nh, const bool leader);
 
   //! MissionPlannerRos destructor
   ~MissionPlannerRos();
+
 
  private:
   // Declarations
@@ -46,7 +48,6 @@ class MissionPlannerRos {
   ros::Timer planTimer_;
   ros::Timer clockTimer_;
   ros::Timer pubVis_;
-
   std::vector<geometry_msgs::Point> points_;
 
   // Subscriptions

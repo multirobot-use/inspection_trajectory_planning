@@ -1,7 +1,8 @@
 #include "mission_planner_ros.hpp" 
 MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
     : nh_(_nh) {
-  // ros params
+
+  // ROS params
   trajectory_planner::safeGetParam(nh_, "horizon_length", param_.horizon_length);
   trajectory_planner::safeGetParam(nh_, "n_drones", param_.n_drones);
   trajectory_planner::safeGetParam(nh_, "step_size", param_.step_size);
@@ -18,7 +19,6 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   trajectory_planner::safeGetParam(nh_, "inc_distance", inspection_params_.inc_distance);
   trajectory_planner::safeGetParam(nh_, "inc_angle", inspection_params_.inc_angle);
   trajectory_planner::safeGetParam(nh_,"pcl_filepath", param_.pcd_file_path);
-
 
   // Initialize mission planner
   if (leader) {
@@ -65,20 +65,20 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
           std::bind(&MissionPlannerRos::solvedTrajCallback, this,
                     std::placeholders::_1, drone));
     }
-
   }
 
-  // create timer
+  // Create timers
   planTimer_ = nh_.createTimer(ros::Duration(param_.planning_rate),
                                &MissionPlannerRos::replanCB, this);
   clockTimer_ = nh_.createTimer(ros::Duration(param_.clock_rate),
                             &MissionPlannerRos::clockCB, this);
   pubVis_ = nh_.createTimer(ros::Duration(param_.visualization_rate),
                             &MissionPlannerRos::pubVisCB, this);
+  clockTimer_.start();
   planTimer_.stop();
   pubVis_.start();
 
-  // publishers
+  // Publishers
   corridor_pub_ =
       nh_.advertise<decomp_ros_msgs::PolyhedronArray>("polyhedrons_out", 1);
   pub_point_cloud_ = nh_.advertise<sensor_msgs::PointCloud2>("pcl_map_out", 1);
@@ -131,7 +131,9 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
       &MissionPlannerRos::changeRelativeAngleServiceCallback, this);
 }
 
+
 MissionPlannerRos::~MissionPlannerRos() {}
+
 
 // Callbacks
 bool MissionPlannerRos::activationPlannerServiceCallback(
@@ -258,12 +260,11 @@ void MissionPlannerRos::clockCB(const ros::TimerEvent &e) {
   mission_planner_ptr_->setCurrentTime(aux_time);
 }
 
-
 void MissionPlannerRos::pubVisCB(const ros::TimerEvent &e) {
-  // publish commanded waypoint
+  // Publish commanded waypoint
   publishPoints(points_pub_, points_, Colors::RED);
 
-  // publish transformed waypoints
+  // Publish transformed waypoints
   std::vector<state> goals = mission_planner_ptr_->getGoals();
 
   geometry_msgs::Point point;
@@ -279,7 +280,6 @@ void MissionPlannerRos::pubVisCB(const ros::TimerEvent &e) {
   publishPoints(points_trans_pub_, points, Colors::BLUE);
   publishSphere(sphere_pub_, Colors::YELLOW);
 }
-
 
 void MissionPlannerRos::distanceToInspectionPointCallback(
     const std_msgs::Bool::ConstPtr &distance, int id) {
@@ -304,7 +304,8 @@ void MissionPlannerRos::solvedTrajCallback(const nav_msgs::Path::ConstPtr &msg,
 
   // ROS_INFO("SOLVED TRAJ CALLBACK: Time of solved trajectory ID %d callback:  %3f seconds", id, time);
   for (auto pose : msg->poses) {
-    aux_state.time_stamp = pose.header.stamp.sec + pose.header.stamp.nsec/1000000000.0;
+    // Check how would improve the formation angle by using the time_first_point instead of the poses one.
+    aux_state.time_stamp = pose.header.stamp.sec + pose.header.stamp.nsec/1000000000.0; 
 
     i = i + 1;
     aux_state.pos(0) = pose.pose.position.x;
@@ -361,7 +362,8 @@ void MissionPlannerRos::publishSphere(const ros::Publisher &pub_sphere,
   marker.id = 0;
   marker.type = visualization_msgs::Marker::CYLINDER;
   marker.action = visualization_msgs::Marker::ADD;
-  // set position
+
+  // Set position
   Eigen::Vector3d point_to_inspect = mission_planner_ptr_->getPointToInspect();
   marker.pose.position.x = point_to_inspect(0);
   marker.pose.position.y = point_to_inspect(1);
@@ -374,9 +376,11 @@ void MissionPlannerRos::publishSphere(const ros::Publisher &pub_sphere,
   marker.scale.y = mission_planner_ptr_->getDistanceToInspect() * 2;
   marker.scale.z = 25;
   marker.color.a = 0.4;
-  // inspection distance
+
+  // Inspection distance
   setMarkerColor(marker, Colors::YELLOW);
-  // only if using a MESH_RESOURCE marker type:
+
+  // Only if using a MESH_RESOURCE marker type:
   marker.mesh_resource = "package://pr2_description/meshes/base_v0/base.dae";
   pub_sphere.publish(marker);
 }
@@ -386,7 +390,7 @@ void MissionPlannerRos::publishPoints(
     const std::vector<geometry_msgs::Point> &_points, Colors color) {
   visualization_msgs::Marker points;
 
-  // markers config
+  // Markers config
   points.header.frame_id = param_.frame;
   points.header.stamp = ros::Time::now();
   points.action = visualization_msgs::Marker::ADD;

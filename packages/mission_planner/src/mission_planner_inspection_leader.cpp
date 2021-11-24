@@ -34,7 +34,7 @@ std::vector<state> MissionPlannerInspectionLeader::initialTrajectory(
     k_state.time_stamp = current_time_ + k*param_.step_size;
     float t_k = (param_.vel_max * param_.step_size * k) / curve_length;
 
-    // Saturation of t_k value
+    // Saturation of t_k value (Uncomment in order to slow down while is arriving the waypoint. Not overshooting behaviour)
     // if (t_k > 1)  t_k = 1;
 
     // calculate point with parameter tk

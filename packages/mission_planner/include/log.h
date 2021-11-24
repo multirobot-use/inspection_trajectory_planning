@@ -10,15 +10,17 @@
 class Logger {
  public:
   Logger(const int drone_id) {
-    // start time
+    // Start time
     initial_time = std::chrono::steady_clock::now();
-    // local time
+
+    // Local time
     std::time_t t = std::time(nullptr);
     char str_time[80];
     std::strftime(str_time, sizeof(str_time), "%c", std::localtime(&t));
     std::string string_time(str_time);
     std::cout << string_time << std::endl;
-    // file open
+
+    // File open
     std::string home_path(getenv("HOME"));
     file_.open(home_path + "/" + string_time + "_drone" +
                std::to_string(drone_id));
@@ -28,12 +30,14 @@ class Logger {
 
   template <typename T>
   void log(const T &obj, const std::string &name = "") {
+
     auto final_time = std::chrono::steady_clock::now();
     std::chrono::duration<double> elapsed_seconds = final_time - initial_time;
     file_ << elapsed_seconds.count() << " " << name << ": " << obj << std::endl;
   }
 
   void log(std::vector<state> trajectory, const std::string &name = "") {
+
     auto final_time = std::chrono::steady_clock::now();
     std::chrono::duration<double> elapsed_seconds = final_time - initial_time;
     file_ << elapsed_seconds.count() << " " << name << ": " << std::endl;
@@ -45,7 +49,9 @@ class Logger {
     }
     file_ << std::endl;
   }
+
   void log(state state_to_log, const std::string &name = "") {
+    
     auto final_time = std::chrono::steady_clock::now();
     std::chrono::duration<double> elapsed_seconds = final_time - initial_time;
     file_ << elapsed_seconds.count() << " " << name << ": " << std::endl;

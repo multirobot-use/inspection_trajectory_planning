@@ -6,7 +6,9 @@
  */
 
 class MissionPlannerInspectionFollower : public MissionPlannerInspection {
+
  public:
+
   /**
    * @brief constructor of the class
    */
@@ -16,6 +18,7 @@ class MissionPlannerInspectionFollower : public MissionPlannerInspection {
    * @brief destructor of the class
    */
   ~MissionPlannerInspectionFollower();
+
 
  private:
 

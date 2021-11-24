@@ -18,6 +18,7 @@ typedef trajectory_planner::state state;
  */
 
 class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
+
  public:
 
   /**
@@ -132,6 +133,7 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
    */
   float getPointAngle(const Eigen::Vector3d &_point);
 
+
  protected:
   bool mission_status_ = false;
   Eigen::Vector3d point_to_inspect_ = Eigen::Vector3d::Zero();
@@ -147,6 +149,7 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
       goal.pos = pointOnCircle(goal.pos);
     }
   }
+
 
  private:
   /**
