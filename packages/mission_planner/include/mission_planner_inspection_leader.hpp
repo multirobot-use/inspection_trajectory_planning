@@ -41,15 +41,6 @@ class MissionPlannerInspectionLeader : public MissionPlannerInspection {
   bool checks();
 
   /**
-   * @brief gets the total angle to travel given an initial and a final angle
-   *
-   * @param _initial_angle initial angle
-   * @param _final_angle final angle
-   * @return total angle to travel
-   */
-  float getTotalAngle(const float &_initial_angle, const float &_final_angle);
-
-  /**
    * @brief returns an initial trajectory to inspect for the drone according to
    * the initial pose
    *

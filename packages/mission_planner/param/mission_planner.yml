@@ -12,6 +12,6 @@ vel_max: 0.7           # m/s
 acc_max: 1             # m/s²
 inspection_dist: 6     # m 
 inc_distance: 0.2      # m
-inc_angle: 0.025       # rad
+inc_angle: 0.04       # rad
 
 frame: "map"

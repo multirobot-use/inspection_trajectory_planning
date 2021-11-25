@@ -36,6 +36,39 @@ Eigen::Vector3d MissionPlannerInspection::pointOnCircle(const Eigen::Vector3d po
   return point_on_circle_3D;
 }
 
+float MissionPlannerInspection::getFormationAngle(const int &_id){
+  float leader_angle   = getAngle(states_[inspection_params_.leader_id].pos, point_to_inspect_);
+  float follower_angle = getAngle(states_[_id].pos, point_to_inspect_);
+
+  return getTotalAngle(leader_angle, follower_angle);
+}
+
+float MissionPlannerInspection::getTotalAngle(const float &_initial_angle,
+                                              const float &_final_angle) {
+  float total_angle, initial_angle, final_angle;
+
+  if (_initial_angle < 0)
+    initial_angle = _initial_angle + 2 * M_PI;
+  else
+    initial_angle = _initial_angle;
+  if (_final_angle < 0)
+    final_angle = _final_angle + 2 * M_PI;
+  else
+    final_angle = _final_angle;
+
+  // Get the shortest path (should be always between [-M_PI, M_PI])
+  if (final_angle - initial_angle > M_PI)
+    total_angle = final_angle - (initial_angle + 2 * M_PI);
+  if ((final_angle - initial_angle < M_PI) && (final_angle - initial_angle < 0))
+    total_angle = final_angle - initial_angle;
+  if (final_angle - initial_angle < -M_PI)
+    total_angle = final_angle + (2 * M_PI - initial_angle);
+  if ((final_angle - initial_angle < M_PI) && (final_angle - initial_angle > 0))
+    total_angle = final_angle - initial_angle;
+
+  return total_angle;
+}
+
 void MissionPlannerInspection::initialOrientation(std::vector<state> &traj) {
   Eigen::Vector3d aux;
   for (auto &point : traj) {

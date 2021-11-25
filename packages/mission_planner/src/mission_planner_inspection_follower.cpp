@@ -28,33 +28,44 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
     trajectory_to_optimize.push_back(initial_pose);
 
     // Know the elapsed time
-    float elapsed_time;
+    float elapsed_time, formation_angle;
     int current_i;
 
     for (int i = 0; i < param_.horizon_length; i++){
       // std::cout << "  i == " << i << "  Current time: " << current_time_ << "  Solved traj time: " << solved_trajectories_[inspection_params_.leader_id][i].time_stamp << std::endl;
       if (solved_trajectories_[inspection_params_.leader_id][i].time_stamp > current_time_){
         current_i = i;
+
         elapsed_time = current_time_ - solved_trajectories_[inspection_params_.leader_id][0].time_stamp;
         std::cout << "  i == " << i << "  Elapsed time: " << elapsed_time << std::endl << std::endl;
+
         break;
       }
     }
 
-    // Corrector angle: additional angle rotation because of lack synchronization
-    // float corrector_angle = MissionPlannerInspectionFollower::calculateAngleCorrector(elapsed_time);
-    float corrector_angle = 0;
-
     // Need to know if the trajectory is being described clockwise or anticlockwise
     bool clockwise = MissionPlannerInspectionFollower::isClockwise();
 
+    // Corrector angle: additional angle rotation because of lack synchronization
+    // float corrector_angle = MissionPlannerInspectionFollower::calculateAngleCorrector(elapsed_time);
+    // float corrector_angle = 0;
+
+    // if (param_.drone_id == 2) {
+    //   if (clockwise){  rotation = trajectory_planner::eulerToQuat(0, 0, (relative_angle_ - corrector_angle));}
+    //   else{            rotation = trajectory_planner::eulerToQuat(0, 0, -(relative_angle_ + corrector_angle));}
+    // }
+    // else {
+    //   if (clockwise){  rotation = trajectory_planner::eulerToQuat(0, 0, -(relative_angle_ + corrector_angle));}
+    //   else{            rotation = trajectory_planner::eulerToQuat(0, 0, (relative_angle_ - corrector_angle));}
+    // } 
+
     if (param_.drone_id == 2) {
-      if (clockwise){  rotation = trajectory_planner::eulerToQuat(0, 0, (relative_angle_ - corrector_angle));}
-      else{            rotation = trajectory_planner::eulerToQuat(0, 0, -(relative_angle_ + corrector_angle));}
+      if (clockwise){  rotation = trajectory_planner::eulerToQuat(0, 0, relative_angle_);}
+      else{            rotation = trajectory_planner::eulerToQuat(0, 0, -relative_angle_);}
     }
     else {
-      if (clockwise){  rotation = trajectory_planner::eulerToQuat(0, 0, -(relative_angle_ + corrector_angle));}
-      else{            rotation = trajectory_planner::eulerToQuat(0, 0, (relative_angle_ - corrector_angle));}
+      if (clockwise){  rotation = trajectory_planner::eulerToQuat(0, 0, -relative_angle_);}
+      else{            rotation = trajectory_planner::eulerToQuat(0, 0, relative_angle_);}
     } 
       
     Eigen::Matrix3d rotMat = rotation.toRotationMatrix();
@@ -62,12 +73,18 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
     aux_point_to_inspect(2) = 0;
     
     for (int i = current_i; i < param_.horizon_length; i++) {
-      aux.time_stamp = current_time_ + (i - current_i - 1)*param_.step_size;
+      aux.time_stamp = current_time_ + (i - current_i)*param_.step_size;
       aux.pos = rotMat * (solved_trajectories_[inspection_params_.leader_id][i].pos -
                           aux_point_to_inspect) +
                 aux_point_to_inspect;
       trajectory_to_optimize.push_back(std::move(aux));
     }
+
+    formation_angle  = MissionPlannerInspection::getFormationAngle(param_.drone_id);
+    
+    std::cout << "  Current relative angle (rad): "  << formation_angle
+              << "  Desired formation angle (rad): " << relative_angle_
+              << "  DIFFERENCE (º): "  << (abs(formation_angle - relative_angle_)*180/(M_PI)) << std::endl << std::endl;
 
     return trajectory_to_optimize;
   }

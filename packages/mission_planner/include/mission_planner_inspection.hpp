@@ -150,6 +150,23 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
     }
   }
 
+  /**
+   * @brief gets the total angle to travel given an initial and a final angle
+   *
+   * @param _initial_angle initial angle
+   * @param _final_angle final angle
+   * @return total angle to travel
+   */
+  float getTotalAngle(const float &_initial_angle, const float &_final_angle);
+
+  /**
+   * @brief gets the formation angle that the leader UAV has with the _id follower UAV
+   *
+   * @param _id id of the follower UAV
+   * @return formation angle
+   */
+  float getFormationAngle(const int &_id);
+
 
  private:
   /**

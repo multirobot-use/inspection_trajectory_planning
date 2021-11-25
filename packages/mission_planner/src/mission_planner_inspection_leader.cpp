@@ -19,7 +19,7 @@ std::vector<state> MissionPlannerInspectionLeader::initialTrajectory(
       transformToPolar(goals_[0].pos, point_to_inspect_);
 
   // calculate curve length and theta_total
-  float theta_total = getTotalAngle(initial_pose_polar(1), final_pose_polar(1));
+  float theta_total = MissionPlannerInspection::getTotalAngle(initial_pose_polar(1), final_pose_polar(1));
   float curve_length =
       sqrt(pow(distance_to_inspect_point_, 2) * pow(theta_total, 2) +
            pow(final_pose_polar(2) - initial_pose_polar(2), 2));
@@ -66,32 +66,6 @@ void MissionPlannerInspectionLeader::appendGoal(const state &_new_goal) {
   goal.pos = pointOnCircle(goal_vector);
 
   goals_.push_back(goal);
-}
-
-float MissionPlannerInspectionLeader::getTotalAngle(const float &_initial_angle,
-                                                 const float &_final_angle) {
-  float total_angle, initial_angle, final_angle;
-
-  if (_initial_angle < 0)
-    initial_angle = _initial_angle + 2 * M_PI;
-  else
-    initial_angle = _initial_angle;
-  if (_final_angle < 0)
-    final_angle = _final_angle + 2 * M_PI;
-  else
-    final_angle = _final_angle;
-
-  // Get the shortest path (should be always between [-M_PI, M_PI])
-  if (final_angle - initial_angle > M_PI)
-    total_angle = final_angle - (initial_angle + 2 * M_PI);
-  if ((final_angle - initial_angle < M_PI) && (final_angle - initial_angle < 0))
-    total_angle = final_angle - initial_angle;
-  if (final_angle - initial_angle < -M_PI)
-    total_angle = final_angle + (2 * M_PI - initial_angle);
-  if ((final_angle - initial_angle < M_PI) && (final_angle - initial_angle > 0))
-    total_angle = final_angle - initial_angle;
-
-  return total_angle;
 }
 
 bool MissionPlannerInspectionLeader::checks() {
