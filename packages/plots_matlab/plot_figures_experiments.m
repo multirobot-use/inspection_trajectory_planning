@@ -69,177 +69,177 @@ end
 
 %% Get drones accelerations by derivating the position twice
 % LINEAR: X, Y, Z
-d1_acc.t = d1_velocity.t;
-d2_acc.t = d2_velocity.t;
-if n_drones == 3
-    d3_acc.t = d3_velocity.t;
-end
-
-% % Filtering velocity
-B = 1/30*ones(30,1);
-d1_velocity.l = filter(B, 1, d1_velocity.l);
-d1_velocity.a = filter(B, 1, d1_velocity.a);
-d2_velocity.l = filter(B, 1, d2_velocity.l);
-d2_velocity.a = filter(B, 1, d2_velocity.a);
-
-if n_drones == 3
-    d3_velocity.l = filter(B, 1, d3_velocity.l);
-    d3_velocity.a = filter(B, 1, d3_velocity.a);
-end
-
-for i = 1:(size(d1_velocity.l, 1) - 1)
-    d1_acc.l(i, :) = (d1_velocity.l(i+1, :) - d1_velocity.l(i, :))/inc_time_pose;
-    d1_acc.a(i, 2:3) = (d1_velocity.a(i+1, 2:3) - d1_velocity.a(i, 2:3))/inc_time_pose;
-end
-
-d1_acc.l(size(d1_velocity.l, 1), :) = d1_acc.l(i, :);
-d1_acc.a(size(d1_velocity.a, 1), 2:3) = d1_acc.a(i, 2:3);
-
-for i = 1:(size(d2_velocity.l, 1) - 1)
-    d2_acc.l(i, :) = (d2_velocity.l(i+1, :) - d2_velocity.l(i, :))/inc_time_pose;
-    d2_acc.a(i, 2:3) = (d2_velocity.a(i+1, 2:3) - d2_velocity.a(i, 2:3))/inc_time_pose;
-end
-
-d2_acc.l(size(d2_velocity.l, 1), :) = d2_acc.l(i, :);
-d2_acc.a(size(d2_velocity.a, 1), 2:3) = d2_acc.a(i, 2:3);
-
-if n_drones == 3
-    
-    for i = 1:(size(d3_velocity.l, 1) - 1)
-        d3_acc.l(i, :) = (d3_velocity.l(i+1, :) - d3_velocity.l(i, :))/inc_time_pose;
-        d3_acc.a(i, 2:3) = (d3_velocity.a(i+1, 2:3) - d3_velocity.a(i, 2:3))/inc_time_pose;
-    end
-    
-    d3_acc.l(size(d3_velocity.l, 1), :) = d3_acc.l(i-1, :);
-    d3_acc.a(size(d3_velocity.a, 1), 2:3) = d3_acc.a(i, 2:3);
-    
-end
-
-d1_acc.l = filter(B, 1, d1_acc.l);
-d1_acc.a = filter(B, 1, d1_acc.a);
-d2_acc.l = filter(B, 1, d2_acc.l);
-d2_acc.a = filter(B, 1, d2_acc.a);
-
-if n_drones == 3
-    d3_acc.l = filter(B, 1, d3_acc.l);
-    d3_acc.a = filter(B, 1, d3_acc.a);
-end
-
-% Get closer sample to time_starting_recording for each drone
-[~, ind_start1] = min(sqrt(abs(d1_acc.t.^2 - (time_start_experiment)^2)));
-[~, ind_start2] = min(sqrt(abs(d2_acc.t.^2 - (time_start_experiment)^2)));
-if n_drones == 3
-    [~, ind_start3] = min(sqrt(abs(d3_acc.t.^2 - (time_start_experiment)^2)));
-end
-
-% Module of acceleration
-d1_mod_acc = sqrt(d1_acc.l(:,1).^2 + d1_acc.l(:,2).^2 + d1_acc.l(:,3).^2);
-d2_mod_acc = sqrt(d2_acc.l(:,1).^2 + d2_acc.l(:,2).^2 + d2_acc.l(:,3).^2);
-
-figure(2); set(gcf, 'Position', get(0, 'Screensize'));
-if n_drones == 3
-    d3_mod_acc = sqrt(d3_acc.l(:,1).^2 + d3_acc.l(:,2).^2 + d3_acc.l(:,3).^2);
-    subplot(3,1,1);
-    plot(d1_acc.t(ind_start1:end, 1), d1_mod_acc(ind_start1:end, 1), 'b', 'LineWidth', 1.5); grid on;
-    xlabel('Time (s)'); ylabel('Linear acceleration (m/s²)'); title('Evolution of the linear acceleration of Drone 1');
-    legend('Drone_{1}', 'Location', 'Best'); axis tight;
-
-    subplot(3,1,2);
-    plot(d2_acc.t(ind_start2:end, 1), d2_mod_acc(ind_start2:end, 1), 'b', 'LineWidth', 1.5); grid on;
-    xlabel('Time (s)'); ylabel('Linear acceleration (m/s²)'); title('Evolution of the linear acceleration of Drone 2');
-    legend('Drone_{2}', 'Location', 'Best'); axis tight;
-
-    subplot(3,1,3);
-    plot(d3_acc.t(ind_start3:end, 1), d3_mod_acc(ind_start3:end, 1), 'b', 'LineWidth', 1.5); grid on;
-    xlabel('Time (s)'); ylabel('Linear acceleration (m/s²)'); title('Evolution of the linear acceleration of Drone 3');
-    legend('Drone_{3}', 'Location', 'Best'); axis tight;
-else
-    subplot(2,1,1);
-    plot(d1_acc.t(ind_start1:end, 1), d1_mod_acc(ind_start1:end, 1), 'b', 'LineWidth', 1.5); grid on;
-    xlabel('Time (s)'); ylabel('Linear acceleration (m/s²)'); title('Evolution of the linear acceleration of Drone 1');
-    legend('Drone_{1}', 'Location', 'Best'); axis tight;
-
-    subplot(2,1,2);
-    plot(d2_acc.t(ind_start2:end, 1), d2_mod_acc(ind_start2:end, 1), 'b', 'LineWidth', 1.5); grid on;
-    xlabel('Time (s)'); ylabel('Linear acceleration (m/s²)'); title('Evolution of the linear acceleration of Drone 2');
-    legend('Drone_{2}', 'Location', 'Best'); axis tight;
-end
-
-if save_plots
-    saveas(gcf, ['~/bagfiles/plots/Experiment_', experiment_date, '_Drones_linear_acceleration.png']);
-end
-
-
-
-
-% ANGULAR: Y (Pitch) and Z (Yaw)
-% PITCH
-figure(3); set(gcf, 'Position', get(0, 'Screensize'));
-if n_drones == 3
-    subplot(3,1,1);
-    plot(d1_acc.t(ind_start1:end, 1), d1_acc.a(ind_start1:end, 2), 'b', 'LineWidth', 1.5); grid on;
-    xlabel('Time (s)'); ylabel('Angular acceleration (rad/s²)'); title('Evolution of the pitch acceleration of Drone 1');
-    legend('Drone_{1}', 'Location', 'Best'); axis tight;
-
-    subplot(3,1,2);
-    plot(d2_acc.t(ind_start2:end, 1), d2_acc.a(ind_start2:end, 2), 'b', 'LineWidth', 1.5); grid on;
-    xlabel('Time (s)'); ylabel('Angular acceleration (rad/s²)'); title('Evolution of the pitch acceleration of Drone 2');
-    legend('Drone_{2}', 'Location', 'Best'); axis tight;
-
-    subplot(3,1,3);
-    plot(d3_acc.t(ind_start3:end, 1), d3_acc.a(ind_start3:end, 2), 'b', 'LineWidth', 1.5); grid on;
-    xlabel('Time (s)'); ylabel('Angular acceleration (rad/s²)'); title('Evolution of the pitch acceleration of Drone 3');
-    legend('Drone_{3}', 'Location', 'Best'); axis tight;
-else
-    subplot(2,1,1);
-    plot(d1_acc.t(ind_start1:end, 1), d1_acc.a(ind_start1:end, 2), 'b', 'LineWidth', 1.5); grid on;
-    xlabel('Time (s)'); ylabel('Angular acceleration (rad/s²)'); title('Evolution of the pitch acceleration of Drone 1');
-    legend('Drone_{1}', 'Location', 'Best'); axis tight;
-
-    subplot(2,1,2);
-    plot(d2_acc.t(ind_start2:end, 1), d2_acc.a(ind_start2:end, 2), 'b', 'LineWidth', 1.5); grid on;
-    xlabel('Time (s)'); ylabel('Angular acceleration (rad/s²)'); title('Evolution of the pitch acceleration of Drone 2');
-    legend('Drone_{2}', 'Location', 'Best'); axis tight;
-end
-
-if save_plots
-    saveas(gcf, ['~/bagfiles/plots/Experiment_', experiment_date, '_Drones_pitch_acceleration.png']);
-end
-
-
-
-% YAW
-figure(4); set(gcf, 'Position', get(0, 'Screensize'));
-if n_drones == 3
-    subplot(3,1,1);
-    plot(d1_acc.t(ind_start1:end, 1), d1_acc.a(ind_start1:end, 3), 'b', 'LineWidth', 1.5); grid on;
-    xlabel('Time (s)'); ylabel('Angular acceleration (rad/s²)'); title('Evolution of the yaw acceleration of Drone 1');
-    legend('Drone_{1}', 'Location', 'Best'); axis tight;
-
-    subplot(3,1,2);
-    plot(d2_acc.t(ind_start2:end, 1), d2_acc.a(ind_start2:end, 3), 'b', 'LineWidth', 1.5); grid on;
-    xlabel('Time (s)'); ylabel('Angular acceleration (rad/s²)'); title('Evolution of the yaw acceleration of Drone 2');
-    legend('Drone_{2}', 'Location', 'Best'); axis tight;
-
-    subplot(3,1,3);
-    plot(d3_acc.t(ind_start3:end, 1), d3_acc.a(ind_start3:end, 3), 'b', 'LineWidth', 1.5); grid on;
-    xlabel('Time (s)'); ylabel('Angular acceleration (rad/s²)'); title('Evolution of the yaw acceleration of Drone 3');
-    legend('Drone_{3}', 'Location', 'Best'); axis tight;
-else
-    subplot(2,1,1);
-    plot(d1_acc.t(ind_start1:end, 1), d1_acc.a(ind_start1:end, 3), 'b', 'LineWidth', 1.5); grid on;
-    xlabel('Time (s)'); ylabel('Angular acceleration (rad/s²)'); title('Evolution of the yaw acceleration of Drone 1');
-    legend('Drone_{1}', 'Location', 'Best'); axis tight;
-
-    subplot(2,1,2);
-    plot(d2_acc.t(ind_start2:end, 1), d2_acc.a(ind_start2:end, 3), 'b', 'LineWidth', 1.5); grid on;
-    xlabel('Time (s)'); ylabel('Angular acceleration (rad/s²)'); title('Evolution of the yaw acceleration of Drone 2');
-    legend('Drone_{2}', 'Location', 'Best'); axis tight;
-end
-
-if save_plots
-    saveas(gcf, ['~/bagfiles/plots/Experiment_', experiment_date, '_Drones_yaw_acceleration.png']);
-end
+% d1_acc.t = d1_velocity.t;
+% d2_acc.t = d2_velocity.t;
+% if n_drones == 3
+%     d3_acc.t = d3_velocity.t;
+% end
+% 
+% % % Filtering velocity
+% B = 1/30*ones(30,1);
+% d1_velocity.l = filter(B, 1, d1_velocity.l);
+% d1_velocity.a = filter(B, 1, d1_velocity.a);
+% d2_velocity.l = filter(B, 1, d2_velocity.l);
+% d2_velocity.a = filter(B, 1, d2_velocity.a);
+% 
+% if n_drones == 3
+%     d3_velocity.l = filter(B, 1, d3_velocity.l);
+%     d3_velocity.a = filter(B, 1, d3_velocity.a);
+% end
+% 
+% for i = 1:(size(d1_velocity.l, 1) - 1)
+%     d1_acc.l(i, :) = (d1_velocity.l(i+1, :) - d1_velocity.l(i, :))/inc_time_pose;
+%     d1_acc.a(i, 2:3) = (d1_velocity.a(i+1, 2:3) - d1_velocity.a(i, 2:3))/inc_time_pose;
+% end
+% 
+% d1_acc.l(size(d1_velocity.l, 1), :) = d1_acc.l(i, :);
+% d1_acc.a(size(d1_velocity.a, 1), 2:3) = d1_acc.a(i, 2:3);
+% 
+% for i = 1:(size(d2_velocity.l, 1) - 1)
+%     d2_acc.l(i, :) = (d2_velocity.l(i+1, :) - d2_velocity.l(i, :))/inc_time_pose;
+%     d2_acc.a(i, 2:3) = (d2_velocity.a(i+1, 2:3) - d2_velocity.a(i, 2:3))/inc_time_pose;
+% end
+% 
+% d2_acc.l(size(d2_velocity.l, 1), :) = d2_acc.l(i, :);
+% d2_acc.a(size(d2_velocity.a, 1), 2:3) = d2_acc.a(i, 2:3);
+% 
+% if n_drones == 3
+%     
+%     for i = 1:(size(d3_velocity.l, 1) - 1)
+%         d3_acc.l(i, :) = (d3_velocity.l(i+1, :) - d3_velocity.l(i, :))/inc_time_pose;
+%         d3_acc.a(i, 2:3) = (d3_velocity.a(i+1, 2:3) - d3_velocity.a(i, 2:3))/inc_time_pose;
+%     end
+%     
+%     d3_acc.l(size(d3_velocity.l, 1), :) = d3_acc.l(i-1, :);
+%     d3_acc.a(size(d3_velocity.a, 1), 2:3) = d3_acc.a(i, 2:3);
+%     
+% end
+% 
+% d1_acc.l = filter(B, 1, d1_acc.l);
+% d1_acc.a = filter(B, 1, d1_acc.a);
+% d2_acc.l = filter(B, 1, d2_acc.l);
+% d2_acc.a = filter(B, 1, d2_acc.a);
+% 
+% if n_drones == 3
+%     d3_acc.l = filter(B, 1, d3_acc.l);
+%     d3_acc.a = filter(B, 1, d3_acc.a);
+% end
+% 
+% % Get closer sample to time_starting_recording for each drone
+% [~, ind_start1] = min(sqrt(abs(d1_acc.t.^2 - (time_start_experiment)^2)));
+% [~, ind_start2] = min(sqrt(abs(d2_acc.t.^2 - (time_start_experiment)^2)));
+% if n_drones == 3
+%     [~, ind_start3] = min(sqrt(abs(d3_acc.t.^2 - (time_start_experiment)^2)));
+% end
+% 
+% % Module of acceleration
+% d1_mod_acc = sqrt(d1_acc.l(:,1).^2 + d1_acc.l(:,2).^2 + d1_acc.l(:,3).^2);
+% d2_mod_acc = sqrt(d2_acc.l(:,1).^2 + d2_acc.l(:,2).^2 + d2_acc.l(:,3).^2);
+% 
+% figure(2); set(gcf, 'Position', get(0, 'Screensize'));
+% if n_drones == 3
+%     d3_mod_acc = sqrt(d3_acc.l(:,1).^2 + d3_acc.l(:,2).^2 + d3_acc.l(:,3).^2);
+%     subplot(3,1,1);
+%     plot(d1_acc.t(ind_start1:end, 1), d1_mod_acc(ind_start1:end, 1), 'b', 'LineWidth', 1.5); grid on;
+%     xlabel('Time (s)'); ylabel('Linear acceleration (m/s²)'); title('Evolution of the linear acceleration of Drone 1');
+%     legend('Drone_{1}', 'Location', 'Best'); axis tight;
+% 
+%     subplot(3,1,2);
+%     plot(d2_acc.t(ind_start2:end, 1), d2_mod_acc(ind_start2:end, 1), 'b', 'LineWidth', 1.5); grid on;
+%     xlabel('Time (s)'); ylabel('Linear acceleration (m/s²)'); title('Evolution of the linear acceleration of Drone 2');
+%     legend('Drone_{2}', 'Location', 'Best'); axis tight;
+% 
+%     subplot(3,1,3);
+%     plot(d3_acc.t(ind_start3:end, 1), d3_mod_acc(ind_start3:end, 1), 'b', 'LineWidth', 1.5); grid on;
+%     xlabel('Time (s)'); ylabel('Linear acceleration (m/s²)'); title('Evolution of the linear acceleration of Drone 3');
+%     legend('Drone_{3}', 'Location', 'Best'); axis tight;
+% else
+%     subplot(2,1,1);
+%     plot(d1_acc.t(ind_start1:end, 1), d1_mod_acc(ind_start1:end, 1), 'b', 'LineWidth', 1.5); grid on;
+%     xlabel('Time (s)'); ylabel('Linear acceleration (m/s²)'); title('Evolution of the linear acceleration of Drone 1');
+%     legend('Drone_{1}', 'Location', 'Best'); axis tight;
+% 
+%     subplot(2,1,2);
+%     plot(d2_acc.t(ind_start2:end, 1), d2_mod_acc(ind_start2:end, 1), 'b', 'LineWidth', 1.5); grid on;
+%     xlabel('Time (s)'); ylabel('Linear acceleration (m/s²)'); title('Evolution of the linear acceleration of Drone 2');
+%     legend('Drone_{2}', 'Location', 'Best'); axis tight;
+% end
+% 
+% if save_plots
+%     saveas(gcf, ['~/bagfiles/plots/Experiment_', experiment_date, '_Drones_linear_acceleration.png']);
+% end
+% 
+% 
+% 
+% 
+% % ANGULAR: Y (Pitch) and Z (Yaw)
+% % PITCH
+% figure(3); set(gcf, 'Position', get(0, 'Screensize'));
+% if n_drones == 3
+%     subplot(3,1,1);
+%     plot(d1_acc.t(ind_start1:end, 1), d1_acc.a(ind_start1:end, 2), 'b', 'LineWidth', 1.5); grid on;
+%     xlabel('Time (s)'); ylabel('Angular acceleration (rad/s²)'); title('Evolution of the pitch acceleration of Drone 1');
+%     legend('Drone_{1}', 'Location', 'Best'); axis tight;
+% 
+%     subplot(3,1,2);
+%     plot(d2_acc.t(ind_start2:end, 1), d2_acc.a(ind_start2:end, 2), 'b', 'LineWidth', 1.5); grid on;
+%     xlabel('Time (s)'); ylabel('Angular acceleration (rad/s²)'); title('Evolution of the pitch acceleration of Drone 2');
+%     legend('Drone_{2}', 'Location', 'Best'); axis tight;
+% 
+%     subplot(3,1,3);
+%     plot(d3_acc.t(ind_start3:end, 1), d3_acc.a(ind_start3:end, 2), 'b', 'LineWidth', 1.5); grid on;
+%     xlabel('Time (s)'); ylabel('Angular acceleration (rad/s²)'); title('Evolution of the pitch acceleration of Drone 3');
+%     legend('Drone_{3}', 'Location', 'Best'); axis tight;
+% else
+%     subplot(2,1,1);
+%     plot(d1_acc.t(ind_start1:end, 1), d1_acc.a(ind_start1:end, 2), 'b', 'LineWidth', 1.5); grid on;
+%     xlabel('Time (s)'); ylabel('Angular acceleration (rad/s²)'); title('Evolution of the pitch acceleration of Drone 1');
+%     legend('Drone_{1}', 'Location', 'Best'); axis tight;
+% 
+%     subplot(2,1,2);
+%     plot(d2_acc.t(ind_start2:end, 1), d2_acc.a(ind_start2:end, 2), 'b', 'LineWidth', 1.5); grid on;
+%     xlabel('Time (s)'); ylabel('Angular acceleration (rad/s²)'); title('Evolution of the pitch acceleration of Drone 2');
+%     legend('Drone_{2}', 'Location', 'Best'); axis tight;
+% end
+% 
+% if save_plots
+%     saveas(gcf, ['~/bagfiles/plots/Experiment_', experiment_date, '_Drones_pitch_acceleration.png']);
+% end
+% 
+% 
+% 
+% % YAW
+% figure(4); set(gcf, 'Position', get(0, 'Screensize'));
+% if n_drones == 3
+%     subplot(3,1,1);
+%     plot(d1_acc.t(ind_start1:end, 1), d1_acc.a(ind_start1:end, 3), 'b', 'LineWidth', 1.5); grid on;
+%     xlabel('Time (s)'); ylabel('Angular acceleration (rad/s²)'); title('Evolution of the yaw acceleration of Drone 1');
+%     legend('Drone_{1}', 'Location', 'Best'); axis tight;
+% 
+%     subplot(3,1,2);
+%     plot(d2_acc.t(ind_start2:end, 1), d2_acc.a(ind_start2:end, 3), 'b', 'LineWidth', 1.5); grid on;
+%     xlabel('Time (s)'); ylabel('Angular acceleration (rad/s²)'); title('Evolution of the yaw acceleration of Drone 2');
+%     legend('Drone_{2}', 'Location', 'Best'); axis tight;
+% 
+%     subplot(3,1,3);
+%     plot(d3_acc.t(ind_start3:end, 1), d3_acc.a(ind_start3:end, 3), 'b', 'LineWidth', 1.5); grid on;
+%     xlabel('Time (s)'); ylabel('Angular acceleration (rad/s²)'); title('Evolution of the yaw acceleration of Drone 3');
+%     legend('Drone_{3}', 'Location', 'Best'); axis tight;
+% else
+%     subplot(2,1,1);
+%     plot(d1_acc.t(ind_start1:end, 1), d1_acc.a(ind_start1:end, 3), 'b', 'LineWidth', 1.5); grid on;
+%     xlabel('Time (s)'); ylabel('Angular acceleration (rad/s²)'); title('Evolution of the yaw acceleration of Drone 1');
+%     legend('Drone_{1}', 'Location', 'Best'); axis tight;
+% 
+%     subplot(2,1,2);
+%     plot(d2_acc.t(ind_start2:end, 1), d2_acc.a(ind_start2:end, 3), 'b', 'LineWidth', 1.5); grid on;
+%     xlabel('Time (s)'); ylabel('Angular acceleration (rad/s²)'); title('Evolution of the yaw acceleration of Drone 2');
+%     legend('Drone_{2}', 'Location', 'Best'); axis tight;
+% end
+% 
+% if save_plots
+%     saveas(gcf, ['~/bagfiles/plots/Experiment_', experiment_date, '_Drones_yaw_acceleration.png']);
+% end
 
 
 

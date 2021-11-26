@@ -42,7 +42,7 @@
 
 %% TRAJECTORY TO FOLLOW
 % Selection of topics
-topic_select = select(bagfile1, 'Topic', topic_traj_to_follow(1));
+topic_select = select(bagfile, 'Topic', topic_traj_to_follow(1));
 traj_to_follow1 = readMessages(topic_select, 'DataFormat', 'struct');
 start = 1;
 final = length(traj_to_follow1);
@@ -72,7 +72,7 @@ for k = start:interpolate:final
 end
 
 % Selection of topics
-topic_select = select(bagfile2, 'Topic', topic_traj_to_follow(2));
+topic_select = select(bagfile, 'Topic', topic_traj_to_follow(2));
 traj_to_follow2 = readMessages(topic_select, 'DataFormat', 'struct');
 start = 1;
 final = length(traj_to_follow2);
@@ -103,7 +103,7 @@ end
 
 if n_drones == 3
     % Selection of topics
-    topic_select = select(bagfile3, 'Topic', topic_traj_to_follow(3));
+    topic_select = select(bagfile, 'Topic', topic_traj_to_follow(3));
     traj_to_follow3 = readMessages(topic_select, 'DataFormat', 'struct');
     start = 1;
     final = length(traj_to_follow3);
@@ -135,7 +135,7 @@ end
 
 %% MISSION STATUS (should be the same for all the topics)
 % Selection of topics
-topic_select = select(bagfile1, 'Topic', topic_mission_status(1));
+topic_select = select(bagfile, 'Topic', topic_mission_status(1));
 mission_status_ = readMessages(topic_select, 'DataFormat', 'struct');
 start = 1;
 final = length(mission_status_);
@@ -153,7 +153,7 @@ end
 
 %% POINTS TO INSPECT (should be the same for all the topics)
 % Selection of topics
-topic_select = select(bagfile1, 'Topic', topic_points_to_inspect(1));
+topic_select = select(bagfile, 'Topic', topic_points_to_inspect(1));
 points_to_inspect_ = readMessages(topic_select, 'DataFormat', 'struct');
 start = 1;
 final = length(points_to_inspect_);
@@ -181,7 +181,7 @@ end
 
 %% DISTANCE TO INSPECTION POINT (should be the same for all the topics)
 % Selection of topics
-topic_select = select(bagfile1, 'Topic', topic_distance_to_inspect(1));
+topic_select = select(bagfile, 'Topic', topic_distance_to_inspect(1));
 distance_inspection_ = readMessages(topic_select, 'DataFormat', 'struct');
 start = 1;
 final = length(distance_inspection_);
@@ -202,7 +202,7 @@ end
 
 %% RELATIVE ANGLE (should be the same for all the topics)
 % Selection of topics
-topic_select = select(bagfile1, 'Topic', topic_relative_angle(1));
+topic_select = select(bagfile, 'Topic', topic_relative_angle(1));
 relative_angle_ = readMessages(topic_select, 'DataFormat', 'struct');
 start = 1;
 final = length(relative_angle_);
@@ -223,7 +223,7 @@ end
 
 %% REFERENCE TRAJECTORY
 % Selection of topics
-topic_select = select(bagfile1, 'Topic', topic_ref_traj(1));
+topic_select = select(bagfile, 'Topic', topic_ref_traj(1));
 ref_traj1 = readMessages(topic_select, 'DataFormat', 'struct');
 start = 1;
 final = length(ref_traj1);
@@ -253,7 +253,7 @@ for k = start:interpolate:final
 end
 
 % Selection of topics
-topic_select = select(bagfile2, 'Topic', topic_ref_traj(2));
+topic_select = select(bagfile, 'Topic', topic_ref_traj(2));
 ref_traj2 = readMessages(topic_select, 'DataFormat', 'struct');
 start = 1;
 final = length(ref_traj2);
@@ -284,7 +284,7 @@ end
 
 if n_drones == 3
     % Selection of topics
-    topic_select = select(bagfile3, 'Topic', topic_ref_traj(3));
+    topic_select = select(bagfile, 'Topic', topic_ref_traj(3));
     ref_traj3 = readMessages(topic_select, 'DataFormat', 'struct');
     start = 1;
     final = length(ref_traj3);
@@ -317,7 +317,7 @@ end
 
 %% SOLVED TRAJECTORY
 % Selection of topics
-topic_select = select(bagfile1, 'Topic', topic_solved_traj(1));
+topic_select = select(bagfile, 'Topic', topic_solved_traj(1));
 solved_traj1 = readMessages(topic_select, 'DataFormat', 'struct');
 start = 1;
 final = length(solved_traj1);
@@ -347,7 +347,7 @@ for k = start:interpolate:final
 end
 
 % Selection of topics
-topic_select = select(bagfile2, 'Topic', topic_solved_traj(2));
+topic_select = select(bagfile, 'Topic', topic_solved_traj(2));
 solved_traj2 = readMessages(topic_select, 'DataFormat', 'struct');
 start = 1;
 final = length(solved_traj2);
@@ -378,7 +378,7 @@ end
 
 if n_drones == 3
     % Selection of topics
-    topic_select = select(bagfile3, 'Topic', topic_solved_traj(3));
+    topic_select = select(bagfile, 'Topic', topic_solved_traj(3));
     solved_traj3 = readMessages(topic_select, 'DataFormat', 'struct');
     start = 1;
     final = length(solved_traj3);
@@ -411,7 +411,7 @@ end
 
 %% POSE
 % Selection of topics
-topic_select = select(bagfile1, 'Topic', topic_pose(1));
+topic_select = select(bagfile, 'Topic', topic_pose(1));
 pose1 = readMessages(topic_select, 'DataFormat', 'struct');
 start = 1;
 final = length(pose1);
@@ -438,7 +438,7 @@ for k = start:interpolate:final
 end
 
 % Selection of topics
-topic_select = select(bagfile2, 'Topic', topic_pose(2));
+topic_select = select(bagfile, 'Topic', topic_pose(2));
 pose2 = readMessages(topic_select, 'DataFormat', 'struct');
 start = 1;
 final = length(pose2);
@@ -466,7 +466,7 @@ end
 
 if n_drones == 3
     % Selection of topics
-    topic_select = select(bagfile3, 'Topic', topic_pose(3));
+    topic_select = select(bagfile, 'Topic', topic_pose(3));
     pose3 = readMessages(topic_select, 'DataFormat', 'struct');
     start = 1;
     final = length(pose3);
@@ -495,7 +495,7 @@ end
 
 %% VELOCITY
 % Selection of topics
-topic_select = select(bagfile1, 'Topic', topic_velocity(1));
+topic_select = select(bagfile, 'Topic', topic_velocity(1));
 velocity1 = readMessages(topic_select, 'DataFormat', 'struct');
 start = 1;
 final = length(velocity1);
@@ -521,7 +521,7 @@ for k = start:interpolate:final
 end
 
 % Selection of topics
-topic_select = select(bagfile2, 'Topic', topic_velocity(2));
+topic_select = select(bagfile, 'Topic', topic_velocity(2));
 velocity2 = readMessages(topic_select, 'DataFormat', 'struct');
 start = 1;
 final = length(velocity2);
@@ -549,7 +549,7 @@ end
 if n_drones == 3
 
     % Selection of topics
-    topic_select = select(bagfile3, 'Topic', topic_velocity(3));
+    topic_select = select(bagfile, 'Topic', topic_velocity(3));
     velocity3 = readMessages(topic_select, 'DataFormat', 'struct');
     start = 1;
     final = length(velocity3);

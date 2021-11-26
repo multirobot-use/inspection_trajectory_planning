@@ -56,6 +56,8 @@ std::vector<state> MissionPlannerInspectionLeader::initialTrajectory(
     traj.push_back(std::move(k_state));
   }
 
+  std::cout << "  Time of the first point of LEADER: " << traj[1].time_stamp << std::endl;
+
   return traj;
 }
 

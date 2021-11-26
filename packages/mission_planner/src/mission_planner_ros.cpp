@@ -485,9 +485,17 @@ void MissionPlannerRos::publishTrajectoryJoint(
     const ros::Publisher &pub_path, const std::vector<state> &trajectory) {
   trajectory_msgs::JointTrajectory trajectory_to_follow;
   trajectory_msgs::JointTrajectoryPoint point_to_follow;
+
+  ros::Time aux;
+  ros::Time zero(0, 0);
+
   for (auto &point : trajectory) {
     point_to_follow.positions.clear();
     point_to_follow.velocities.clear();
+    std::cout << "   Time: " << point.time_stamp << std::endl;
+    aux.sec  = int(point.time_stamp);
+    aux.nsec = int( (point.time_stamp-int(point.time_stamp))*1000000000 );
+    point_to_follow.time_from_start = aux - zero;
     point_to_follow.positions.push_back(point.pos(0));
     point_to_follow.positions.push_back(point.pos(1));
     point_to_follow.positions.push_back(point.pos(2));

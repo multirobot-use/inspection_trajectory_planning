@@ -86,6 +86,7 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
               << "  Desired formation angle (rad): " << relative_angle_
               << "  DIFFERENCE (º): "  << (abs(formation_angle - relative_angle_)*180/(M_PI)) << std::endl << std::endl;
 
+    std::cout << "  Time of the first point of FOLLOWER: " << trajectory_to_optimize[0].time_stamp << std::endl;
     return trajectory_to_optimize;
   }
   else{
