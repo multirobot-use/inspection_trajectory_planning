@@ -48,6 +48,7 @@ class MissionPlannerRos {
   ros::Timer planTimer_;
   ros::Timer clockTimer_;
   ros::Timer pubVis_;
+  ros::Timer topicsTimer_;
   std::vector<geometry_msgs::Point> points_;
 
   // Subscriptions
@@ -70,6 +71,7 @@ class MissionPlannerRos {
   ros::Publisher mission_status_pub_;
   ros::Publisher corridor_pub_;
   ros::Publisher pub_point_cloud_;
+  ros::Publisher formation_angle_pub_;
 
   // Services
   ros::ServiceServer service_activate_planner;
@@ -152,6 +154,11 @@ class MissionPlannerRos {
    */
   void replanCB(const ros::TimerEvent &e);
 
+  /*! \brief Callback for topics of interest
+   * \param TimerEvent structure passed to callback invoked by ros::Timer
+   */
+  void topicsCB(const ros::TimerEvent &e);
+
   /*! \brief Callback for update the current time.
    *   \param TimerEvent structure passed to callback invoked by ros::Timer
    */
@@ -221,6 +228,11 @@ class MissionPlannerRos {
    *   \param pub_angle publisher
    */
   void publishRelativeAngle(const ros::Publisher &pub_angle);
+
+  /*! \brief function to publish the current formation angle between the follower UAV and the leader UAV 
+   *   \param pub_angle publisher
+   */
+  void publishFormationAngle(const ros::Publisher &pub_angle);
 
   /*! \brief function to publish the mission status 
    *   \param pub_status publisher

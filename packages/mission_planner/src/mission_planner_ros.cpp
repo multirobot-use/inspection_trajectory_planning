@@ -46,14 +46,14 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
     distance_to_inspection_point_sub_[drone] = nh_.subscribe<std_msgs::Bool>(
         "/drone_" + std::to_string(drone) +
             "/mission_planner_ros/distance_to_inspection_point",
-        1,
+        20,
         std::bind(&MissionPlannerRos::distanceToInspectionPointCallback, this,
                   std::placeholders::_1, drone));
 
     relative_angle_sub_[drone] = nh_.subscribe<std_msgs::Bool>(
         "/drone_" + std::to_string(drone) +
             "/mission_planner_ros/relative_angle",
-        1,
+        20,
         std::bind(&MissionPlannerRos::relativeAngleCallback, this,
                   std::placeholders::_1, drone));
 
@@ -74,6 +74,8 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
                             &MissionPlannerRos::clockCB, this);
   pubVis_ = nh_.createTimer(ros::Duration(param_.visualization_rate),
                             &MissionPlannerRos::pubVisCB, this);
+  topicsTimer_ = nh_.createTimer(ros::Duration(param_.topics_rate),
+                            &MissionPlannerRos::topicsCB, this);
   clockTimer_.start();
   planTimer_.stop();
   pubVis_.start();
@@ -110,6 +112,12 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
       "/drone_" + std::to_string(param_.drone_id) +
           "/mission_status",
       1);
+  if (param_.drone_id != inspection_params_.leader_id){
+    formation_angle_pub_ = nh_.advertise<mission_planner::Float32withHeader>(
+        "/drone_" + std::to_string(param_.drone_id) +
+            "/formation_angle",
+        1);
+  }
 
   // Services
   service_activate_planner = nh_.advertiseService(
@@ -258,6 +266,15 @@ void MissionPlannerRos::clockCB(const ros::TimerEvent &e) {
   auto current_time = ros::Time::now();
   float aux_time = current_time.sec + current_time.nsec/1000000000.0;
   mission_planner_ptr_->setCurrentTime(aux_time);
+
+  
+}
+
+void MissionPlannerRos::topicsCB(const ros::TimerEvent &e) {
+  if (param_.drone_id != inspection_params_.leader_id)  publishFormationAngle(formation_angle_pub_);
+
+  // Add inspection_distance
+
 }
 
 void MissionPlannerRos::pubVisCB(const ros::TimerEvent &e) {
@@ -426,6 +443,17 @@ void MissionPlannerRos::publishRelativeAngle(const ros::Publisher &pub_angle) {
   angle.header.frame_id = param_.frame;
   angle.header.stamp    = ros::Time::now();
   angle.data = mission_planner_ptr_ -> getRelativeAngle();
+
+  pub_angle.publish(angle);
+}
+
+void MissionPlannerRos::publishFormationAngle(const ros::Publisher &pub_angle) {
+  mission_planner::Float32withHeader angle;
+
+  angle.header.frame_id = param_.frame;
+  angle.header.stamp    = ros::Time::now();
+  // angle.data = mission_planner_ptr_ -> calculateFormationAngle(param_.drone_id);
+  angle.data = mission_planner_ptr_ -> getFormationAngle(param_.drone_id);
 
   pub_angle.publish(angle);
 }

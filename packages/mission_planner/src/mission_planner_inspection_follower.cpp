@@ -29,12 +29,11 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
     aux.time_stamp = current_time_;
     trajectory_to_optimize.push_back(aux);
 
-    // Know the elapsed time
-    float elapsed_time, formation_angle;
+    // Need to know the elapsed time
+    float elapsed_time;
     int current_i;
 
     for (int i = 0; i < param_.horizon_length; i++){
-      // std::cout << "  i == " << i << "  Current time: " << current_time_ << "  Solved traj time: " << solved_trajectories_[inspection_params_.leader_id][i].time_stamp << std::endl;
       if (solved_trajectories_[inspection_params_.leader_id][i].time_stamp > current_time_){
         current_i = i;
 
@@ -83,14 +82,12 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
       trajectory_to_optimize.push_back(std::move(aux));
     }
 
-    formation_angle  = MissionPlannerInspection::getFormationAngle(param_.drone_id);
+    formation_angle_[param_.drone_id] = MissionPlannerInspection::calculateFormationAngle(param_.drone_id);
     
-    std::cout << "  Current relative angle (rad): "  << formation_angle
+    std::cout << "  Current relative angle (rad): "  << formation_angle_[param_.drone_id]
               << "  Desired formation angle (rad): " << relative_angle_
-              << "  DIFFERENCE (º): "  << (abs(formation_angle - relative_angle_)*180/(M_PI)) << std::endl << std::endl;
+              << "  DIFFERENCE (º): "  << (abs(formation_angle_[param_.drone_id] - relative_angle_)*180/(M_PI)) << std::endl << std::endl;
 
-    // std::cout << "  Time of the first point of FOLLOWER: " << trajectory_to_optimize[0].time_stamp << std::endl;
-    // std::cout << "  Time of the second point of FOLLOWER: " << trajectory_to_optimize[1].time_stamp << std::endl;
     return trajectory_to_optimize;
   }
   else{

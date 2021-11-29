@@ -36,7 +36,7 @@ Eigen::Vector3d MissionPlannerInspection::pointOnCircle(const Eigen::Vector3d po
   return point_on_circle_3D;
 }
 
-float MissionPlannerInspection::getFormationAngle(const int &_id){
+float MissionPlannerInspection::calculateFormationAngle(const int &_id){
   float leader_angle   = getAngle(states_[inspection_params_.leader_id].pos, point_to_inspect_);
   float follower_angle = getAngle(states_[_id].pos, point_to_inspect_);
 

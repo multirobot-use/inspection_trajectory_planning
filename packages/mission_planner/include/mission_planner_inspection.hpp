@@ -88,6 +88,13 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
   float getRelativeAngle() { return relative_angle_; }
 
   /**
+   * @brief gives the current formation angle of each UAV
+   *
+   * @return formation angle
+   */
+  float getFormationAngle(const int &_id) { return calculateFormationAngle(_id); }
+
+  /**
    * @brief gives the mission status
    *
    * @return mission status: true if activated, false if not activated
@@ -139,6 +146,8 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
   Eigen::Vector3d point_to_inspect_ = Eigen::Vector3d::Zero();
   float distance_to_inspect_point_ = 3;
   float relative_angle_ = 0.7;
+  std::map<int, float> inspection_distance_;
+  std::map<int, float> formation_angle_;
   inspection_params inspection_params_;
 
   /**
@@ -160,12 +169,12 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
   float getTotalAngle(const float &_initial_angle, const float &_final_angle);
 
   /**
-   * @brief gets the formation angle that the leader UAV has with the _id follower UAV
+   * @brief calculates the formation angle that the leader UAV has with the _id follower UAV
    *
    * @param _id id of the follower UAV
    * @return formation angle
    */
-  float getFormationAngle(const int &_id);
+  float calculateFormationAngle(const int &_id);
 
 
  private:
