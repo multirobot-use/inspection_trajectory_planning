@@ -72,6 +72,7 @@ class MissionPlannerRos {
   ros::Publisher corridor_pub_;
   ros::Publisher pub_point_cloud_;
   ros::Publisher formation_angle_pub_;
+  ros::Publisher inspection_distance_pub_;
 
   // Services
   ros::ServiceServer service_activate_planner;
@@ -223,6 +224,11 @@ class MissionPlannerRos {
    *   \param pub_distance publisher
    */
   void publishDistance(const ros::Publisher &pub_distance);
+
+  /*! \brief function to publish the inspection distance of a drone
+   *   \param pub_distance publisher
+   */
+  void publishInspectionDistance(const ros::Publisher &pub_distance);
 
   /*! \brief function to publish the absolute relative angle between drones 
    *   \param pub_angle publisher

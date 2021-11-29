@@ -43,6 +43,18 @@ float MissionPlannerInspection::calculateFormationAngle(const int &_id){
   return getTotalAngle(leader_angle, follower_angle);
 }
 
+float MissionPlannerInspection::calculateInspectionDistance(const int &_id){
+  Eigen::Vector2d leader_pose, inspection_point;
+  leader_pose(0) = states_[_id].pos(0);
+  leader_pose(1) = states_[_id].pos(1);
+  inspection_point(0) = point_to_inspect_(0);
+  inspection_point(1) = point_to_inspect_(1);
+
+  float distance = abs((leader_pose - inspection_point).norm());
+
+  return distance;
+}
+
 float MissionPlannerInspection::getTotalAngle(const float &_initial_angle,
                                               const float &_final_angle) {
   float total_angle, initial_angle, final_angle;

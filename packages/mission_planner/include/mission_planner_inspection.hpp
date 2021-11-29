@@ -88,11 +88,18 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
   float getRelativeAngle() { return relative_angle_; }
 
   /**
-   * @brief gives the current formation angle of each UAV
+   * @brief gives the current formation angle of a UAV
    *
    * @return formation angle
    */
   float getFormationAngle(const int &_id) { return calculateFormationAngle(_id); }
+
+  /**
+   * @brief gives the current inspection distance of a UAV
+   *
+   * @return inspection distance
+   */
+  float getInspectionDistance(const int &_id) { return calculateInspectionDistance(_id); }
 
   /**
    * @brief gives the mission status
@@ -175,6 +182,14 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
    * @return formation angle
    */
   float calculateFormationAngle(const int &_id);
+
+  /**
+   * @brief calculates the inspection distance of the _id UAV
+   *
+   * @param _id id of the follower UAV
+   * @return inspection distance
+   */
+  float calculateInspectionDistance(const int &_id);
 
 
  private:
