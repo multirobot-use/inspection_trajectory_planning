@@ -23,9 +23,11 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
   if (!solved_trajectories_[inspection_params_.leader_id].empty()) {
     refreshGoals();
     state aux;
+
+    // Add the initial point
     aux = initial_pose;
     aux.time_stamp = current_time_;
-    trajectory_to_optimize.push_back(initial_pose);
+    trajectory_to_optimize.push_back(aux);
 
     // Know the elapsed time
     float elapsed_time, formation_angle;
@@ -72,8 +74,9 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
     Eigen::Vector3d aux_point_to_inspect = point_to_inspect_;
     aux_point_to_inspect(2) = 0;
     
+    // Add the other points
     for (int i = current_i; i < param_.horizon_length; i++) {
-      aux.time_stamp = current_time_ + (i - current_i)*param_.step_size;
+      aux.time_stamp = current_time_ + (i - current_i + 1)*param_.step_size;
       aux.pos = rotMat * (solved_trajectories_[inspection_params_.leader_id][i].pos -
                           aux_point_to_inspect) +
                 aux_point_to_inspect;
@@ -86,7 +89,8 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
               << "  Desired formation angle (rad): " << relative_angle_
               << "  DIFFERENCE (º): "  << (abs(formation_angle - relative_angle_)*180/(M_PI)) << std::endl << std::endl;
 
-    std::cout << "  Time of the first point of FOLLOWER: " << trajectory_to_optimize[0].time_stamp << std::endl;
+    // std::cout << "  Time of the first point of FOLLOWER: " << trajectory_to_optimize[0].time_stamp << std::endl;
+    // std::cout << "  Time of the second point of FOLLOWER: " << trajectory_to_optimize[1].time_stamp << std::endl;
     return trajectory_to_optimize;
   }
   else{
