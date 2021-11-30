@@ -32,7 +32,7 @@ windows:
   - python script:  
       layout: even-vertical
       panes:
-        - sleep 16; python ../mission_script.py
+        - sleep 16; python ../operator_interface.py
   - rosbag:
       layout: even-vertical
       panes:

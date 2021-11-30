@@ -13,6 +13,7 @@ from std_srvs.srv import SetBool
 from std_srvs.srv import SetBoolRequest
 from std_srvs.srv import Empty
 from std_msgs.msg import Bool
+from mission_planner.msg import Float32withHeader
 from uav_abstraction_layer.srv import TakeOff
 from uav_abstraction_layer.srv import TakeOffRequest
 from uav_abstraction_layer.srv import Land
@@ -57,11 +58,27 @@ listener.start()
 
 class Drone:
     state = 0
+    n_drones = 0
+
+    inspection_distance = 3
+    ref_distance = 3
+
+    formation_angle = 1
+    ref_angle = 1
+
+
     def __init__(self, drone_ns):
         print("I'm a python constructor")
                 
         # Subscribe topics
-        rospy.Subscriber(drone_ns + "/ual/state", State, self.callbackState)
+        for id in drone_ids:
+            rospy.Subscriber("/drone_" + str(id) + "/ual/state", State, self.callbackState)
+            rospy.Subscriber("/drone_" + str(id) + "/inspection_distance", Float32withHeader, self.callbackInspectionDistance)
+            if (drone_ns != "/drone_1"):
+                rospy.Subscriber("/drone_" + str(id) + "/formation_angle", Float32withHeader, self.callbackFormationAngle)
+        
+        rospy.Subscriber("/drone_1/absolute_distance_to_inspect", Float32withHeader, self.callbackRefDistance)
+        rospy.Subscriber("/drone_1/absolute_relative_angle", Float32withHeader, self.callbackRefAngle)
         
         # Publishers (only one drone topic needed for each one)
         self.distance_inspection_pub = rospy.Publisher('/drone_1/mission_planner_ros/distance_to_inspection_point', Bool, queue_size = 1)
@@ -154,11 +171,11 @@ class Drone:
             print("Failed calling point_to_inspect service")
 
     # Take off drones method
-    def take_off(self, height):
+    def take_off(self, height, block_take_off):
         try:
             take_off            = TakeOffRequest()
             take_off.height     = height
-            take_off.blocking   = True
+            take_off.blocking   = block_take_off
             
             self.take_off_service(take_off)
             print "Taking off the drone"
@@ -184,14 +201,14 @@ class Drone:
     # Go to waypoint method
     def go_to_waypoint(self, waypoint):
         try:
-            waypoint              = GoToWaypointRequest()
-            waypoint.blocking     = False
-            waypoint.waypoint.pose.position.x     = waypoint[0]
-            waypoint.waypoint.pose.position.y     = waypoint[1]
-            waypoint.waypoint.pose.position.z     = waypoint[2]
+            point              = GoToWaypointRequest()
+            point.blocking     = True
+            point.waypoint.pose.position.x     = waypoint[0]
+            point.waypoint.pose.position.y     = waypoint[1]
+            point.waypoint.pose.position.z     = waypoint[2]
             
-            self.go_to_waypoint_service(waypoint)
-            print "LEADER: Going to initial waypoint"
+            self.go_to_waypoint_service(point)
+            print "Going to waypoint"
         
         except rospy.ServiceException, e:
             print "Service call failed: %s" %e
@@ -249,71 +266,156 @@ class Drone:
     # Joystick simulator method
     def joystick_simulator(self):
         global pressed_key
-        print "\t ----- JOYSTICK SIMULATOR -----\n\n"
-        print "\tTo increase distance to inspection point, press W\n"
-        print "\tTo decrease distance to inspection point, press S\n"
-        print "\tTo increase the relative angle, press D\n"
-        print "\tTo decrease the relative angle, press A\n"
-        print "\tTo quit, press Q\n\n"
         
         # Initialize
         inc_distance = True
-        inc_angle    = True       
+        inc_angle    = True
+        aux_key      = ' '
         
         while (not (pressed_key == 'q' or pressed_key == 'Q')):
-            # Add a pause in order to have a better control of pressed key
-            
-            if (pressed_key == 'w' or pressed_key == 'W'):
-                inc_distance = True
-                self.distance_inspection_pub.publish(inc_distance)
+            # Screen refresh
+            os.system('cls' if os.name == 'nt' else 'clear')
+
+            print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            print " REFERENCE OF INSPECTION DISTANCE (meters): %.2f" %(drones[0].ref_distance)
+            for id in drone_ids:
+                print " Inspection distance (meters) for Drone %d:  %.3f" %(id, drones[id - 1].inspection_distance)
+            print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            print " REFERENCE OF FORMATION ANGLE (rad): %.2f" %(drones[0].ref_angle)
+            for id in drone_ids:
+                if (id != 1):
+                    print " Formation angle (rad) for Drone %d:  %.3f" %(id, drones[id - 1].formation_angle)
+            print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            print "\n"
+            print "\t\t ~~~~~ JOYSTICK SIMULATOR ~~~~~\n\n"
+            print "\t\tAFTER PRESSING A KEY, THEN RELEASE\n\n"
+            print "\tTo increase distance to inspection point, press W\n"
+            print "\tTo decrease distance to inspection point, press S\n"
+            print "\tTo increase the relative angle, press D\n"
+            print "\tTo decrease the relative angle, press A\n"
+            print "\tTo quit, press Q\n\n"
+
+            if (aux_key != pressed_key):
+                if (pressed_key == 'w' or pressed_key == 'W'):
+                    inc_distance = True
+                    self.distance_inspection_pub.publish(inc_distance)
+                    
+                elif (pressed_key == 's' or pressed_key == 'S'):
+                    inc_distance = False
+                    self.distance_inspection_pub.publish(inc_distance)
+                    
+                elif (pressed_key == 'a' or pressed_key == 'A'):
+                    inc_angle = False
+                    self.relative_angle_pub.publish(inc_angle)
+                    
+                elif (pressed_key == 'd' or pressed_key == 'D'):
+                    inc_angle = True
+                    self.relative_angle_pub.publish(inc_angle)
                 
-            elif (pressed_key == 's' or pressed_key == 'S'):
-                inc_distance = False
-                self.distance_inspection_pub.publish(inc_distance)
-                
-            elif (pressed_key == 'a' or pressed_key == 'A'):
-                inc_angle = False
-                self.relative_angle_pub.publish(inc_angle)
-                
-            elif (pressed_key == 'd' or pressed_key == 'D'):
-                inc_angle = True
-                self.relative_angle_pub.publish(inc_angle)
-                
+                aux_key = pressed_key
+
+            time.sleep(0.08)
+
+        time.sleep(0.2)
+
+    # Tracking screen
+    def tracking_screen(self):
+        global pressed_key
+        angle = 0
+        diff_angle = 0
+        diff_dist  = 0
+        while(not(pressed_key == 'q' or pressed_key == 'Q')):
+        # Screen refresh
+            os.system('cls' if os.name == 'nt' else 'clear')
+
+            print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            print "REFERENCE OF INSPECTION DISTANCE (meters): %.2f" %(drones[0].ref_distance)
+            for id in drone_ids:
+                diff_dist = abs(drones[id - 1].inspection_distance - drones[0].ref_distance)
+                print "         Inspection distance (meters) for Drone %d:  %.3f" %(id, drones[id - 1].inspection_distance)
+                print "Error of inspection distance (meters) for Drone %d:  %.3f" %(id, diff_dist)
+                print "\n"
+            print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+            angle = drones[0].ref_angle*(180/3.1415)
+            print "REFERENCE OF FORMATION ANGLE (rad): %.2f" %(angle)
+            for id in drone_ids:
+                if (id != 1):
+                    angle = drones[id - 1].formation_angle*(180/3.1415)
+                    diff_angle = abs(drones[id - 1].formation_angle - drones[0].ref_angle)*(180/3.1415)
+                    print "         Formation angle (degrees) for Drone %d:  %.3f" %(id, angle)
+                    print "Error of formation angle (degrees) for Drone %d:  %.3f" %(id, diff_angle)
+                    print "\n"
+            print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            print "Exit the tracking screen when 'q' or 'Q' key is pressed"
+
             time.sleep(0.1)
-        
-        raw_input("\n>> Press ENTER to quit the terminal")
-    
+        time.sleep(0.2)
+
     # Callback state
     def callbackState(self, data):
         self.state = data.state
+    
+    # Callback for inspection distance
+    def callbackInspectionDistance(self, data):
+        self.inspection_distance = data.data
+    
+    # Callback for formation angle
+    def callbackFormationAngle(self, data):
+        self.formation_angle = data.data
+
+    # Callback for the reference of the inspection distance
+    def callbackRefDistance(self, data):
+        self.ref_distance = data.data
+    
+    # Callback for the reference of the formation angle
+    def callbackRefAngle(self, data):
+        self.ref_angle = data.data
         
 
 # Menu function
 def show_menu(params,drones):
 
-    # Menu
-    print "\n\n Welcome to the main menu. Put the number of the desired option:\n"
-    print "\t0. Take off the drones"
-    print "\t1. Start the mission"
-    print "\t2. Stop the mission"
-    print "\t3. Add waypoint"
-    print "\t4. Clear all the waypoints"
-    print "\t5. Change relative angles between followers and leader"
-    print "\t6. Change distance to inspection point"
-    print "\t7. Change inspection point"
-    print "\t8. Joystick simulator"
-    print "\t9. Land the drones"
-    
-    option = ord(raw_input (" >> "))
-    while (option < (48+0) or option > (48+9)): # ASCII for make sure there is no error of inputs. Zero --> 48
-        option = ord(raw_input("Please, choose a valid option: "))
+    # Clear the screen
+    os.system('cls' if os.name == 'nt' else 'clear')
 
-    option = option - 48
+    # Menu
+    print "\n################################################################################"
+    print "\n Welcome to the main menu. Put the number of the desired option:\n"
+    print "\ta. Take off the drones"
+    print "\tb. Start the mission"
+    print "\tc. Stop the mission"
+    print "\td. Add waypoint"
+    print "\te. Clear all the waypoints"
+    print "\tf. Change relative angles between followers and leader"
+    print "\tg. Change distance to inspection point"
+    print "\th. Change inspection point"
+    print "\ti. Joystick simulator"
+    print "\tj. Send the drones to HOME position"
+    print "\tk. Land the drones"
+    print "\tl. Watch the evolution of the inspection distance and the formation angle"
+    print "\tz. Exit the console\n"
+    print "################################################################################"
+    
+    option = 0
+
+    while (option < (ord('a')) or option > (ord('l'))): # ASCII for make sure there is no error of inputs
+        try: 
+            option = ord(raw_input (" >> "))
+        except:
+            pass
+        if (option == ord('z')):
+            sys.exit(0)
+
+    option = option - ord('a')
 
     # Take off
     if option == 0: 
         for drone in drones:
-            drone.take_off(params.height)
+            if (drone != n_drones):
+                drone.take_off(params.height, False)
+            else:
+                drone.take_off(params.height, True)
 
     # Start mission
     elif option == 1:
@@ -339,53 +441,92 @@ def show_menu(params,drones):
     
     # Change relative angle
     elif option == 5:
-        print "Please, enter the desired relative angle between follower drones and the leader drone (Manual mode)\n"
+        print "Please, put the desired relative angle between follower drones and the leader drone (Manual mode)"
+        angle = drones[0].ref_angle*(180/3.1415)
+        print "Current formation angle (degrees): %.2f" %(angle)
         angle = (3.1415/180)*float(raw_input("Angle (degrees): "))
         for drone in drones:
             drone.change_relative_angle(angle)
     
     # Change distance to inspection point
     elif option == 6:
-        print "Please, enter the desired distance to the inspection point (Manual mode)\n"
+        print "Please, put the desired distance to the inspection point (Manual mode)"
+        dist = drones[0].ref_distance
+        print "Current formation angle (degrees): %.2f" %(dist)
         distance = float(raw_input("Distance (meters): "))
         for drone in drones:
             drone.set_distance_inspection(distance)
     
     # Change inspection point
     elif option == 7:
-        print "Please, enter the desired inspection point (Manual mode):\n"
-        waypoint = [0, 0, 0]
-        waypoint[0] = (float(raw_input("X (meters): ")))
-        waypoint[1] = (float(raw_input("Y (meters): ")))
-        waypoint[2] = (float(raw_input("Z (meters): ")))
+        print "Please, put the desired inspection point (Manual mode):\n"
+        point = [0, 0, 0]
+        point[0] = (float(raw_input("X (meters): ")))
+        point[1] = (float(raw_input("Y (meters): ")))
+        point[2] = (float(raw_input("Z (meters): ")))
         for drone in drones:
-            drone.change_inspection_point(waypoint)
+            drone.change_inspection_point(point)
     
     # Launch joystick simulator
     elif option == 8:
         drones[0].joystick_simulator()
     
-    # Land the drones
+    # Send drones to HOME position
     elif option == 9:
+        # It is needed to stop the mission, get closer to the HOME position and then land each one
+        # Stop the mission
+        print("Stopping the mission...")
+        for drone in drones:
+            drone.stop_mission()
+        time.sleep(2)
+
+        # Send each UAV to their HOME position
+        print("Sending each UAV to their HOME position...")
+        cont = 0
+        for drone in drones:
+            drone.go_to_waypoint(params.drone_home[cont])
+            cont = cont + 1
+        time.sleep(2)
+
+        print("Landing the UAVs...")
+        # Land the drones
         for drone in drones:
             drone.land()
+    
+    # Land the UAVs
+    elif option == 10:
+        print("Landing the UAVs...")
+        # Land the drones
+        for drone in drones:
+            drone.land()
+    
+    # Monitor the tracking problem of the inspection distance and the formation angle
+    elif option == 11:
+        drones[0].tracking_screen()
         
     else:
-        print ("Option n " + str(option) + " does not exist!")
+        print ("Option '" + chr(option) + "' does not exist!")
 
 
 # Finish the execution directly when Ctrl+C is pressed (signal.SIGINT received), without escalating to SIGTERM.
 def signal_handler(sig, frame):
     print('Ctrl+C pressed, signal.SIGINT received.')
-    sys.exit(0)    
+    sys.exit(0)
         
 
 # Auto function: take off the drones, set the parameters up and start the mission of each drone
 def auto_function(params,drones):
 
     # Taking of drones
+    cont = 1
     for drone in drones:
-        drone.take_off(params.height)
+        if (cont != n_drones):
+            drone.take_off(params.height, False)
+        else:
+            drone.take_off(params.height, True)
+        cont = cont + 1
+
+    time.sleep(0.5)
 
     # Set up the parameters of each drone
     for drone in drones:
@@ -395,6 +536,8 @@ def auto_function(params,drones):
         for wp in params.waypoints:
             drone.add_one_waypoint(wp)
     
+    time.sleep(0.5)
+
     # Starting mission
     for drone in drones:
         drone.start_mission()
@@ -410,34 +553,56 @@ if __name__ == "__main__":
 
     # Read yml config file
     rospack = rospkg.RosPack()
-    f_route = rospack.get_path('mission_planner')+'/config/experiments/exp5.yml'
+    f_route = rospack.get_path('mission_planner') + '/config/exp_2drones.yml'
     yml_file    = open(f_route, 'r')
     yml_content = yaml.load(yml_file)
 
     drone_ids = yml_content.get('drone_ids')
+    
+    # Create a vector of objects of class Drone
     drones = []
     for id in drone_ids:
-        drones.append(Drone("/drone_"+str(id)))
+        drones.append(Drone("/drone_" + str(id)))
     
-    params = namedtuple('params', 'auto height inspect_point waypoints relative_angle')
+    n_drones = len(drones)
+    
+    # Parameters setup
+    params = namedtuple('params', 'auto height inspect_point waypoints relative_angle drone_home')
     params.auto                      = yml_content.get('auto')
     params.height                    = yml_content.get('take_off_height')
     params.waypoints                 = yml_content.get('waypoints')
     params.inspect_point             = yml_content.get('inspect')
     params.relative_angle            = yml_content.get('relative_angle')
 
-    # Check all drones are landed armed
+    params.drone_home = []
+    for id in drone_ids:
+        params.drone_home.append(yml_content.get('drone' + str(id) + '_home'))
+
+        # Give some additional height to the home positions
+        params.drone_home[id - 1][2] = params.drone_home[id - 1][2] + 0.5 
+
+    # Check all drones are landed armed. Know if we are reconnecting by studying if the drone is already flying
     cont = 0
-    while cont != len(drones):
+    reconnect = 0
+    while cont != n_drones:
         cont = 0
         for drone in drones:
-            if drone.state == State.LANDED_ARMED:
-                cont +=1
-        time.sleep(1)
+            # Reconnect case
+            if drone.state >= 3:
+                reconnect = 1
+                cont += 1 
+            # Initial case
+            elif drone.state == State.LANDED_ARMED:
+                cont += 1
+        time.sleep(0.5)
 
-    # raw_input(">> Press any key to start the AUTO interface ")
-    # auto mode
-    if params.auto:
+    if (reconnect == 1):
+        print "Reconnecting..."
+        time.sleep(1)
+    
+    # Auto mode
+    if (params.auto and (reconnect == 0)):
+        # raw_input(">> Press any key to start the AUTO interface ")
         print "Using the automatic interface"
         auto_function(params, drones)
 

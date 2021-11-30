@@ -27,7 +27,7 @@ windows:
   - python script:  
       layout: even-vertical
       panes:
-        - sleep 12; python ../mission_script_2drones.py
+        - sleep 12; python ../operator_interface.py
   - rosbag:
       layout: even-vertical
       panes:
