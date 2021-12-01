@@ -43,6 +43,22 @@ float MissionPlannerInspection::calculateFormationAngle(const int &_id){
   return getTotalAngle(leader_angle, follower_angle);
 }
 
+bool MissionPlannerInspection::isClockwise(const Eigen::Vector3d &_point1, const Eigen::Vector3d &_point2){
+
+  float angle1 = getPointAngle(_point1);
+  float angle2 = getPointAngle(_point2);
+
+  float angle_diff = angle2 - angle1;
+  
+  // std::cout << "Angle diff: " << angle_diff << std::endl;
+
+  if (angle_diff <= -M_PI){       return false;}
+  else if (angle_diff >= M_PI){   return true;}
+  else if (angle_diff < 0){       return true;}
+  else{                           return false;}
+
+}
+
 float MissionPlannerInspection::calculateInspectionDistance(const int &_id){
   Eigen::Vector2d leader_pose, inspection_point;
   leader_pose(0) = states_[_id].pos(0);

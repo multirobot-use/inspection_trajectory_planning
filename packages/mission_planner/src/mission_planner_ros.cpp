@@ -12,13 +12,14 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   trajectory_planner::safeGetParam(nh_, "acc_max", param_.acc_max);
   trajectory_planner::safeGetParam(nh_, "frame", param_.frame);
   trajectory_planner::safeGetParam(nh_, "drone_id", param_.drone_id);
+  trajectory_planner::safeGetParam(nh_, "flight_mode", param_.flight_mode);
   trajectory_planner::safeGetParam(nh_, "inspection_dist", inspection_params_.inspection_dist);
   trajectory_planner::safeGetParam(nh_, "visualization_rate", param_.visualization_rate);
   trajectory_planner::safeGetParam(nh_, "clock_rate", param_.clock_rate);
   trajectory_planner::safeGetParam(nh_, "leader_id", inspection_params_.leader_id);
   trajectory_planner::safeGetParam(nh_, "inc_distance", inspection_params_.inc_distance);
   trajectory_planner::safeGetParam(nh_, "inc_angle", inspection_params_.inc_angle);
-  trajectory_planner::safeGetParam(nh_,"pcl_filepath", param_.pcd_file_path);
+  trajectory_planner::safeGetParam(nh_, "pcl_filepath", param_.pcd_file_path);
 
   // Initialize mission planner
   if (leader) {

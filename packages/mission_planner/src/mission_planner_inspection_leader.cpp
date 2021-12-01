@@ -10,7 +10,8 @@ std::vector<state> MissionPlannerInspectionLeader::initialTrajectory(
   // Refresh the goals (waypoints) in case that either the inspection point or the inspection distance have changed
   refreshGoals();
 
-  std::vector<state> traj;  // trajectory to return in that function
+  // Trajectory to return in that function
+  std::vector<state> traj;
 
   // transform to polar initial and final point
   Eigen::Vector3d initial_pose_polar =
@@ -30,21 +31,21 @@ std::vector<state> MissionPlannerInspectionLeader::initialTrajectory(
   
   // Generate the reference/initial trajectory
   for (int k = 0; k < param_.horizon_length; k++) {
-    // calculate parameter tk
-    k_state.time_stamp = current_time_ + k*param_.step_size;
+    // Calculate parameter tk
+    k_state.time_stamp = start_plan_time_ + param_.planning_rate + k*param_.step_size;
     float t_k = (param_.vel_max * param_.step_size * k) / curve_length;
 
     // Saturation of t_k value (Uncomment in order to slow down while is arriving the waypoint. Not overshooting behaviour)
-    // if (t_k > 1)  t_k = 1;
+    if ((t_k > 1) && (stop_))  t_k = 1;
 
-    // calculate point with parameter tk
+    // Calculate point with parameter tk
     k_point_polar(0) = initial_pose_polar(0) +
                        (final_pose_polar(0) - initial_pose_polar(0)) * t_k;
     k_point_polar(1) = initial_pose_polar(1) + (theta_total)*t_k;
     k_point_polar(2) = initial_pose_polar(2) +
                        (final_pose_polar(2) - initial_pose_polar(2)) * t_k;
 
-    // polar to cartesians
+    // Polar to cartesians
     k_point_xyz(0) =
         k_point_polar(0) * cos(k_point_polar(1)) + point_to_inspect_(0);
     k_point_xyz(1) =
@@ -52,11 +53,9 @@ std::vector<state> MissionPlannerInspectionLeader::initialTrajectory(
     k_point_xyz(2) = k_point_polar(2);
     k_state.pos = k_point_xyz;  
 
-    // push back the state
+    // Push back the state
     traj.push_back(std::move(k_state));
   }
-
-  // std::cout << "  Time of the first point of LEADER: " << traj[1].time_stamp << std::endl;
 
   return traj;
 }
@@ -83,12 +82,42 @@ bool MissionPlannerInspectionLeader::checks() {
     return false;
   }
 
-  // check waypoints to remove or not the waypoints to follow
+  // Check waypoints to remove or not the waypoints to follow
   if (waypointReached(goals_[0], states_[param_.drone_id])) {
+
+    // Infer here if the formation has to stop or not
+    // Know if the formation has to slow down when it is arriving the waypoint
+
+    // In the case of Flight Mode 1, it always stops
+    if (param_.flight_mode == 1)        stop_ = true;
+
+    // In the case of Flight Mode 2, if there are at least 2 waypoints (plus the current), it is important to verify
+    // if the direction that has to follow is the same in both cases
+    if (param_.flight_mode == 2){
+      if (goals_.size() >= 3){
+        bool direction1 = MissionPlannerInspection::isClockwise(goals_[0].pos, goals_[1].pos);
+        bool direction2 = MissionPlannerInspection::isClockwise(goals_[1].pos, goals_[2].pos);
+
+        // std::cout << "Direction 1: " << direction1 << "    Direction 2: " << direction2 << std::endl;
+        if (direction1 == direction2)   stop_ = false;
+        else                            stop_ = true;
+      }
+      else{
+        stop_ = false;
+      }
+    }
+
+    // In the case of Flight Mode 3 and 4, it always stops
+    if (param_.flight_mode >= 3)        stop_ = true;
+
     std::cout << "Removed waypoint" << std::endl;
     init_point_ = goals_[0].pos;
     goals_.erase(goals_.begin());
+
     if (!hasGoal()) return false;
   }
+
+  // std::cout << stop_ << std::endl;
+
   return true;
 }

@@ -147,6 +147,17 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
    */
   float getPointAngle(const Eigen::Vector3d &_point);
 
+  /**
+   * @brief function that returns if path to describe between two point is clockwise or anticlockwise
+   *
+   * @param _point1 point to start
+   * @param _point2 point to finish
+   * 
+   * @return true if clockwise
+   * @return false if anticlockwise
+   */
+  bool isClockwise(const Eigen::Vector3d &_point1, const Eigen::Vector3d &_point2);
+
 
  protected:
   bool mission_status_ = false;

@@ -38,14 +38,6 @@ class MissionPlannerInspectionFollower : public MissionPlannerInspection {
   float calculateAngleCorrector(const float &_elapsed_time);
 
   /**
-   * @brief function that returns if the trajectory that is being described is clockwise or anticlockwise
-   *
-   * @return true if clockwise
-   * @return false if anticlockwise
-   */
-  bool isClockwise();
-
-  /**
    * @brief returns an initial trajectory to inspect for the drone according to
    * the initial pose
    *
