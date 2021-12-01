@@ -215,6 +215,16 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
       const state &initial_pose) = 0;
 
   /**
+   * @brief returns the inspection trajectory for the drone according to
+   * the initial pose
+   *
+   * @param initial_pose initial pose of the drone
+   * @return vector of states of the trajectory
+   */
+  virtual std::vector<state> inspectionTrajectory(
+      const state &initial_pose) = 0;
+
+  /**
    * @brief virtual function that makes the following checks
    *
    * @return true if all checks are passed

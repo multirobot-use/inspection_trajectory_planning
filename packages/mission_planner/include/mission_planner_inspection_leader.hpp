@@ -48,4 +48,13 @@ class MissionPlannerInspectionLeader : public MissionPlannerInspection {
    * @return vector of states of the trajectory
    */
   virtual std::vector<state> initialTrajectory(const state &initial_pose) override;
+
+  /**
+   * @brief returns the inspection trajectory for the drone according to
+   * the initial pose
+   *
+   * @param initial_pose initial pose of the drone
+   * @return vector of states of the trajectory
+   */
+  virtual std::vector<state> inspectionTrajectory(const state &initial_pose) override;
 };

@@ -94,6 +94,68 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
   }
 }
 
+std::vector<state> MissionPlannerInspectionFollower::inspectionTrajectory(
+    const state &initial_pose){
+
+  // Trajectory to return in that function
+  std::vector<state> traj;
+
+  // Transform to polar initial and final point
+  Eigen::Vector3d initial_pose_polar =
+      transformToPolar(initial_pose.pos, point_to_inspect_);
+  
+  // DIFFERENT final_pose_polar
+  Eigen::Vector3d inspecting_auxiliar_point = pointOnCircle(initial_pose.pos);
+  Eigen::Vector3d final_pose_polar =
+      transformToPolar(inspecting_auxiliar_point, point_to_inspect_);
+  
+  // Calculate curve length and theta_total
+  float theta_total = MissionPlannerInspection::getTotalAngle(initial_pose_polar(1), final_pose_polar(1));
+  float curve_length =
+      sqrt(pow(distance_to_inspect_point_, 2) * pow(theta_total, 2) +
+           pow(final_pose_polar(2) - initial_pose_polar(2), 2));
+
+  std::cout << "Curve length: " << curve_length << std::endl;
+
+  if (curve_length < 0.2) return traj;
+
+  Eigen::Vector3d k_point_polar;
+  Eigen::Vector3d k_point_xyz;
+  state k_state = initial_pose;
+
+  // Generate the reference/initial trajectory
+  for (int k = 0; k < param_.horizon_length; k++) {
+    // Calculate parameter tk
+    k_state.time_stamp = start_plan_time_ + param_.planning_rate + k*param_.step_size;
+
+    // Change 0.2 por param_.vel_inspecting
+    float t_k = (0.2 * param_.step_size * k) / curve_length;
+
+    // Saturation of t_k value (Uncomment in order to slow down while is arriving the waypoint. Not overshooting behaviour)
+    if (t_k > 1)  t_k = 1;
+
+    // Calculate point with parameter tk
+    k_point_polar(0) = initial_pose_polar(0) +
+                       (final_pose_polar(0) - initial_pose_polar(0)) * t_k;
+    k_point_polar(1) = initial_pose_polar(1) + (theta_total)*t_k;
+    k_point_polar(2) = initial_pose_polar(2) +
+                       (final_pose_polar(2) - initial_pose_polar(2)) * t_k;
+
+    // Polar to cartesians
+    k_point_xyz(0) =
+        k_point_polar(0) * cos(k_point_polar(1)) + point_to_inspect_(0);
+    k_point_xyz(1) =
+        k_point_polar(0) * sin(k_point_polar(1)) + point_to_inspect_(1);
+    k_point_xyz(2) = k_point_polar(2);
+    k_state.pos = k_point_xyz;  
+
+    // Push back the state
+    traj.push_back(std::move(k_state));
+  }
+
+  return traj;
+}
+
 float MissionPlannerInspectionFollower::calculateAngleCorrector(const float &_elapsed_time){
   // Angle = (distance_traveled_in_elapsed_time / total_curve_length) * 2*pi
   float angle = (_elapsed_time*param_.vel_max)/(distance_to_inspect_point_);

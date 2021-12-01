@@ -46,4 +46,13 @@ class MissionPlannerInspectionFollower : public MissionPlannerInspection {
    */
   virtual std::vector<trajectory_planner::state> initialTrajectory(
       const trajectory_planner::state &initial_pose) override;
+  
+  /**
+   * @brief returns the inspection trajectory for the drone according to
+   * the initial pose
+   *
+   * @param initial_pose initial pose of the drone
+   * @return vector of states of the trajectory
+   */
+  virtual std::vector<state> inspectionTrajectory(const state &initial_pose) override;
 };
