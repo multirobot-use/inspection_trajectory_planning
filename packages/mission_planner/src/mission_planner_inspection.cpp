@@ -113,3 +113,22 @@ float MissionPlannerInspection::getPointAngle(const Eigen::Vector3d &_point){
 
   return angle;
 }
+
+bool MissionPlannerInspection::inspecting(){
+  std::cout << "INSIDE INSPECTING" << std::endl;
+  // Eigen::Vector2d leader_pose, last_goal_2;
+
+  // leader_pose(0) = states_[inspection_params_.leader_id].pos(0);
+  // leader_pose(1) = states_[inspection_params_.leader_id].pos(1);
+
+  // last_goal_2(0) = last_goal_(0);
+  // last_goal_2(1) = last_goal_(1);
+
+  // float distance = (leader_pose - last_goal_2).norm();
+  float distance = (states_[inspection_params_.leader_id].pos - pointOnCircle(last_goal_.pos)).norm();
+  std::cout << "Distance: " << distance << std::endl;
+
+  if (distance > INSPECTING_TOL)  return true;
+  else                            return false;
+
+}

@@ -254,13 +254,16 @@ bool MissionPlannerRos::changeRelativeAngleServiceCallback(
 }
 
 void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
+  auto trajectory_length = mission_planner_ptr_ -> getSizeTrajectory();
   if (mission_planner_ptr_->getStatus() != trajectory_planner::PlannerStatus::FIRST_PLAN) {
-    publishTrajectoryJoint(tracking_pub_trajectory_,
-                           mission_planner_ptr_->getLastTrajectory());
-    publishPath(pub_path_, mission_planner_ptr_->getLastTrajectory());
-    publishPath(pub_ref_path_, mission_planner_ptr_->getReferenceTrajectory());
-    mission_planner_ptr_->safe_corridor_generator_->publishCorridor(
-        corridor_pub_);
+    if (trajectory_length > 0) {
+      publishTrajectoryJoint(tracking_pub_trajectory_,
+                             mission_planner_ptr_->getLastTrajectory());
+      publishPath(pub_path_, mission_planner_ptr_->getLastTrajectory());
+      publishPath(pub_ref_path_, mission_planner_ptr_->getReferenceTrajectory());
+      mission_planner_ptr_->safe_corridor_generator_->publishCorridor(
+          corridor_pub_);
+    }
   }
   mission_planner_ptr_->plan();
   publishDistance(distance_pub_);
@@ -486,77 +489,83 @@ void MissionPlannerRos::publishMissionStatus(const ros::Publisher &pub_status) {
 
 void MissionPlannerRos::publishPath(const ros::Publisher &pub_path,
                                     const std::vector<state> &trajectory) {
-  nav_msgs::Path path_to_publish;
-  geometry_msgs::PoseStamped aux_pose;
+  if (!trajectory.empty()){
+    nav_msgs::Path path_to_publish;
+    geometry_msgs::PoseStamped aux_pose;
 
-  path_to_publish.header.frame_id = param_.frame;
-  path_to_publish.header.stamp    = ros::Time::now();
+    path_to_publish.header.frame_id = param_.frame;
+    path_to_publish.header.stamp    = ros::Time::now();
 
-  int i = 0;
-  float time_stamp = trajectory[0].time_stamp;
-  div_t time_result;
+    int i = 0;
+    float time_stamp = trajectory[0].time_stamp;
+    div_t time_result;
 
-  // ROS_INFO("PUBLISH PATH METHOD: Current time sec: %3d  nsec: %3d", path_to_publish.header.stamp.sec, path_to_publish.header.stamp.nsec);
-  // ROS_INFO("PUBLISH PATH METHOD: Time of the first point of the trajectory: %f", time_stamp);
+    // ROS_INFO("PUBLISH PATH METHOD: Current time sec: %3d  nsec: %3d", path_to_publish.header.stamp.sec, path_to_publish.header.stamp.nsec);
+    // ROS_INFO("PUBLISH PATH METHOD: Time of the first point of the trajectory: %f", time_stamp);
 
-  for (const auto &state : trajectory) {
-    time_result = div(state.time_stamp, 1);
-    aux_pose.header.stamp.sec   = time_result.quot;
-    aux_pose.header.stamp.nsec  = int((state.time_stamp - time_result.quot)*1000000000); // time_result.rem*1000000000 not working fine
+    for (const auto &state : trajectory) {
+      time_result = div(state.time_stamp, 1);
+      aux_pose.header.stamp.sec   = time_result.quot;
+      aux_pose.header.stamp.nsec  = int((state.time_stamp - time_result.quot)*1000000000); // time_result.rem*1000000000 not working fine
 
-    aux_pose.pose.position.x = state.pos(0);
-    aux_pose.pose.position.y = state.pos(1);
-    aux_pose.pose.position.z = state.pos(2);
+      aux_pose.pose.position.x = state.pos(0);
+      aux_pose.pose.position.y = state.pos(1);
+      aux_pose.pose.position.z = state.pos(2);
 
-    aux_pose.pose.orientation.x = state.orientation.x();
-    aux_pose.pose.orientation.y = state.orientation.y();
-    aux_pose.pose.orientation.z = state.orientation.z();
-    aux_pose.pose.orientation.w = state.orientation.w();
+      aux_pose.pose.orientation.x = state.orientation.x();
+      aux_pose.pose.orientation.y = state.orientation.y();
+      aux_pose.pose.orientation.z = state.orientation.z();
+      aux_pose.pose.orientation.w = state.orientation.w();
 
-    path_to_publish.poses.push_back(aux_pose);
-    i = i + 1;
+      path_to_publish.poses.push_back(aux_pose);
+      i = i + 1;
+    }
+
+    try {
+      pub_path.publish(path_to_publish);
+    } catch (...) {
+      ROS_ERROR("exception caught during publishing topic '%s'",
+                pub_path.getTopic().c_str());
+    }
   }
-
-  try {
-    pub_path.publish(path_to_publish);
-  } catch (...) {
-    ROS_ERROR("exception caught during publishing topic '%s'",
-              pub_path.getTopic().c_str());
-  }
+  
 }
 
 void MissionPlannerRos::publishTrajectoryJoint(
     const ros::Publisher &pub_path, const std::vector<state> &trajectory) {
-  trajectory_msgs::JointTrajectory trajectory_to_follow;
-  trajectory_msgs::JointTrajectoryPoint point_to_follow;
+  
+  if (!trajectory.empty()){
+    trajectory_msgs::JointTrajectory trajectory_to_follow;
+    trajectory_msgs::JointTrajectoryPoint point_to_follow;
 
-  ros::Time aux;
-  ros::Time zero(0, 0);
+    ros::Time aux;
+    ros::Time zero(0, 0);
 
-  for (auto &point : trajectory) {
-    point_to_follow.positions.clear();
-    point_to_follow.velocities.clear();
-    // std::cout << "   Time: " << point.time_stamp << std::endl;
-    aux.sec  = int(point.time_stamp);
-    aux.nsec = int( (point.time_stamp-int(point.time_stamp))*1000000000 );
-    point_to_follow.time_from_start = aux - zero;
-    point_to_follow.positions.push_back(point.pos(0));
-    point_to_follow.positions.push_back(point.pos(1));
-    point_to_follow.positions.push_back(point.pos(2));
-    point_to_follow.positions.push_back(point.orientation.x());
-    point_to_follow.positions.push_back(point.orientation.y());
-    point_to_follow.positions.push_back(point.orientation.z());
-    point_to_follow.positions.push_back(point.orientation.w());
+    for (auto &point : trajectory) {
+      point_to_follow.positions.clear();
+      point_to_follow.velocities.clear();
+      // std::cout << "   Time: " << point.time_stamp << std::endl;
+      aux.sec  = int(point.time_stamp);
+      aux.nsec = int( (point.time_stamp-int(point.time_stamp))*1000000000 );
+      point_to_follow.time_from_start = aux - zero;
+      point_to_follow.positions.push_back(point.pos(0));
+      point_to_follow.positions.push_back(point.pos(1));
+      point_to_follow.positions.push_back(point.pos(2));
+      point_to_follow.positions.push_back(point.orientation.x());
+      point_to_follow.positions.push_back(point.orientation.y());
+      point_to_follow.positions.push_back(point.orientation.z());
+      point_to_follow.positions.push_back(point.orientation.w());
 
-    point_to_follow.velocities.push_back(point.vel(0));
-    point_to_follow.velocities.push_back(point.vel(1));
-    point_to_follow.velocities.push_back(point.vel(2));
-    trajectory_to_follow.points.push_back(point_to_follow);
-  }
-  try {
-    pub_path.publish(trajectory_to_follow);
-  } catch (...) {
-    ROS_ERROR("exception caught during publishing topic '%s'",
-              pub_path.getTopic().c_str());
+      point_to_follow.velocities.push_back(point.vel(0));
+      point_to_follow.velocities.push_back(point.vel(1));
+      point_to_follow.velocities.push_back(point.vel(2));
+      trajectory_to_follow.points.push_back(point_to_follow);
+    }
+    try {
+      pub_path.publish(trajectory_to_follow);
+    } catch (...) {
+      ROS_ERROR("exception caught during publishing topic '%s'",
+                pub_path.getTopic().c_str());
+    }
   }
 }

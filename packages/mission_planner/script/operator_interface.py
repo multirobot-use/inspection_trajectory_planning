@@ -452,7 +452,7 @@ def show_menu(params,drones):
     elif option == 6:
         print "Please, put the desired distance to the inspection point (Manual mode)"
         dist = drones[0].ref_distance
-        print "Current formation angle (degrees): %.2f" %(dist)
+        print "Current distance to the inspection point (meters): %.2f" %(dist)
         distance = float(raw_input("Distance (meters): "))
         for drone in drones:
             drone.set_distance_inspection(distance)

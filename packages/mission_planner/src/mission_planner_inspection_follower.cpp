@@ -24,25 +24,28 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
     refreshGoals();
     state aux;
 
-    // Add the initial point
-    aux = initial_pose;
-    aux.time_stamp = start_plan_time_ + param_.planning_rate;
-    trajectory_to_optimize.push_back(aux);
-
     // Need to know the elapsed time
     float elapsed_time;
-    int current_i;
+    int current_i = 0;
+    bool solved = false;
 
     for (int i = 0; i < param_.horizon_length; i++){
       if (solved_trajectories_[inspection_params_.leader_id][i].time_stamp > (start_plan_time_ + param_.planning_rate)){
         current_i = i;
-
+        solved = true;
         elapsed_time = start_plan_time_ - solved_trajectories_[inspection_params_.leader_id][0].time_stamp;
         std::cout << "  i == " << i << "  Elapsed time: " << elapsed_time << std::endl << std::endl;
 
         break;
       }
     }
+
+    if (!solved) return trajectory_to_optimize;
+
+    // Add the initial point
+    aux = initial_pose;
+    aux.time_stamp = start_plan_time_ + param_.planning_rate;
+    trajectory_to_optimize.push_back(aux);
 
     // Need to know if the trajectory is being described clockwise or anticlockwise
     bool clockwise = MissionPlannerInspection::isClockwise(solved_trajectories_[inspection_params_.leader_id][1].pos,
@@ -99,25 +102,25 @@ std::vector<state> MissionPlannerInspectionFollower::inspectionTrajectory(
 
   // Trajectory to return in that function
   std::vector<state> traj;
+  traj.clear();
 
   // Transform to polar initial and final point
   Eigen::Vector3d initial_pose_polar =
       transformToPolar(initial_pose.pos, point_to_inspect_);
   
   // DIFFERENT final_pose_polar
-  Eigen::Vector3d inspecting_auxiliar_point = pointOnCircle(initial_pose.pos);
-  Eigen::Vector3d final_pose_polar =
-      transformToPolar(inspecting_auxiliar_point, point_to_inspect_);
+  Eigen::Vector3d final_pose_xyz   = pointOnCircle(last_goal_.pos);
+  Eigen::Vector3d final_pose_polar = transformToPolar(final_pose_xyz, point_to_inspect_);
   
   // Calculate curve length and theta_total
   float theta_total = MissionPlannerInspection::getTotalAngle(initial_pose_polar(1), final_pose_polar(1));
   float curve_length =
       sqrt(pow(distance_to_inspect_point_, 2) * pow(theta_total, 2) +
            pow(final_pose_polar(2) - initial_pose_polar(2), 2));
+  float t_k;
 
-  std::cout << "Curve length: " << curve_length << std::endl;
-
-  if (curve_length < 0.2) return traj;
+  // std::cout << "Curve length: " << curve_length << std::endl;
+  if (curve_length < INSPECTING_TOL)   return traj;
 
   Eigen::Vector3d k_point_polar;
   Eigen::Vector3d k_point_xyz;
@@ -128,11 +131,13 @@ std::vector<state> MissionPlannerInspectionFollower::inspectionTrajectory(
     // Calculate parameter tk
     k_state.time_stamp = start_plan_time_ + param_.planning_rate + k*param_.step_size;
 
-    // Change 0.2 por param_.vel_inspecting
-    float t_k = (0.2 * param_.step_size * k) / curve_length;
+    // Change 0.15 por param_.vel_inspecting
+    if (curve_length < INSPECTING_TOL)      t_k = 0;
+    else                                    t_k = (0.15 * param_.step_size * k) / curve_length;
 
     // Saturation of t_k value (Uncomment in order to slow down while is arriving the waypoint. Not overshooting behaviour)
-    if (t_k > 1)  t_k = 1;
+    if (t_k < 0)  t_k = 0;
+    else if (t_k > 1)  t_k = 1;
 
     // Calculate point with parameter tk
     k_point_polar(0) = initial_pose_polar(0) +
@@ -147,7 +152,9 @@ std::vector<state> MissionPlannerInspectionFollower::inspectionTrajectory(
     k_point_xyz(1) =
         k_point_polar(0) * sin(k_point_polar(1)) + point_to_inspect_(1);
     k_point_xyz(2) = k_point_polar(2);
-    k_state.pos = k_point_xyz;  
+    k_state.pos = k_point_xyz;
+
+    // if (k > 35)  std::cout << "k: " << k << "  [X, Y, Z]: [" << k_point_xyz(0) << ", " << k_point_xyz(1) << ", " << k_point_xyz(2) << "]" << std::endl;
 
     // Push back the state
     traj.push_back(std::move(k_state));

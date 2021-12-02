@@ -123,7 +123,7 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
   /**
    * @brief increases/decreases the relative angle of the drones
    *
-   * @param _distance true if increase, false if decrease
+   * @param _angle true if increase, false if decrease
    */
   void incRelativeAngle(const bool &_angle) {
     if (_angle)  setRelativeAngle(relative_angle_ + inspection_params_.inc_angle);
@@ -161,6 +161,7 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
 
  protected:
   bool mission_status_ = false;
+  state last_goal_;
   Eigen::Vector3d point_to_inspect_ = Eigen::Vector3d::Zero();
   float distance_to_inspect_point_ = 3;
   float relative_angle_ = 0.7;
@@ -233,6 +234,14 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
   virtual bool checks() {
     std::cout << "check mission planner abstract" << std::endl;
   }
+
+  /**
+   * @brief check if the formation has to inspect
+   *
+   * @return true if the formation has to inspect
+   * @return false if the formation does not have to inspect
+   */
+  virtual bool inspecting();
 
   /**
    * @brief gives an initial orientation according to a trajectory given
