@@ -13,6 +13,7 @@ from std_srvs.srv import SetBool
 from std_srvs.srv import SetBoolRequest
 from std_srvs.srv import Empty
 from std_msgs.msg import Bool
+from std_msgs.msg import UInt8
 from mission_planner.msg import Float32withHeader
 from uav_abstraction_layer.srv import TakeOff
 from uav_abstraction_layer.srv import TakeOffRequest
@@ -66,6 +67,7 @@ class Drone:
     formation_angle = 1
     ref_angle = 1
 
+    flight_mode = 1
 
     def __init__(self, drone_ns):
         print("I'm a python constructor")
@@ -79,6 +81,7 @@ class Drone:
         
         rospy.Subscriber("/drone_1/absolute_distance_to_inspect", Float32withHeader, self.callbackRefDistance)
         rospy.Subscriber("/drone_1/absolute_relative_angle", Float32withHeader, self.callbackRefAngle)
+        rospy.Subscriber("/drone_1/flight_mode", UInt8, self.callbackFlightMode)
         
         # Publishers (only one drone topic needed for each one)
         self.distance_inspection_pub = rospy.Publisher('/drone_1/mission_planner_ros/distance_to_inspection_point', Bool, queue_size = 1)
@@ -87,6 +90,7 @@ class Drone:
         # Wait for services
         activate_planner_url = drone_ns + "/mission_planner_ros/activate_planner"
         add_waypoint_url     = drone_ns + "/mission_planner_ros/add_waypoint"
+        clear_1_waypoint_url = drone_ns + "/mission_planner_ros/clear_first_waypoint"
         clear_waypoints_url  = drone_ns + "/mission_planner_ros/clear_waypoints"
         point_to_inspect_url = drone_ns + "/mission_planner_ros/point_to_inspect"
         distance_url         = drone_ns + "/mission_planner_ros/distance_to_inspect"
@@ -106,6 +110,10 @@ class Drone:
         # Clear waypoints service
         rospy.wait_for_service(clear_waypoints_url)
         self.clear_waypoints_service  = rospy.ServiceProxy(clear_waypoints_url, Empty)
+
+        # Clear first waypoint service
+        rospy.wait_for_service(clear_1_waypoint_url)
+        self.clear_1_waypoint_service = rospy.ServiceProxy(clear_1_waypoint_url, Empty)
 
         # Change point to inspect service
         rospy.wait_for_service(point_to_inspect_url)
@@ -253,6 +261,17 @@ class Drone:
         
         except rospy.ServiceException, e:
             print("Failed calling stop_mission service")
+    
+    # Clear the first waypoint method (FOR INSPECTION)
+    def clear_first_waypoint(self):
+
+        if (self.flight_mode == 4):
+            try:
+                self.clear_1_waypoint_service()
+                print "First waypoint cleared!"
+                
+            except:
+                print("Failed calling clear_first_waypoint service")
 
     # Clear all waypoints method
     def clear_all_waypoints(self):
@@ -295,6 +314,10 @@ class Drone:
             print "\tTo decrease the relative angle, press A\n"
             print "\tTo quit, press Q\n\n"
 
+            if (self.flight_mode == 4):
+                print "\tFORMATION IN INSPECTING MODE!"
+                print "\tPress N to go to the next waypoint"
+
             if (aux_key != pressed_key):
                 if (pressed_key == 'w' or pressed_key == 'W'):
                     inc_distance = True
@@ -311,6 +334,10 @@ class Drone:
                 elif (pressed_key == 'd' or pressed_key == 'D'):
                     inc_angle = True
                     self.relative_angle_pub.publish(inc_angle)
+                
+                elif ((pressed_key == 'n' or pressed_key == 'N') and (self.flight_mode == 4)):
+                    self.clear_1_waypoint_service()
+                    time.sleep(1)
                 
                 aux_key = pressed_key
 
@@ -347,6 +374,17 @@ class Drone:
                     print "Error of formation angle (degrees) for Drone %d:  %.3f" %(id, diff_angle)
                     print "\n"
             print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            print "\n"
+            print "Flight mode: "
+            if (self.flight_mode == 1):
+                print "\tNon-stopping"
+            elif (self.flight_mode == 2):
+                print "\tSmooth mode"
+            elif (self.flight_mode == 3):
+                print "\tStopping mode"
+            elif (self.flight_mode == 4):
+                print "\tInspection mode"
+            
             print "Exit the tracking screen when 'q' or 'Q' key is pressed"
 
             time.sleep(0.1)
@@ -371,6 +409,10 @@ class Drone:
     # Callback for the reference of the formation angle
     def callbackRefAngle(self, data):
         self.ref_angle = data.data
+    
+    # Callback for the Flight Mode
+    def callbackFlightMode(self, data):
+        self.flight_mode = data.data
         
 
 # Menu function
@@ -393,13 +435,14 @@ def show_menu(params,drones):
     print "\ti. Joystick simulator"
     print "\tj. Send the drones to HOME position"
     print "\tk. Land the drones"
-    print "\tl. Watch the evolution of the inspection distance and the formation angle"
+    print "\tl. Send to next waypoint (ONLY IN INSPECTION MODE)"
+    print "\tm. Watch the evolution of the inspection distance and the formation angle"
     print "\tz. Exit the console\n"
     print "################################################################################"
     
     option = 0
 
-    while (option < (ord('a')) or option > (ord('l'))): # ASCII for make sure there is no error of inputs
+    while (option < (ord('a')) or option > (ord('m'))): # ASCII for make sure there is no error of inputs
         try: 
             option = ord(raw_input (" >> "))
         except:
@@ -433,11 +476,13 @@ def show_menu(params,drones):
         py = float(raw_input("Y pose (meters): "))
         pz = float(raw_input("Z pose (meters): "))
         wp = [px, py, pz]
-        drones[0].add_one_waypoint(wp)
+        for drone in drones:
+            drones.add_one_waypoint(wp)
     
     # Clear all the waypoints
     elif option == 4:
-        drones[0].clear_all_waypoints()
+        for drone in drones:
+            drone.clear_all_waypoints()
     
     # Change relative angle
     elif option == 5:
@@ -500,8 +545,15 @@ def show_menu(params,drones):
         for drone in drones:
             drone.land()
     
-    # Monitor the tracking problem of the inspection distance and the formation angle
+    # Send UAVs to the next waypoint
     elif option == 11:
+        print("Sending UAV to the next waypoint...")
+        # Land the drones
+        for drone in drones:
+            drone.clear_first_waypoint()
+    
+    # Monitor the tracking problem of the inspection distance and the formation angle
+    elif option == 12:
         drones[0].tracking_screen()
         
     else:
@@ -609,4 +661,4 @@ if __name__ == "__main__":
     # Menu mode
     while (not rospy.is_shutdown()):
         show_menu(params, drones)            
-        time.sleep(1)
+        time.sleep(1.5)

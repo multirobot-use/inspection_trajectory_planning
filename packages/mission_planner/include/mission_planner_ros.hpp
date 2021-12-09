@@ -4,6 +4,7 @@
 #include <geometry_msgs/PoseWithCovariance.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <geometry_msgs/TwistWithCovariance.h>
+#include <mission_planner/FlightModeSrv.h>
 #include <mission_planner/AngleSrv.h>
 #include <mission_planner/DistanceSrv.h>
 #include <mission_planner/PointToInspectSrv.h>
@@ -84,6 +85,8 @@ class MissionPlannerRos {
   ros::ServiceServer service_point_to_inspect;
   ros::ServiceServer service_distance_to_inspect;
   ros::ServiceServer service_relative_angle;
+  ros::ServiceServer service_flight_mode;
+  ros::ServiceServer clear_first_waypoint;
 
 
   //! Callback prototypes
@@ -125,6 +128,12 @@ class MissionPlannerRos {
   bool clearWaypointsServiceCallback(std_srvs::Empty::Request &req,
                                      std_srvs::Empty::Response &res);
 
+  /*! \brief Callback for the clean waypoint service. It clean the first
+   * waypoint queued \param req request \param res success \return success
+   */
+  bool clearFirstWaypointServiceCallback(std_srvs::Empty::Request &req,
+                                         std_srvs::Empty::Response &res);
+
   /*! \brief Callback for inspection point service. It changes the inspection
    * point \param req point to inspect (XYZ) \param res success
    */
@@ -140,13 +149,20 @@ class MissionPlannerRos {
       mission_planner::DistanceSrv::Request &req,
       mission_planner::DistanceSrv::Response &res);
 
-  /*! \brief Callback for the change the relative angle service. It changes the
+  /*! \brief Callback for change the relative angle service. It changes the
    * relative angles between the leader drone and the followers \param req angle
    * (float) \param res success
    */
   bool changeRelativeAngleServiceCallback(
       mission_planner::AngleSrv::Request &req,
       mission_planner::AngleSrv::Response &res);
+
+  /*! \brief Callback for the flight mode service. It changes the
+   * flight mode \param req mode (int) \param res success
+   */
+  bool changeFlightModeServiceCallback(
+      mission_planner::FlightModeSrv::Request &req,
+      mission_planner::FlightModeSrv::Response &res);
 
   /*! \brief Callback for timer that publishes rviz markers
    * \param TimerEvent structure passed to callback invoked by ros::Timer

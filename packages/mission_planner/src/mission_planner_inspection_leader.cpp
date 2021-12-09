@@ -155,15 +155,20 @@ bool MissionPlannerInspectionLeader::checks() {
   // Check waypoints to remove or not the waypoints to follow
   if (waypointReached(goals_[0], states_[param_.drone_id])) {
     std::cout << "Waypoint reached!" << std::endl;
+
     // Infer here if the formation has to stop or not
     // Know if the formation has to slow down when it is arriving the waypoint
     last_goal_ = goals_[0];
     // In the case of Flight Mode 1, it always stops
-    if (param_.flight_mode == 1)        stop_ = true;
+    if (flight_mode_ == 1) {
+      // planner_state_ = trajectory_planner::PlannerStatus::REPLANNED;
+      stop_ = false;
+      }
 
     // In the case of Flight Mode 2, if there are at least 2 waypoints (plus the current), it is important to verify
     // if the direction that has to follow is the same in both cases
-    if (param_.flight_mode == 2){
+    if (flight_mode_ == 2){
+      // planner_state_ = trajectory_planner::PlannerStatus::REPLANNED;
       if (goals_.size() >= 3){
         bool direction1 = MissionPlannerInspection::isClockwise(goals_[0].pos, goals_[1].pos);
         bool direction2 = MissionPlannerInspection::isClockwise(goals_[1].pos, goals_[2].pos);
@@ -178,11 +183,20 @@ bool MissionPlannerInspectionLeader::checks() {
     }
 
     // In the case of Flight Mode 3 and 4, it always stops
-    if (param_.flight_mode == 3)        stop_ = true;
-    if (param_.flight_mode == 4){
+    if (flight_mode_ == 3){
+      // planner_state_ = trajectory_planner::PlannerStatus::REPLANNED;
+      stop_ = true;
+    }
+
+    if (flight_mode_ == 4){
       planner_state_ = trajectory_planner::PlannerStatus::INSPECTING;
       std::cout << "Inspecting..." << std::endl;
       stop_ = true;
+    }
+
+    if (flight_mode_ != 4 && trajectory_planner::PlannerStatus::INSPECTING) {
+      std::cout << "Not inspecting anymore" << std::endl;
+      planner_state_ = trajectory_planner::PlannerStatus::REPLANNED;
     }
 
     if (planner_state_ != trajectory_planner::PlannerStatus::INSPECTING){

@@ -148,12 +148,18 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   clear_waypoints = nh_.advertiseService(
       "clear_waypoints", &MissionPlannerRos::clearWaypointsServiceCallback,
       this);
+  clear_first_waypoint = nh_.advertiseService(
+      "clear_first_waypoint", &MissionPlannerRos::clearFirstWaypointServiceCallback,
+      this);
   service_distance_to_inspect = nh_.advertiseService(
       "distance_to_inspect",
       &MissionPlannerRos::distanceToInspectServiceCallback, this);
   service_relative_angle = nh_.advertiseService(
       "change_relative_angle",
       &MissionPlannerRos::changeRelativeAngleServiceCallback, this);
+  service_flight_mode = nh_.advertiseService(
+      "change_flight_mode",
+      &MissionPlannerRos::changeFlightModeServiceCallback, this);
 }
 
 
@@ -215,6 +221,14 @@ bool MissionPlannerRos::clearWaypointsServiceCallback(
   mission_planner_ptr_->clearGoals();
 }
 
+bool MissionPlannerRos::clearFirstWaypointServiceCallback(
+    std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
+  ROS_INFO("[%s]: Clear first waypoint service called.",
+           ros::this_node::getName().c_str());
+
+  mission_planner_ptr_->clearFirstGoal();
+}
+
 bool MissionPlannerRos::pointToInspectServiceCallback(
     mission_planner::PointToInspectSrv::Request &req,
     mission_planner::PointToInspectSrv::Response &res) {
@@ -261,6 +275,20 @@ bool MissionPlannerRos::changeRelativeAngleServiceCallback(
 
   ROS_INFO("[%s]: Relative angle changed successfully!  New angle:  %f radians",
            ros::this_node::getName().c_str(), req.angle);
+  res.success = true;
+}
+
+bool MissionPlannerRos::changeFlightModeServiceCallback(
+    mission_planner::FlightModeSrv::Request &req,
+    mission_planner::FlightModeSrv::Response &res) {
+
+  ROS_INFO("[%s]: Change flight mode service called.",
+           ros::this_node::getName().c_str());
+  
+  mission_planner_ptr_ -> setFlightMode(req.mode);
+
+  ROS_INFO("[%s]: Flight mode changed successfully!  New mode: %d",
+           ros::this_node::getName().c_str(), req.mode);
   res.success = true;
 }
 
@@ -328,7 +356,7 @@ void MissionPlannerRos::distanceToInspectionPointCallback(
 void MissionPlannerRos::flightModeCallback(
     const std_msgs::UInt8::ConstPtr &flight_mode, int id){
 
-  mission_planner_ptr_ -> setStatus(flight_mode->data);
+  mission_planner_ptr_ -> setFlightMode(flight_mode->data);
 }
 
 void MissionPlannerRos::relativeAngleCallback(
@@ -457,7 +485,7 @@ void MissionPlannerRos::publishPoints(
 void MissionPlannerRos::publishFlightMode(const ros::Publisher &pub_flight_mode){
   std_msgs::UInt8 flight_mode;
 
-  flight_mode.data = mission_planner_ptr_ -> getStatus();
+  flight_mode.data = mission_planner_ptr_ -> getFlightMode();
 
   pub_flight_mode.publish(flight_mode);
 }

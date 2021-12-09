@@ -121,6 +121,13 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
   void setMissionStatus(const bool &_status) { mission_status_ = _status; }
 
   /**
+   * @brief changes the flight mode of the formation
+   *
+   * @param _mode mode
+   */
+  void setFlightMode(const uint &_mode) { flight_mode_ = _mode; }
+
+  /**
    * @brief increases/decreases the relative angle of the drones
    *
    * @param _angle true if increase, false if decrease
