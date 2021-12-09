@@ -66,6 +66,13 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
           std::bind(&MissionPlannerRos::solvedTrajCallback, this,
                     std::placeholders::_1, drone));
     }
+    if (drone != inspection_params_.leader_id) {
+      flight_mode_sub_[drone] = nh_.subscribe<std_msgs::UInt8>(
+          "/drone_1/flight_mode",
+          1,
+          std::bind(&MissionPlannerRos::flightModeCallback, this,
+                    std::placeholders::_1, drone));
+    }
   }
 
   // Create timers
@@ -112,6 +119,10 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   mission_status_pub_ = nh_.advertise<mission_planner::BoolWithHeader>(
       "/drone_" + std::to_string(param_.drone_id) +
           "/mission_status",
+      1);
+  flight_mode_pub_ = nh_.advertise<std_msgs::UInt8>(
+      "/drone_" + std::to_string(param_.drone_id) +
+          "/flight_mode",
       1);
   if (param_.drone_id != inspection_params_.leader_id){
     formation_angle_pub_ = nh_.advertise<mission_planner::Float32withHeader>(
@@ -266,6 +277,7 @@ void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
     }
   }
   mission_planner_ptr_->plan();
+  publishFlightMode(flight_mode_pub_);
   publishDistance(distance_pub_);
   publishRelativeAngle(angle_pub_);
   publishMissionStatus(mission_status_pub_);
@@ -311,6 +323,12 @@ void MissionPlannerRos::distanceToInspectionPointCallback(
     const std_msgs::Bool::ConstPtr &distance, int id) {
 
   mission_planner_ptr_ -> incDistanceToInspect(distance->data);
+}
+
+void MissionPlannerRos::flightModeCallback(
+    const std_msgs::UInt8::ConstPtr &flight_mode, int id){
+
+  mission_planner_ptr_ -> setStatus(flight_mode->data);
 }
 
 void MissionPlannerRos::relativeAngleCallback(
@@ -434,6 +452,14 @@ void MissionPlannerRos::publishPoints(
 
   points.points = _points;
   pub_points.publish(points);
+}
+
+void MissionPlannerRos::publishFlightMode(const ros::Publisher &pub_flight_mode){
+  std_msgs::UInt8 flight_mode;
+
+  flight_mode.data = mission_planner_ptr_ -> getStatus();
+
+  pub_flight_mode.publish(flight_mode);
 }
 
 void MissionPlannerRos::publishDistance(const ros::Publisher &pub_distance) {

@@ -125,7 +125,7 @@ bool MissionPlannerInspection::inspecting(){
   // last_goal_2(1) = last_goal_(1);
 
   // float distance = (leader_pose - last_goal_2).norm();
-  float distance = (states_[inspection_params_.leader_id].pos - pointOnCircle(last_goal_.pos)).norm();
+  float distance = (states_[inspection_params_.leader_id].pos - pointOnCircle(goals_[0].pos)).norm();
   std::cout << "Distance: " << distance << std::endl;
 
   if (distance > INSPECTING_TOL)  return true;

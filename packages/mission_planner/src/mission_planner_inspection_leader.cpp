@@ -12,6 +12,7 @@ std::vector<state> MissionPlannerInspectionLeader::initialTrajectory(
 
   // Trajectory to return in that function
   std::vector<state> traj;
+  traj.clear();
 
   // Transform to polar initial and final point
   Eigen::Vector3d initial_pose_polar =
@@ -63,7 +64,8 @@ std::vector<state> MissionPlannerInspectionLeader::initialTrajectory(
 std::vector<state> MissionPlannerInspectionLeader::inspectionTrajectory(
     const state &initial_pose){
 
-  std::cout << "Entering Leader Inspection Trajectory" << std::endl;
+  refreshGoals();
+
   // Trajectory to return in that function
   std::vector<state> traj;
   traj.clear();
@@ -71,23 +73,19 @@ std::vector<state> MissionPlannerInspectionLeader::inspectionTrajectory(
   // Transform to polar initial and final point
   Eigen::Vector3d initial_pose_polar =
       transformToPolar(initial_pose.pos, point_to_inspect_);
-  
-  // DIFFERENT final_pose_polar
-  Eigen::Vector3d final_pose_xyz   = pointOnCircle(last_goal_.pos);
+  Eigen::Vector3d final_pose_xyz   = pointOnCircle(goals_[0].pos);
   Eigen::Vector3d final_pose_polar = transformToPolar(final_pose_xyz, point_to_inspect_);
-  // std::cout << "Initial_pose_polar [r, theta, z]: " << initial_pose_polar(0) << ", " << initial_pose_polar(1) << ", " << initial_pose_polar(2) << std::endl;
-  // std::cout << "Final_pose_polar   [r, theta, z]: " << final_pose_polar(0) << ", " << final_pose_polar(1) << ", " << final_pose_polar(2) << std::endl;
-  
+ 
   // Calculate curve length and theta_total
   float theta_total = MissionPlannerInspection::getTotalAngle(initial_pose_polar(1), final_pose_polar(1));
 
-  // Not exactly this
+  // Curve length
   float curve_length =
       sqrt(pow((final_pose_polar(0) - initial_pose_polar(0)), 2) +
            pow(final_pose_polar(2) - initial_pose_polar(2), 2));
   float t_k;
-  // std::cout << "Curve length: " << curve_length << std::endl;
 
+  // std::cout << "Curve length: " << curve_length << std::endl;
   if (curve_length < INSPECTING_TOL)   return traj;
 
   Eigen::Vector3d k_point_polar;
@@ -121,8 +119,6 @@ std::vector<state> MissionPlannerInspectionLeader::inspectionTrajectory(
         k_point_polar(0) * sin(k_point_polar(1)) + point_to_inspect_(1);
     k_point_xyz(2) = k_point_polar(2);
     k_state.pos = k_point_xyz;
-
-    // if (k < 5)  std::cout << "k: " << k << "  [X, Y, Z]: [" << k_point_xyz(0) << ", " << k_point_xyz(1) << ", " << k_point_xyz(2) << "]" << std::endl;
 
     // Push back the state
     traj.push_back(std::move(k_state));
@@ -158,6 +154,7 @@ bool MissionPlannerInspectionLeader::checks() {
 
   // Check waypoints to remove or not the waypoints to follow
   if (waypointReached(goals_[0], states_[param_.drone_id])) {
+    std::cout << "Waypoint reached!" << std::endl;
     // Infer here if the formation has to stop or not
     // Know if the formation has to slow down when it is arriving the waypoint
     last_goal_ = goals_[0];
@@ -184,17 +181,19 @@ bool MissionPlannerInspectionLeader::checks() {
     if (param_.flight_mode == 3)        stop_ = true;
     if (param_.flight_mode == 4){
       planner_state_ = trajectory_planner::PlannerStatus::INSPECTING;
+      std::cout << "Inspecting..." << std::endl;
       stop_ = true;
     }
 
-    std::cout << "Removed waypoint" << std::endl;
-    init_point_ = goals_[0].pos;
-    goals_.erase(goals_.begin());
+    if (planner_state_ != trajectory_planner::PlannerStatus::INSPECTING){
+      std::cout << "Removed waypoint" << std::endl;
+      init_point_ = goals_[0].pos;
+      goals_.erase(goals_.begin());
 
-    if (!hasGoal()) return false;
+      if (!hasGoal()) return false;
+    }
+    
   }
-
-  // std::cout << stop_ << std::endl;
 
   return true;
 }

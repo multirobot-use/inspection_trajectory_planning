@@ -13,6 +13,7 @@
 #include <nav_msgs/Odometry.h>
 #include <nav_msgs/Path.h>
 #include <std_msgs/Bool.h>
+#include <std_msgs/UInt8.h>
 #include <std_srvs/Empty.h>
 #include <std_srvs/SetBool.h>
 #include <trajectory_msgs/JointTrajectory.h>
@@ -57,6 +58,7 @@ class MissionPlannerRos {
   std::map<int, ros::Subscriber> solved_trajectories_sub_;
   std::map<int, ros::Subscriber> distance_to_inspection_point_sub_;
   std::map<int, ros::Subscriber> relative_angle_sub_;
+  std::map<int, ros::Subscriber> flight_mode_sub_;
 
   // Publishers
   ros::Publisher points_pub_;
@@ -73,6 +75,7 @@ class MissionPlannerRos {
   ros::Publisher pub_point_cloud_;
   ros::Publisher formation_angle_pub_;
   ros::Publisher inspection_distance_pub_;
+  ros::Publisher flight_mode_pub_;
 
   // Services
   ros::ServiceServer service_activate_planner;
@@ -165,6 +168,12 @@ class MissionPlannerRos {
    */
   void clockCB(const ros::TimerEvent &e);
 
+  /*! \brief Callback for drone's flight mode
+   *   \param msg leader's flight mode, std_msgs/Uint8
+   *   \param id  identifier of the drone
+   **/
+  void flightModeCallback(const std_msgs::UInt8::ConstPtr &flight_mode, int id);
+
   /*! \brief Callback for drone's pose
    *   \param msg drone's pose, geometry_msgs/PoseStamped
    *   \param id  identifier of the drone
@@ -199,6 +208,10 @@ class MissionPlannerRos {
   /*! \brief function to publish the initial time for the leader's reference trajectory
    */
   void publishInitTrajTimeLeader(const ros::Publisher &pub_time_leader);
+
+  /*! \brief function to publish the flight mode
+   */
+  void publishFlightMode(const ros::Publisher &pub_flight_mode);
 
   /*! \brief function to publish trajectory to the solver
    */
