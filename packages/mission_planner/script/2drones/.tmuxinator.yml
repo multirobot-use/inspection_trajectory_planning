@@ -28,7 +28,7 @@ windows:
       layout: even-vertical
       panes:
         - sleep 12; python ../operator_interface.py
-  - rosbag:
-      layout: even-vertical
-      panes:
-        - sleep 40; roslaunch mission_planner rosbag_recorder.launch
+  # - rosbag:
+  #     layout: even-vertical
+  #     panes:
+  #       - sleep 40; roslaunch mission_planner rosbag_recorder.launch

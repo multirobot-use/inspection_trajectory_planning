@@ -60,6 +60,7 @@ class MissionPlannerRos {
   std::map<int, ros::Subscriber> distance_to_inspection_point_sub_;
   std::map<int, ros::Subscriber> relative_angle_sub_;
   std::map<int, ros::Subscriber> flight_mode_sub_;
+  std::map<int, ros::Subscriber> planner_status_sub_;
 
   // Publishers
   ros::Publisher points_pub_;
@@ -77,6 +78,7 @@ class MissionPlannerRos {
   ros::Publisher formation_angle_pub_;
   ros::Publisher inspection_distance_pub_;
   ros::Publisher flight_mode_pub_;
+  ros::Publisher planner_status_pub_;
 
   // Services
   ros::ServiceServer service_activate_planner;
@@ -190,6 +192,12 @@ class MissionPlannerRos {
    **/
   void flightModeCallback(const std_msgs::UInt8::ConstPtr &flight_mode, int id);
 
+  /*! \brief Callback for drone's planner status
+   *   \param msg leader's planner status, std_msgs/Uint8
+   *   \param id  identifier of the drone
+   **/
+  void plannerStatusCallback(const std_msgs::UInt8::ConstPtr &flight_mode, int id);
+
   /*! \brief Callback for drone's pose
    *   \param msg drone's pose, geometry_msgs/PoseStamped
    *   \param id  identifier of the drone
@@ -228,6 +236,10 @@ class MissionPlannerRos {
   /*! \brief function to publish the flight mode
    */
   void publishFlightMode(const ros::Publisher &pub_flight_mode);
+
+  /*! \brief function to publish the planner status
+   */
+  void publishPlannerStatus(const ros::Publisher &pub_planner_status);
 
   /*! \brief function to publish trajectory to the solver
    */

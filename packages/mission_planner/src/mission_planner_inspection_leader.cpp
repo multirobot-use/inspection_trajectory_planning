@@ -79,10 +79,10 @@ std::vector<state> MissionPlannerInspectionLeader::inspectionTrajectory(
   // Calculate curve length and theta_total
   float theta_total = MissionPlannerInspection::getTotalAngle(initial_pose_polar(1), final_pose_polar(1));
 
-  // Curve length
+  // Curve length 
   float curve_length =
       sqrt(pow((final_pose_polar(0) - initial_pose_polar(0)), 2) +
-           pow(final_pose_polar(2) - initial_pose_polar(2), 2));
+           pow((final_pose_polar(2) - initial_pose_polar(2)), 2));
   float t_k;
 
   // std::cout << "Curve length: " << curve_length << std::endl;
@@ -98,7 +98,7 @@ std::vector<state> MissionPlannerInspectionLeader::inspectionTrajectory(
     k_state.time_stamp = start_plan_time_ + param_.planning_rate + k*param_.step_size;
 
     // Change 0.15 por param_.vel_inspecting
-    if (curve_length < INSPECTING_TOL)      t_k = 0;
+    if (curve_length < INSPECTING_TOL)      t_k = 1;
     else                                    t_k = (0.15 * param_.step_size * k) / curve_length;
 
     // Saturation of t_k value (Uncomment in order to slow down while is arriving the waypoint. Not overshooting behaviour)

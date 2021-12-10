@@ -72,6 +72,11 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
           1,
           std::bind(&MissionPlannerRos::flightModeCallback, this,
                     std::placeholders::_1, drone));
+      planner_status_sub_[drone] = nh_.subscribe<std_msgs::UInt8>(
+          "/drone_1/planner_status",
+          1,
+          std::bind(&MissionPlannerRos::plannerStatusCallback, this,
+                    std::placeholders::_1, drone));
     }
   }
 
@@ -124,13 +129,16 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
       "/drone_" + std::to_string(param_.drone_id) +
           "/flight_mode",
       1);
+  planner_status_pub_ = nh_.advertise<std_msgs::UInt8>(
+      "/drone_" + std::to_string(param_.drone_id) +
+          "/planner_status",
+      1);
   if (param_.drone_id != inspection_params_.leader_id){
     formation_angle_pub_ = nh_.advertise<mission_planner::Float32withHeader>(
         "/drone_" + std::to_string(param_.drone_id) +
             "/formation_angle",
         1);
   }
-
   inspection_distance_pub_ = nh_.advertise<mission_planner::Float32withHeader>(
       "/drone_" + std::to_string(param_.drone_id) +
           "/inspection_distance",
@@ -306,6 +314,7 @@ void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
   }
   mission_planner_ptr_->plan();
   publishFlightMode(flight_mode_pub_);
+  publishPlannerStatus(planner_status_pub_);
   publishDistance(distance_pub_);
   publishRelativeAngle(angle_pub_);
   publishMissionStatus(mission_status_pub_);
@@ -315,15 +324,12 @@ void MissionPlannerRos::clockCB(const ros::TimerEvent &e) {
   auto current_time = ros::Time::now();
   float aux_time = current_time.sec + current_time.nsec/1000000000.0;
   mission_planner_ptr_->setCurrentTime(aux_time);
-
-  
 }
 
 void MissionPlannerRos::topicsCB(const ros::TimerEvent &e) {
   if (param_.drone_id != inspection_params_.leader_id)  publishFormationAngle(formation_angle_pub_);
 
   publishInspectionDistance(inspection_distance_pub_);
-
 }
 
 void MissionPlannerRos::pubVisCB(const ros::TimerEvent &e) {
@@ -357,6 +363,12 @@ void MissionPlannerRos::flightModeCallback(
     const std_msgs::UInt8::ConstPtr &flight_mode, int id){
 
   mission_planner_ptr_ -> setFlightMode(flight_mode->data);
+}
+
+void MissionPlannerRos::plannerStatusCallback(
+    const std_msgs::UInt8::ConstPtr &planner_status, int id){
+
+  mission_planner_ptr_ -> setStatus(planner_status->data);
 }
 
 void MissionPlannerRos::relativeAngleCallback(
@@ -488,6 +500,14 @@ void MissionPlannerRos::publishFlightMode(const ros::Publisher &pub_flight_mode)
   flight_mode.data = mission_planner_ptr_ -> getFlightMode();
 
   pub_flight_mode.publish(flight_mode);
+}
+
+void MissionPlannerRos::publishPlannerStatus(const ros::Publisher &pub_planner_status){
+  std_msgs::UInt8 planner_status;
+
+  planner_status.data = mission_planner_ptr_ -> getStatus();
+
+  pub_planner_status.publish(planner_status);
 }
 
 void MissionPlannerRos::publishDistance(const ros::Publisher &pub_distance) {
