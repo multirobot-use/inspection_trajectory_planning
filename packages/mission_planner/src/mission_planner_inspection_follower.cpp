@@ -143,7 +143,7 @@ std::vector<state> MissionPlannerInspectionFollower::inspectionTrajectory(
 
     // Change 0.15 por param_.vel_inspecting
     if (curve_length < INSPECTING_TOL)      t_k = 1;
-    else                                    t_k = (0.15 * param_.step_size * k) / curve_length;
+    else                                    t_k = (param_.vel_inspect * param_.step_size * k) / curve_length;
 
     // Saturation of t_k value (Uncomment in order to slow down while is arriving the waypoint. Not overshooting behaviour)
     if (t_k < 0)  t_k = 0;

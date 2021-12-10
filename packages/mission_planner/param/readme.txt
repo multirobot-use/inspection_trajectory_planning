@@ -42,6 +42,8 @@ topics_rate         --> indicate a float that depicts the rate (seconds) of the 
 vel_max             --> indicate a float that depicts the cruising speed (m/s) of the formation.
                         This is the value of the desired cruising speed and is used to generate the reference trajectories.
 
+vel_inspect         --> indicate a float that depicts the cruising speed (m/s) of the formation when inspecting.
+
 acc_max             --> indicate a float that depicts the maximum acceleration (m/s²) of the formation.
 
 inspection_dist     --> indicate a float that depicts the desired inspection distance (m).
