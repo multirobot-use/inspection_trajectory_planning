@@ -36,7 +36,7 @@ std::vector<state> MissionPlannerInspectionLeader::initialTrajectory(
     k_state.time_stamp = start_plan_time_ + param_.planning_rate + k*param_.step_size;
     float t_k = (param_.vel_max * param_.step_size * k) / curve_length;
 
-    // Saturation of t_k value (Uncomment in order to slow down while is arriving the waypoint. Not overshooting behaviour)
+    // Saturation of t_k value
     if ((t_k > 1) && (stop_))  t_k = 1;
 
     // Calculate point with parameter tk
@@ -127,8 +127,6 @@ std::vector<state> MissionPlannerInspectionLeader::inspectionTrajectory(
   return traj;
 }
 
-
-
 void MissionPlannerInspectionLeader::appendGoal(const state &_new_goal) {
   state goal;
   Eigen::Vector3d goal_vector = _new_goal.pos;
@@ -199,7 +197,11 @@ bool MissionPlannerInspectionLeader::checks() {
       planner_state_ = trajectory_planner::PlannerStatus::REPLANNED;
     }
 
-    if (planner_state_ != trajectory_planner::PlannerStatus::INSPECTING){
+    if (planner_state_ != trajectory_planner::PlannerStatus::INSPECTING ||
+       (planner_state_ == trajectory_planner::PlannerStatus::INSPECTING && skip_ == true)){
+      
+      skip_ = false;
+      planner_state_ = trajectory_planner::PlannerStatus::REPLANNED;
       std::cout << "Removed waypoint" << std::endl;
       init_point_ = goals_[0].pos;
       goals_.erase(goals_.begin());

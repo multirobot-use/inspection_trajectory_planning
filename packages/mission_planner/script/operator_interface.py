@@ -337,6 +337,7 @@ class Drone:
                 
                 elif ((pressed_key == 'n' or pressed_key == 'N') and (self.flight_mode == 4)):
                     self.clear_1_waypoint_service()
+                    print "POINT SKIPPED!"
                     time.sleep(1)
                 
                 aux_key = pressed_key
@@ -477,7 +478,7 @@ def show_menu(params,drones):
         pz = float(raw_input("Z pose (meters): "))
         wp = [px, py, pz]
         for drone in drones:
-            drones.add_one_waypoint(wp)
+            drone.add_one_waypoint(wp)
     
     # Clear all the waypoints
     elif option == 4:
