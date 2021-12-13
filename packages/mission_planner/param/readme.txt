@@ -39,8 +39,15 @@ topics_rate         --> indicate a float that depicts the rate (seconds) of the 
                         It is advisable to have this value to step_size as minimum in order to get enough data to plot this information
                         with accuracy.
 
-vel_max             --> indicate a float that depicts the cruising speed (m/s) of the formation.
-                        This is the value of the desired cruising speed and is used to generate the reference trajectories.
+vel_max             --> indicate a float that depicts the maximum cruising speed (m/s) of the formation.
+                        This is the value of the desired maximum cruising speed.
+
+vel_min             --> indicate a float that depicts the minimum cruising speed (m/s) of the formation.
+                        This is the value of the desired minimum cruising speed.
+
+go_around_time      --> indicate a float that depicts the time (s) that the formation has to last to describe a full circle around the structure.
+                        This time can be chosen independent of the inspection distance and this is used to adjust the cruising speed regarding
+                        the inspection distance, the cruising speed has a minimum value (vel_min) and a maximum value (vel_max).
 
 vel_inspect         --> indicate a float that depicts the cruising speed (m/s) of the formation when inspecting.
 

@@ -688,5 +688,7 @@ if __name__ == "__main__":
 
     # Menu mode
     while (not rospy.is_shutdown()):
-        show_menu(params, drones)            
-        time.sleep(1.5)
+        show_menu(params, drones)
+        print("PRESS ENTER")
+        raw_input(" >>")
+        time.sleep(1)

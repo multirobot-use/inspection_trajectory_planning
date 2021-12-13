@@ -28,13 +28,21 @@ std::vector<state> MissionPlannerInspectionLeader::initialTrajectory(
 
   Eigen::Vector3d k_point_polar;
   Eigen::Vector3d k_point_xyz;
+  float vel, t_k;
   state k_state = initial_pose;
-  
+
+  // Initialize k_point_polar(0) in order to be able to calculate the velocity
+  k_point_polar(0) = initial_pose_polar(0);
+
   // Generate the reference/initial trajectory
   for (int k = 0; k < param_.horizon_length; k++) {
-    // Calculate parameter tk
     k_state.time_stamp = start_plan_time_ + param_.planning_rate + k*param_.step_size;
-    float t_k = (param_.vel_max * param_.step_size * k) / curve_length;
+
+    // Calculate vel and saturate if necessary
+    vel = calculateVel(k_point_polar(0));
+
+    // Calculate parameter tk
+    t_k = (vel * param_.step_size * k) / curve_length;
 
     // Saturation of t_k value
     if ((t_k > 1) && (stop_))  t_k = 1;
@@ -134,6 +142,15 @@ void MissionPlannerInspectionLeader::appendGoal(const state &_new_goal) {
   goal.pos = pointOnCircle(goal_vector);
 
   goals_.push_back(goal);
+}
+
+float MissionPlannerInspectionLeader::calculateVel(const float &_distance){
+  // Velocity*Time = Distance
+  float vel = (2*M_PI*_distance)/param_.go_around_time;
+  if (vel < param_.vel_min)       vel = param_.vel_min;
+  else if (vel > param_.vel_max)  vel = param_.vel_max;
+
+  return vel;
 }
 
 bool MissionPlannerInspectionLeader::checks() {

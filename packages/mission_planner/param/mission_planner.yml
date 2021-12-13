@@ -9,7 +9,9 @@ planning_rate: 2       # sec
 visualization_rate: 3  # sec
 clock_rate: 0.05       # sec
 topics_rate: 0.2       # sec
-vel_max: 0.7           # m/s
+vel_max: 5             # m/s
+vel_min: 0.3           # m/s
+go_around_time: 60     # s
 vel_inspect: 0.2       # m/s
 acc_max: 1             # m/s²
 inspection_dist: 6     # m 

@@ -7,8 +7,11 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   trajectory_planner::safeGetParam(nh_, "n_drones", param_.n_drones);
   trajectory_planner::safeGetParam(nh_, "step_size", param_.step_size);
   trajectory_planner::safeGetParam(nh_, "planning_rate", param_.planning_rate);
+  trajectory_planner::safeGetParam(nh_, "topics_rate", param_.topics_rate);
   trajectory_planner::safeGetParam(nh_, "drone_id", param_.drone_id);
   trajectory_planner::safeGetParam(nh_, "vel_max", param_.vel_max);
+  trajectory_planner::safeGetParam(nh_, "vel_min", param_.vel_min);
+  trajectory_planner::safeGetParam(nh_, "go_around_time", param_.go_around_time);
   trajectory_planner::safeGetParam(nh_, "acc_max", param_.acc_max);
   trajectory_planner::safeGetParam(nh_, "frame", param_.frame);
   trajectory_planner::safeGetParam(nh_, "drone_id", param_.drone_id);
