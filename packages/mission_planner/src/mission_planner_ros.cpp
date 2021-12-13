@@ -11,6 +11,7 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   trajectory_planner::safeGetParam(nh_, "drone_id", param_.drone_id);
   trajectory_planner::safeGetParam(nh_, "vel_max", param_.vel_max);
   trajectory_planner::safeGetParam(nh_, "vel_min", param_.vel_min);
+  trajectory_planner::safeGetParam(nh_, "vel_inspect", param_.vel_inspect);
   trajectory_planner::safeGetParam(nh_, "go_around_time", param_.go_around_time);
   trajectory_planner::safeGetParam(nh_, "acc_max", param_.acc_max);
   trajectory_planner::safeGetParam(nh_, "frame", param_.frame);
@@ -80,6 +81,11 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
           1,
           std::bind(&MissionPlannerRos::plannerStatusCallback, this,
                     std::placeholders::_1, drone));
+      waypoints_sub_[drone] = nh_.subscribe<geometry_msgs::PoseArray>(
+          "/drone_1/mission_planner_ros/waypoints",
+          1,
+          std::bind(&MissionPlannerRos::waypointsCallback, this,
+                    std::placeholders::_1, drone));
     }
   }
 
@@ -104,6 +110,8 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
       nh_.advertise<visualization_msgs::Marker>("points_to_inspect", 1);
   points_trans_pub_ = nh_.advertise<visualization_msgs::Marker>(
       "points_to_inspect_transformed", 1);
+  waypoints_pub_ =
+      nh_.advertise<geometry_msgs::PoseArray>("waypoints", 1);
   sphere_pub_ =
       nh_.advertise<visualization_msgs::Marker>("inspection_sphere", 1);
   pub_path_ = nh_.advertise<nav_msgs::Path>("solved_traj", 1);
@@ -321,6 +329,20 @@ void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
   publishDistance(distance_pub_);
   publishRelativeAngle(angle_pub_);
   publishMissionStatus(mission_status_pub_);
+
+  std::vector<state> goals = mission_planner_ptr_->getGoals();
+
+  geometry_msgs::Pose point;
+  geometry_msgs::PoseArray points;
+
+  for (auto const &goal : goals) {
+    point.position.x = goal.pos(0);
+    point.position.y = goal.pos(1);
+    point.position.z = goal.pos(2);
+    points.poses.push_back(point);
+  }
+  publishWaypoints(waypoints_pub_, points);
+
 }
 
 void MissionPlannerRos::clockCB(const ros::TimerEvent &e) {
@@ -372,6 +394,23 @@ void MissionPlannerRos::plannerStatusCallback(
     const std_msgs::UInt8::ConstPtr &planner_status, int id){
 
   mission_planner_ptr_ -> setStatus(planner_status->data);
+}
+
+void MissionPlannerRos::waypointsCallback(
+    const geometry_msgs::PoseArray::ConstPtr &waypoints, int id){
+  // Adapt to trajectory_planner::state
+  std::vector<trajectory_planner::state> goals;
+  trajectory_planner::state waypoint;
+  goals.clear();
+
+  for (auto i = 0; i < waypoints->poses.size(); i++){
+    waypoint.pos(0) = waypoints->poses[i].position.x;
+    waypoint.pos(1) = waypoints->poses[i].position.y;
+    waypoint.pos(2) = waypoints->poses[i].position.z;
+    goals.push_back(waypoint);
+  }  
+
+  mission_planner_ptr_ -> setGoals(goals);
 }
 
 void MissionPlannerRos::relativeAngleCallback(
@@ -495,6 +534,19 @@ void MissionPlannerRos::publishPoints(
 
   points.points = _points;
   pub_points.publish(points);
+}
+
+void MissionPlannerRos::publishWaypoints(
+  const ros::Publisher &pub_waypoints,
+  const geometry_msgs::PoseArray &_points){
+
+  geometry_msgs::PoseArray points;
+
+  points.header.frame_id = param_.frame;
+  points.header.stamp = ros::Time::now();
+  points.poses = _points.poses;
+
+  pub_waypoints.publish(points);
 }
 
 void MissionPlannerRos::publishFlightMode(const ros::Publisher &pub_flight_mode){

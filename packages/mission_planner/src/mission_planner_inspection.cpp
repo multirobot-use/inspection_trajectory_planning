@@ -77,12 +77,23 @@ float MissionPlannerInspection::getTotalAngle(const float &_initial_angle,
 
   if (_initial_angle < 0)
     initial_angle = _initial_angle + 2 * M_PI;
-  else
-    initial_angle = _initial_angle;
+  else if (_initial_angle > 2*M_PI) {
+      initial_angle = _initial_angle;
+      while (initial_angle > 2*M_PI){
+        initial_angle = initial_angle - 2*M_PI;
+      }
+  }
+  else initial_angle = _initial_angle;
+
   if (_final_angle < 0)
     final_angle = _final_angle + 2 * M_PI;
-  else
-    final_angle = _final_angle;
+  else if (_final_angle > 2*M_PI){
+      final_angle = _final_angle;
+      while (final_angle > 2*M_PI){
+        final_angle = final_angle - 2*M_PI;
+      }
+  }
+  else final_angle = _final_angle;
 
   // Get the shortest path (should be always between [-M_PI, M_PI])
   if (final_angle - initial_angle > M_PI)
@@ -94,6 +105,7 @@ float MissionPlannerInspection::getTotalAngle(const float &_initial_angle,
   if ((final_angle - initial_angle < M_PI) && (final_angle - initial_angle > 0))
     total_angle = final_angle - initial_angle;
 
+  std::cout << "Total angle: Done" << std::endl;
   return total_angle;
 }
 

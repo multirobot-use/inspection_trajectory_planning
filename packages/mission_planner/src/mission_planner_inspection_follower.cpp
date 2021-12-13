@@ -120,7 +120,7 @@ std::vector<state> MissionPlannerInspectionFollower::inspectionTrajectory(
   else                      { formation_angle = -relative_angle_; }
 
   // Calculate curve length and theta_total
-  float theta_total = MissionPlannerInspection::getTotalAngle(initial_pose_polar(1), final_pose_polar(1)) + formation_angle;
+  float theta_total = MissionPlannerInspection::getTotalAngle(initial_pose_polar(1), final_pose_polar(1) + formation_angle);
 
   // Approx
   float curve_length =

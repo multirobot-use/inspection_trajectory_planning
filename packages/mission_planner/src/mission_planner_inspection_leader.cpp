@@ -83,7 +83,7 @@ std::vector<state> MissionPlannerInspectionLeader::inspectionTrajectory(
       transformToPolar(initial_pose.pos, point_to_inspect_);
   Eigen::Vector3d final_pose_xyz   = pointOnCircle(goals_[0].pos);
   Eigen::Vector3d final_pose_polar = transformToPolar(final_pose_xyz, point_to_inspect_);
- 
+
   // Calculate curve length and theta_total
   float theta_total = MissionPlannerInspection::getTotalAngle(initial_pose_polar(1), final_pose_polar(1));
 

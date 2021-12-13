@@ -165,6 +165,16 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
    */
   bool isClockwise(const Eigen::Vector3d &_point1, const Eigen::Vector3d &_point2);
 
+  /**
+   * @brief sets a new bunch of waypoints
+   */
+  void setGoals(const std::vector<trajectory_planner::state> &_waypoints) {
+    goals_.clear();
+    for (auto &waypoint : _waypoints) {
+      goals_.push_back(waypoint);
+    }
+  }
+
 
  protected:
   bool mission_status_ = false;

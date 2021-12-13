@@ -4,6 +4,7 @@
 #include <geometry_msgs/PoseWithCovariance.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <geometry_msgs/TwistWithCovariance.h>
+#include <geometry_msgs/PoseArray.h>
 #include <mission_planner/FlightModeSrv.h>
 #include <mission_planner/AngleSrv.h>
 #include <mission_planner/DistanceSrv.h>
@@ -61,10 +62,12 @@ class MissionPlannerRos {
   std::map<int, ros::Subscriber> relative_angle_sub_;
   std::map<int, ros::Subscriber> flight_mode_sub_;
   std::map<int, ros::Subscriber> planner_status_sub_;
+  std::map<int, ros::Subscriber> waypoints_sub_;
 
   // Publishers
   ros::Publisher points_pub_;
   ros::Publisher points_trans_pub_;
+  ros::Publisher waypoints_pub_;
   ros::Publisher pub_path_;
   ros::Publisher pub_ref_path_;
   ros::Publisher tracking_pub_;
@@ -187,16 +190,22 @@ class MissionPlannerRos {
   void clockCB(const ros::TimerEvent &e);
 
   /*! \brief Callback for drone's flight mode
-   *   \param msg leader's flight mode, std_msgs/Uint8
+   *   \param flight_mode leader's flight mode, std_msgs/Uint8
    *   \param id  identifier of the drone
    **/
   void flightModeCallback(const std_msgs::UInt8::ConstPtr &flight_mode, int id);
 
-  /*! \brief Callback for drone's planner status
-   *   \param msg leader's planner status, std_msgs/Uint8
+  /*! \brief Callback for waypoints
+   *   \param waypoints list of waypoints, geometry_msgs/PoseArray
    *   \param id  identifier of the drone
    **/
-  void plannerStatusCallback(const std_msgs::UInt8::ConstPtr &flight_mode, int id);
+  void waypointsCallback(const geometry_msgs::PoseArray::ConstPtr &waypoints, int id);
+
+  /*! \brief Callback for drone's planner status
+   *   \param planner_status leader's planner status, std_msgs/Uint8
+   *   \param id  identifier of the drone
+   **/
+  void plannerStatusCallback(const std_msgs::UInt8::ConstPtr &planner_status, int id);
 
   /*! \brief Callback for drone's pose
    *   \param msg drone's pose, geometry_msgs/PoseStamped
@@ -254,6 +263,13 @@ class MissionPlannerRos {
   void publishPoints(const ros::Publisher &pub_points,
                      const std::vector<geometry_msgs::Point> &_points,
                      Colors color);
+
+  /*! \brief function to publish waypoints to a topic
+   *   \param pub_waypoints publisher
+   *   \param _points vector of points to publish
+   */
+  void publishWaypoints(const ros::Publisher &pub_waypoints,
+                        const geometry_msgs::PoseArray &_points);
 
   /*! \brief function to publish the cylinder on RViz
    *   \param pub_sphere publisher
