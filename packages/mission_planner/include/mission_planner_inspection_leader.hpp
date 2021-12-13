@@ -28,7 +28,7 @@ class MissionPlannerInspectionLeader : public MissionPlannerInspection {
 
 
  protected:
-  bool stop_;
+  bool stop_ = true;
 
 
  private:

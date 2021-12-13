@@ -30,6 +30,8 @@ from mission_planner.srv import DistanceSrvRequest
 from mission_planner.srv import DistanceSrv
 from mission_planner.srv import AngleSrvRequest
 from mission_planner.srv import AngleSrv
+from mission_planner.srv import FlightModeSrvRequest
+from mission_planner.srv import FlightModeSrv
 import signal
 import sys
 from collections import namedtuple
@@ -92,6 +94,7 @@ class Drone:
         add_waypoint_url     = drone_ns + "/mission_planner_ros/add_waypoint"
         clear_1_waypoint_url = drone_ns + "/mission_planner_ros/clear_first_waypoint"
         clear_waypoints_url  = drone_ns + "/mission_planner_ros/clear_waypoints"
+        change_flight_url    = drone_ns + "/mission_planner_ros/change_flight_mode"
         point_to_inspect_url = drone_ns + "/mission_planner_ros/point_to_inspect"
         distance_url         = drone_ns + "/mission_planner_ros/distance_to_inspect"
         relative_angle_url   = drone_ns + "/mission_planner_ros/change_relative_angle"
@@ -114,6 +117,10 @@ class Drone:
         # Clear first waypoint service
         rospy.wait_for_service(clear_1_waypoint_url)
         self.clear_1_waypoint_service = rospy.ServiceProxy(clear_1_waypoint_url, Empty)
+
+        # Change flight mode service
+        rospy.wait_for_service(change_flight_url)
+        self.change_flight_mode       = rospy.ServiceProxy(change_flight_url, FlightModeSrv)
 
         # Change point to inspect service
         rospy.wait_for_service(point_to_inspect_url)
@@ -205,6 +212,17 @@ class Drone:
             
         except rospy.ServiceException, e:
             print "Service call failed: %s" %e
+
+    # Change Flight Mode method
+    def change_flight_mode(self, mode):
+        try:
+            mode_req        = FlightModeSrvRequest()
+            mode_req.mode   = mode
+            self.change_flight_mode(mode_req)
+            print "Flight mode changed!"
+            
+        except:
+            print("Failed calling change_flight_mode service")
 
     # Go to waypoint method
     def go_to_waypoint(self, waypoint):
@@ -413,7 +431,7 @@ class Drone:
     
     # Callback for the Flight Mode
     def callbackFlightMode(self, data):
-        self.flight_mode = data.data
+        self.flight_mode = data.data 
         
 
 # Menu function
@@ -437,13 +455,14 @@ def show_menu(params,drones):
     print "\tj. Send the drones to HOME position"
     print "\tk. Land the drones"
     print "\tl. Send to next waypoint (ONLY IN INSPECTION MODE)"
-    print "\tm. Watch the evolution of the inspection distance and the formation angle"
+    print "\tm. Watch the evolution of the inspection distance & formation angle"
+    print "\tn. Change flight mode"
     print "\tz. Exit the console\n"
     print "################################################################################"
     
     option = 0
 
-    while (option < (ord('a')) or option > (ord('m'))): # ASCII for make sure there is no error of inputs
+    while (option < (ord('a')) or option > (ord('n'))): # ASCII for make sure there is no error of inputs
         try: 
             option = ord(raw_input (" >> "))
         except:
@@ -556,6 +575,14 @@ def show_menu(params,drones):
     # Monitor the tracking problem of the inspection distance and the formation angle
     elif option == 12:
         drones[0].tracking_screen()
+    
+    # Change flight mode
+    elif option == 13:
+        print("New flight mode\nChoose 1 (NON-STOPPING), 2 (SMOOTH), 3 (STOPPING), 4 (INSPECTING)")
+        mode = (int(raw_input(" >> ")))
+        for drone in drones:
+            drone.change_flight_mode(mode)
+            time.sleep(0.5)
         
     else:
         print ("Option '" + chr(option) + "' does not exist!")

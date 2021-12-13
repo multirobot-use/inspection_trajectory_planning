@@ -148,24 +148,24 @@ bool MissionPlannerInspectionLeader::checks() {
               << " does not have all poses" << std::endl;
     return false;
   }
-  stop_ = true;
 
   // Check waypoints to remove or not the waypoints to follow
   if (waypointReached(goals_[0], states_[param_.drone_id])) {
     std::cout << "Waypoint reached!" << std::endl;
+    last_goal_ = goals_[0];
 
     // Infer here if the formation has to stop or not
     // Know if the formation has to slow down when it is arriving the waypoint
-    last_goal_ = goals_[0];
-    // In the case of Flight Mode 1, it always stops
-    if (flight_mode_ == 1) {
+    
+    // In the case of Flight Mode 1, it never stops
+    if (flight_mode_ == trajectory_planner::FlightMode::NONSTOP) {
       // planner_state_ = trajectory_planner::PlannerStatus::REPLANNED;
       stop_ = false;
       }
 
     // In the case of Flight Mode 2, if there are at least 2 waypoints (plus the current), it is important to verify
     // if the direction that has to follow is the same in both cases
-    if (flight_mode_ == 2){
+    if (flight_mode_ == trajectory_planner::FlightMode::SMOOTH){
       // planner_state_ = trajectory_planner::PlannerStatus::REPLANNED;
       if (goals_.size() >= 3){
         bool direction1 = MissionPlannerInspection::isClockwise(goals_[0].pos, goals_[1].pos);
@@ -181,18 +181,19 @@ bool MissionPlannerInspectionLeader::checks() {
     }
 
     // In the case of Flight Mode 3 and 4, it always stops
-    if (flight_mode_ == 3){
+    if (flight_mode_ == trajectory_planner::FlightMode::STOP){
       // planner_state_ = trajectory_planner::PlannerStatus::REPLANNED;
       stop_ = true;
     }
 
-    if (flight_mode_ == 4){
+    if (flight_mode_ == trajectory_planner::FlightMode::INSPECT){
       planner_state_ = trajectory_planner::PlannerStatus::INSPECTING;
       std::cout << "Inspecting..." << std::endl;
       stop_ = true;
     }
 
-    if (flight_mode_ != 4 && trajectory_planner::PlannerStatus::INSPECTING) {
+    if ((flight_mode_ != trajectory_planner::FlightMode::INSPECT) &&
+        (planner_state_ == trajectory_planner::PlannerStatus::INSPECTING)) {
       std::cout << "Not inspecting anymore" << std::endl;
       planner_state_ = trajectory_planner::PlannerStatus::REPLANNED;
     }
@@ -208,8 +209,8 @@ bool MissionPlannerInspectionLeader::checks() {
 
       if (!hasGoal()) return false;
     }
-    
   }
+  std::cout << "Stop: " << stop_ << std::endl;
 
   return true;
 }
