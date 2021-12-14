@@ -141,7 +141,6 @@ std::vector<state> MissionPlannerInspectionFollower::inspectionTrajectory(
     // Calculate parameter tk
     k_state.time_stamp = start_plan_time_ + param_.planning_rate + k*param_.step_size;
 
-    // Change 0.15 por param_.vel_inspecting
     if (curve_length < INSPECTING_TOL)      t_k = 1;
     else                                    t_k = (param_.vel_inspect * param_.step_size * k) / curve_length;
 

@@ -63,10 +63,10 @@ class Drone:
     state = 0
     n_drones = 0
 
-    inspection_distance = 3
+    inspection_distance = [3, 3, 3]
     ref_distance = 3
 
-    formation_angle = 1
+    formation_angle = [1, 1]
     ref_angle = 1
 
     flight_mode = 1
@@ -77,7 +77,7 @@ class Drone:
         # Subscribe topics
         for id in drone_ids:
             rospy.Subscriber("/drone_" + str(id) + "/ual/state", State, self.callbackState)
-            rospy.Subscriber("/drone_" + str(id) + "/inspection_distance", Float32withHeader, self.callbackInspectionDistance)
+            rospy.Subscriber("/drone_" + str(id) + "/inspection_distance", Float32withHeader, self.callbackInspectionDistance, id)
             if (drone_ns != "/drone_1"):
                 rospy.Subscriber("/drone_" + str(id) + "/formation_angle", Float32withHeader, self.callbackFormationAngle)
         
@@ -316,12 +316,12 @@ class Drone:
             print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
             print " REFERENCE OF INSPECTION DISTANCE (meters): %.2f" %(drones[0].ref_distance)
             for id in drone_ids:
-                print " Inspection distance (meters) for Drone %d:  %.3f" %(id, drones[id - 1].inspection_distance)
+                print " Inspection distance (meters) for Drone %d:  %.3f || Error: %.3f" %(id, drones[id - 1].inspection_distance[id-1], abs(drones[id - 1].inspection_distance[id-1] - drones[0].ref_distance))
             print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
             print " REFERENCE OF FORMATION ANGLE (rad): %.2f" %(drones[0].ref_angle)
             for id in drone_ids:
                 if (id != 1):
-                    print " Formation angle (rad) for Drone %d:  %.3f" %(id, drones[id - 1].formation_angle)
+                    print " Formation angle (rad) for Drone %d:  %.3f || Error %.3f" %(id, drones[id - 1].formation_angle, abs(drones[id - 1].formation_angle - drones[0].ref_angle))
             print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
             print "\n"
             print "\t\t ~~~~~ JOYSTICK SIMULATOR ~~~~~\n\n"
@@ -377,8 +377,8 @@ class Drone:
             print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
             print "REFERENCE OF INSPECTION DISTANCE (meters): %.2f" %(drones[0].ref_distance)
             for id in drone_ids:
-                diff_dist = abs(drones[id - 1].inspection_distance - drones[0].ref_distance)
-                print "         Inspection distance (meters) for Drone %d:  %.3f" %(id, drones[id - 1].inspection_distance)
+                diff_dist = abs(drones[id - 1].inspection_distance[id-1] - drones[0].ref_distance)
+                print "         Inspection distance (meters) for Drone %d:  %.3f" %(id, drones[id - 1].inspection_distance[id-1])
                 print "Error of inspection distance (meters) for Drone %d:  %.3f" %(id, diff_dist)
                 print "\n"
             print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -414,8 +414,8 @@ class Drone:
         self.state = data.state
     
     # Callback for inspection distance
-    def callbackInspectionDistance(self, data):
-        self.inspection_distance = data.data
+    def callbackInspectionDistance(self, data, id):
+        self.inspection_distance[id-1] = data.data
     
     # Callback for formation angle
     def callbackFormationAngle(self, data):
@@ -689,6 +689,6 @@ if __name__ == "__main__":
     # Menu mode
     while (not rospy.is_shutdown()):
         show_menu(params, drones)
-        print("PRESS ENTER")
+        print("\n\nPRESS ENTER")
         raw_input(" >>")
         time.sleep(1)

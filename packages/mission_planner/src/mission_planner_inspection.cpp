@@ -46,7 +46,18 @@ float MissionPlannerInspection::calculateFormationAngle(const int &_id){
 bool MissionPlannerInspection::isClockwise(const Eigen::Vector3d &_point1, const Eigen::Vector3d &_point2){
 
   float angle1 = getPointAngle(_point1);
+  if (angle1 > 2*M_PI){
+    while (angle1 > 2*M_PI){
+      angle1 = angle1 - 2*M_PI;
+    }
+  }
+
   float angle2 = getPointAngle(_point2);
+  if (angle2 > 2*M_PI){
+    while (angle2 > 2*M_PI){
+      angle2 = angle2 - 2*M_PI;
+    }
+  }
 
   float angle_diff = angle2 - angle1;
   
@@ -105,7 +116,6 @@ float MissionPlannerInspection::getTotalAngle(const float &_initial_angle,
   if ((final_angle - initial_angle < M_PI) && (final_angle - initial_angle > 0))
     total_angle = final_angle - initial_angle;
 
-  std::cout << "Total angle: Done" << std::endl;
   return total_angle;
 }
 
@@ -121,7 +131,7 @@ float MissionPlannerInspection::getPointAngle(const Eigen::Vector3d &_point){
   Eigen::Vector3d relative_position = _point - point_to_inspect_;
   float angle = atan2(relative_position(1), relative_position(0));
 
-  if (angle > M_PI)   angle = angle + 2*M_PI;
+  if (angle >= M_PI)   angle = angle + 2*M_PI;
 
   return angle;
 }
