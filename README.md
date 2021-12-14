@@ -2,7 +2,7 @@
 ## Overview
 This repository is about an operator-oriented inspection task of cylindrical structures, in this case, of wind turbines, with optimal trajectory planning of a multi UAV formation. To generate the optimal trajectory planning, a reference path is given to an optimal solver in order to minimize the accelerations of each drone, making their paths smooth and avoiding jerky movements and going through the optimal path at a constant speed (cruising speed). This also encourages to have a good image taken from the drones, that is intended to build an AR image where some interesting information from the mission.
 
-This work has developed on Ubuntu 18.04 with ROS Melodic and does not have been tested in other Ubuntu/ROS versions.
+This work is developed on Ubuntu 18.04 with ROS Melodic and does not have been tested in other Ubuntu/ROS versions.
 
 ## Manual installation
 To install the repositories correctly, you have to follow the next steps:
@@ -89,7 +89,7 @@ echo "source ~/your_ws/src/inspection_trajectory_planning/packages/acado/build/a
 ```
 
 
-7. Configure and setup UAL. Only MAVROS needed. Install dependencies
+7. Configure and setup UAL. Only MAVROS needed, but is advisable to install Gazebo Light as well. Install dependencies
 
 https://github.com/grvcTeam/grvc-ual/wiki/How-to-build-and-install-grvc-ual
 
@@ -129,14 +129,7 @@ make
 make px4_sitl_default gazebo
 ```
 
-11. Execute install.sh
-
-```
-cd ~/your_ws/src/inspection_trajectory_planning
-./install.sh
-```
-
-12. Build and source
+11. Build and source
 
 ```
 cd ~/your_ws/
