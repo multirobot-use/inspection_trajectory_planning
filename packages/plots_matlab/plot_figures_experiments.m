@@ -22,7 +22,7 @@ while (mission_status.d(ind_start1, 1) ~= 1)
 end
 
 % Give extra seconds to let the drones go to the cylinder
-time_start_experiment = mission_status.t(ind_start1, 1) + 32;
+time_start_experiment = mission_status.t(ind_start1, 1) + 25;
 
 % Get closer sample to time_starting_experiment for each drone
 [value1, ind_start1] = min(sqrt(abs(d1_pose.t.^2 - time_start_experiment^2)));
@@ -42,29 +42,65 @@ for i = 1:size(time_vector,2)
     [value_p2i, ind_finish_p2i] = min(sqrt(abs(points_to_inspect.t.^2 - (time_start_experiment + time_vector(i))^2)));
     
     
-    title_plot = ['Evolution of the trajectories at time \Deltat = ', num2str(time_vector(i)), ' s'];
-    figure(1); set(gcf, 'Position', get(0, 'Screensize'));
+    title_plot = ['Evolution of the trajectories at time t = ', num2str(time_vector(i)), ' s'];
+    if i == 1
+        figure(1); set(gcf, 'Position', get(0, 'Screensize'));
+    end
+    if i == 1
+        subplot(3, 2, 1);
+    else
+        if i == 2
+            subplot(3, 2, 2);
+        else
+            if i == 3
+                subplot(3, 2, 3);
+            else
+                if i == 4
+                    subplot(3, 2, 4);
+                else
+                    if i == 5
+                        subplot(3, 2, 5);
+                    else
+                        if i == 6
+                            subplot(3, 2, 6);
+                        end
+                    end
+                end
+            end
+        end
+    end
     plot(d1_pose.p(ind_start1:ind_finish1, 1), d1_pose.p(ind_start1:ind_finish1, 2), 'b', 'LineWidth', 1.5); grid on; hold on;
     plot(d2_pose.p(ind_start2:ind_finish2, 1), d2_pose.p(ind_start2:ind_finish2, 2), 'r', 'LineWidth', 1.2);
     if n_drones == 3
-        plot(d3_pose.p(ind_start2:ind_finish2, 1), d3_pose.p(ind_start2:ind_finish2, 2), 'g', 'LineWidth', 1.2);
+        plot(d3_pose.p(ind_start3:ind_finish3, 1), d3_pose.p(ind_start3:ind_finish3, 2), 'g', 'LineWidth', 1.2);
     end
     plot(points_to_inspect.p(ind_finish_p2i, 1), points_to_inspect.p(ind_finish_p2i, 1), 'k*', 'MarkerSize', 16, 'LineWidth', 2);
     hold off;
-    xlabel('Position X (m)'); ylabel('Position Y (m)'); title(title_plot);
-    if n_drones == 3
-        legend('Drone 1', 'Drone 2', 'Drone 3', 'Point to inspect', 'Location', 'Best');
-    else
-        legend('Drone 1', 'Drone 2', 'Point to inspect', 'Location', 'Best');
+    
+    if i >= 5
+        xlabel('X (m)','FontSize',18,'FontWeight','bold'); 
+    end
+    
+    if i == 3 || i == 4
+        ylabel('Y (m)','FontSize',18,'FontWeight','bold');
+    end
+    
+    title(title_plot,'FontSize',16,'FontWeight','bold');
+    
+    if i == 1
+        if n_drones == 3
+            legend({'Drone 1', 'Drone 2', 'Drone 3', 'Point to inspect'}, 'FontSize', 15, 'Location', 'Best');
+        else
+            legend({'Drone 1', 'Drone 2', 'Point to inspect'}, 'FontSize', 15, 'Location', 'Best');
+        end
     end
     axis equal;
+end
 
-
-    if save_plots
-        saveas(gcf, ['~/bagfiles/plots/Experiment_', experiment_date, '_Drones_traj_', num2str(time_vector(i)), 's.png']);
-    else
-        pause
-    end
+if save_plots
+    saveas(gcf, ['~/bagfiles/plots/Experiment_', experiment_date, '_Drones_traj_mosaic.png']);
+else
+    pause
 end
 
 %% Get drones accelerations by derivating the position twice
@@ -246,37 +282,44 @@ end
 
 %% EVOLUTION OF DISTANCE TO INSPECTION POINT
 % Calculate the evolution of the distance to inspection point
-d1_d2ip = zeros(size(d1_pose.p,1), 1);
-d2_d2ip = zeros(size(d2_pose.p,1), 1);
-
-for i = 1:size(d1_pose.p,1)
-    [value1_d2ip, ind1_d2ip] = min(sqrt(abs(d1_pose.t(i,1)^2 - points_to_inspect.t.^2)));
-    d1_d2ip(i) = sqrt((d1_pose.p(i, 1) - points_to_inspect.p(ind1_d2ip, 1))^2 + (d1_pose.p(i, 2) - points_to_inspect.p(ind1_d2ip, 2))^2);
-
-end
-
-for i = 1:size(d2_pose.p,1)
-
-    [value2_d2ip, ind2_d2ip] = min(sqrt(abs(d2_pose.t(i,1)^2 - points_to_inspect.t.^2)));
-    d2_d2ip(i) = sqrt((d2_pose.p(i, 1) - points_to_inspect.p(ind2_d2ip, 1))^2 + (d2_pose.p(i, 2) - points_to_inspect.p(ind2_d2ip, 2))^2);
-
-end
-
-if n_drones == 3
-    d3_d2ip = zeros(size(d3_pose.p,1), 1);
-    for i = 1:size(d3_pose.p,1)
-        
-        [value3_d2ip, ind3_d2ip] = min(sqrt(abs(d3_pose.t(i,1)^2 - points_to_inspect.t.^2)));
-        d3_d2ip(i) = sqrt((d3_pose.p(i, 1) - points_to_inspect.p(ind3_d2ip, 1))^2 + (d3_pose.p(i, 2) - points_to_inspect.p(ind3_d2ip, 2))^2);
-        
-    end
-end
+% d1_d2ip = zeros(size(d1_pose.p,1), 1);
+% d2_d2ip = zeros(size(d2_pose.p,1), 1);
+% 
+% for i = 1:size(d1_pose.p,1)
+%     [value1_d2ip, ind1_d2ip] = min(sqrt(abs(d1_pose.t(i,1)^2 - points_to_inspect.t.^2)));
+%     d1_d2ip(i) = sqrt((d1_pose.p(i, 1) - points_to_inspect.p(ind1_d2ip, 1))^2 + (d1_pose.p(i, 2) - points_to_inspect.p(ind1_d2ip, 2))^2);
+% 
+% end
+% 
+% for i = 1:size(d2_pose.p,1)
+% 
+%     [value2_d2ip, ind2_d2ip] = min(sqrt(abs(d2_pose.t(i,1)^2 - points_to_inspect.t.^2)));
+%     d2_d2ip(i) = sqrt((d2_pose.p(i, 1) - points_to_inspect.p(ind2_d2ip, 1))^2 + (d2_pose.p(i, 2) - points_to_inspect.p(ind2_d2ip, 2))^2);
+% 
+% end
+% 
+% if n_drones == 3
+%     d3_d2ip = zeros(size(d3_pose.p,1), 1);
+%     for i = 1:size(d3_pose.p,1)
+%         
+%         [value3_d2ip, ind3_d2ip] = min(sqrt(abs(d3_pose.t(i,1)^2 - points_to_inspect.t.^2)));
+%         d3_d2ip(i) = sqrt((d3_pose.p(i, 1) - points_to_inspect.p(ind3_d2ip, 1))^2 + (d3_pose.p(i, 2) - points_to_inspect.p(ind3_d2ip, 2))^2);
+%         
+%     end
+% end
+% 
+% % Get closer sample to time_starting_recording for each drone
+% [~, ind_start1] = min(sqrt(abs(d1_pose.t.^2 - (time_start_experiment)^2)));
+% [~, ind_start2] = min(sqrt(abs(d2_pose.t.^2 - (time_start_experiment)^2)));
+% if n_drones == 3
+%     [~, ind_start3] = min(sqrt(abs(d3_pose.t.^2 - (time_start_experiment)^2)));
+% end
 
 % Get closer sample to time_starting_recording for each drone
-[~, ind_start1] = min(sqrt(abs(d1_pose.t.^2 - (time_start_experiment)^2)));
-[~, ind_start2] = min(sqrt(abs(d2_pose.t.^2 - (time_start_experiment)^2)));
+[~, ind_start1] = min(sqrt(abs(inspection_distance_1.t.^2 - (time_start_experiment)^2)));
+[~, ind_start2] = min(sqrt(abs(inspection_distance_2.t.^2 - (time_start_experiment)^2)));
 if n_drones == 3
-    [~, ind_start3] = min(sqrt(abs(d3_pose.t.^2 - (time_start_experiment)^2)));
+    [~, ind_start3] = min(sqrt(abs(inspection_distance_3.t.^2 - (time_start_experiment)^2)));
 end
 
 [~, ind_start_d] = min(sqrt(abs(distance_inspection.t.^2 - (time_start_experiment)^2)));
@@ -285,9 +328,52 @@ end
 
 
 figure(5); set(gcf, 'Position', get(0, 'Screensize'));
+% if n_drones == 3
+%     subplot(3,1,1);
+%     plot(d1_pose.t(ind_start1:end), d1_d2ip(ind_start1:end), 'b', 'LineWidth', 1.5); grid on; hold on;
+%     plot(distance_inspection.t(ind_start_d:end), distance_inspection.d(ind_start_d:end), 'r', 'LineWidth', 1.2); hold off;
+%     xlabel('Time (s)'); ylabel('Distance (m)');
+%     title('Evolution of the distance to inspection point by Drone 1');
+%     legend('Drone_{1}', 'Reference', 'Location', 'Best');
+%     axis tight;
+%     
+%     subplot(3,1,2);
+%     plot(d2_pose.t(ind_start2:end), d2_d2ip(ind_start2:end), 'b', 'LineWidth', 1.5); grid on; hold on;
+%     plot(distance_inspection.t(ind_start_d:end), distance_inspection.d(ind_start_d:end), 'r', 'LineWidth', 1.2); hold off;
+%     xlabel('Time (s)'); ylabel('Distance (m)');
+%     title('Evolution of the distance to inspection point by Drone 2');
+%     legend('Drone_{2}', 'Reference', 'Location', 'Best');
+%     axis tight;
+%     
+%     subplot(3,1,3);
+%     plot(d3_pose.t(ind_start3:end), d3_d2ip(ind_start3:end), 'b', 'LineWidth', 1.5); grid on; hold on;
+%     plot(distance_inspection.t(ind_start_d:end), distance_inspection.d(ind_start_d:end), 'r', 'LineWidth', 1.2); hold off;
+%     xlabel('Time (s)'); ylabel('Distance (m)');
+%     title('Evolution of the distance to inspection point by Drone 3');
+%     legend('Drone_{3}', 'Reference', 'Location', 'Best');
+%     axis tight;
+% else
+%     subplot(2,1,1);
+%     plot(d1_pose.t(ind_start1:end), d1_d2ip(ind_start1:end), 'b', 'LineWidth', 1.5); grid on; hold on;
+%     plot(distance_inspection.t(ind_start_d:end), distance_inspection.d(ind_start_d:end), 'r', 'LineWidth', 1.2); hold off;
+%     xlabel('Time (s)'); ylabel('Distance (m)');
+%     title('Evolution of the distance to inspection point by Drone 1');
+%     legend('Drone_{1}', 'Reference', 'Location', 'Best');
+%     axis tight;
+%     
+%     subplot(2,1,2);
+%     plot(d2_pose.t(ind_start2:end), d2_d2ip(ind_start2:end), 'b', 'LineWidth', 1.5); grid on; hold on;
+%     plot(distance_inspection.t(ind_start_d:end), distance_inspection.d(ind_start_d:end), 'r', 'LineWidth', 1.2); hold off;
+%     xlabel('Time (s)'); ylabel('Distance (m)');
+%     title('Evolution of the distance to inspection point by Drone 2');
+%     legend('Drone_{2}', 'Reference', 'Location', 'Best');
+%     
+%     axis tight;
+% end
+
 if n_drones == 3
     subplot(3,1,1);
-    plot(d1_pose.t(ind_start1:end), d1_d2ip(ind_start1:end), 'b', 'LineWidth', 1.5); grid on; hold on;
+    plot(inspection_distance_1.t(ind_start1:end), inspection_distance_1.d(ind_start1:end), 'b', 'LineWidth', 1.5); grid on; hold on;
     plot(distance_inspection.t(ind_start_d:end), distance_inspection.d(ind_start_d:end), 'r', 'LineWidth', 1.2); hold off;
     xlabel('Time (s)'); ylabel('Distance (m)');
     title('Evolution of the distance to inspection point by Drone 1');
@@ -295,7 +381,7 @@ if n_drones == 3
     axis tight;
     
     subplot(3,1,2);
-    plot(d2_pose.t(ind_start2:end), d2_d2ip(ind_start2:end), 'b', 'LineWidth', 1.5); grid on; hold on;
+    plot(inspection_distance_2.t(ind_start2:end), inspection_distance_2.d(ind_start2:end), 'b', 'LineWidth', 1.5); grid on; hold on;
     plot(distance_inspection.t(ind_start_d:end), distance_inspection.d(ind_start_d:end), 'r', 'LineWidth', 1.2); hold off;
     xlabel('Time (s)'); ylabel('Distance (m)');
     title('Evolution of the distance to inspection point by Drone 2');
@@ -303,7 +389,7 @@ if n_drones == 3
     axis tight;
     
     subplot(3,1,3);
-    plot(d3_pose.t(ind_start3:end), d3_d2ip(ind_start3:end), 'b', 'LineWidth', 1.5); grid on; hold on;
+    plot(inspection_distance_3.t(ind_start3:end), inspection_distance_3.d(ind_start3:end), 'b', 'LineWidth', 1.5); grid on; hold on;
     plot(distance_inspection.t(ind_start_d:end), distance_inspection.d(ind_start_d:end), 'r', 'LineWidth', 1.2); hold off;
     xlabel('Time (s)'); ylabel('Distance (m)');
     title('Evolution of the distance to inspection point by Drone 3');
@@ -311,7 +397,7 @@ if n_drones == 3
     axis tight;
 else
     subplot(2,1,1);
-    plot(d1_pose.t(ind_start1:end), d1_d2ip(ind_start1:end), 'b', 'LineWidth', 1.5); grid on; hold on;
+    plot(inspection_distance_1.t(ind_start1:end), inspection_distance_1.d(ind_start1:end), 'b', 'LineWidth', 1.5); grid on; hold on;
     plot(distance_inspection.t(ind_start_d:end), distance_inspection.d(ind_start_d:end), 'r', 'LineWidth', 1.2); hold off;
     xlabel('Time (s)'); ylabel('Distance (m)');
     title('Evolution of the distance to inspection point by Drone 1');
@@ -319,7 +405,7 @@ else
     axis tight;
     
     subplot(2,1,2);
-    plot(d2_pose.t(ind_start2:end), d2_d2ip(ind_start2:end), 'b', 'LineWidth', 1.5); grid on; hold on;
+    plot(inspection_distance_2.t(ind_start2:end), inspection_distance_2.d(ind_start2:end), 'b', 'LineWidth', 1.5); grid on; hold on;
     plot(distance_inspection.t(ind_start_d:end), distance_inspection.d(ind_start_d:end), 'r', 'LineWidth', 1.2); hold off;
     xlabel('Time (s)'); ylabel('Distance (m)');
     title('Evolution of the distance to inspection point by Drone 2');
@@ -333,133 +419,169 @@ if save_plots
 end
     
 %% EVOLUTION OF RELATIVE ANGLE
-% Calculate the evolution of the distance to inspection point
-if ( size(d1_pose.p,1) == size(d2_pose.p,1) )
-    d12_rel_ang = zeros(size(d1_pose.p,1), 1);
-    
-else
-    if ( size(d1_pose.p,1) >= size(d2_pose.p,1) )
-        d12_rel_ang = zeros(size(d2_pose.p,1), 1);
-        
-    else
-        d12_rel_ang = zeros(size(d1_pose.p,1), 1);
-        
-    end
-end
+% % Calculate the evolution of the distance to inspection point
+% if ( size(d1_pose.p,1) == size(d2_pose.p,1) )
+%     d12_rel_ang = zeros(size(d1_pose.p,1), 1);
+%     
+% else
+%     if ( size(d1_pose.p,1) >= size(d2_pose.p,1) )
+%         d12_rel_ang = zeros(size(d2_pose.p,1), 1);
+%         
+%     else
+%         d12_rel_ang = zeros(size(d1_pose.p,1), 1);
+%         
+%     end
+% end
+% 
+% size12 = size(d12_rel_ang,1);
+% 
+% for i = 1:size(d12_rel_ang,1)
+%     [value1_d2ip, ind1_d2ip] = min(sqrt(abs(d1_pose.t(i,1)^2 - points_to_inspect.t.^2)));
+%     [value2_d2ip, ind2_d2ip] = min(sqrt(abs(d2_pose.t(i,1)^2 - points_to_inspect.t.^2)));
+%     
+%     angle_1 = atan2((d1_pose.p(i, 2) - points_to_inspect.p(ind1_d2ip, 2)), (d1_pose.p(i, 1) - points_to_inspect.p(ind1_d2ip, 1)));
+%     if angle_1 < 0
+%         angle_1 = angle_1 + 2*pi;
+%     end
+%     
+%     angle_2 = atan2((d2_pose.p(i, 2) - points_to_inspect.p(ind2_d2ip, 2)), (d2_pose.p(i, 1) - points_to_inspect.p(ind2_d2ip, 1)));
+%     if angle_2 < 0
+%         angle_2 = angle_2 + 2*pi;
+%     end
+%     
+%     if (abs(angle_2 - angle_1) < pi)
+%         d12_rel_ang(i) = abs(angle_2 - angle_1);
+%     else
+%         if angle_2 > angle_1
+%             d12_rel_ang(i) = abs(2*pi - (angle_2 - angle_1));
+%         else
+%             d12_rel_ang(i) = abs(2*pi - (angle_1 - angle_2));
+%         end
+%     end
+% end
+% 
+% 
+% if n_drones == 3
+%     if ( size(d1_pose.p,1) == size(d3_pose.p,1) )
+%         d13_rel_ang = zeros(size(d1_pose.p,1), 1);
+% 
+%     else
+%         if ( size(d1_pose.p,1) >= size(d3_pose.p,1) )
+%             d13_rel_ang = zeros(size(d3_pose.p,1), 1);
+% 
+%         else
+%             d13_rel_ang = zeros(size(d1_pose.p,1), 1);
+% 
+%         end
+%     end
+%     
+%     size13 = size(d13_rel_ang,1);
+%     
+%     for i = 1:size(d13_rel_ang,1)
+%         [value1_d2ip, ind1_d2ip] = min(sqrt(abs(d1_pose.t(i,1)^2 - points_to_inspect.t.^2)));
+%         [value3_d2ip, ind3_d2ip] = min(sqrt(abs(d3_pose.t(i,1)^2 - points_to_inspect.t.^2)));
+%         
+%         angle_1 = atan2((d1_pose.p(i, 2) - points_to_inspect.p(ind1_d2ip, 2)), (d1_pose.p(i, 1) - points_to_inspect.p(ind1_d2ip, 1)));
+%         if angle_1 < 0
+%             angle_1 = angle_1 + 2*pi;
+%         end
+%         
+%         angle_3 = atan2((d3_pose.p(i, 2) - points_to_inspect.p(ind3_d2ip, 2)), (d3_pose.p(i, 1) - points_to_inspect.p(ind3_d2ip, 1)));
+%         if angle_3 < 0
+%             angle_3 = angle_3 + 2*pi;
+%         end
+%         
+%         if (abs(angle_3 - angle_1) < pi)
+%             d13_rel_ang(i) = abs(angle_3 - angle_1);
+%         else
+%             if angle_3 > angle_1
+%                 d13_rel_ang(i) = abs(2*pi - (angle_3 - angle_1));
+%             else
+%                 d13_rel_ang(i) = abs(2*pi - (angle_1 - angle_3));
+%             end
+%         end
+%         
+%     end
+% end
+% 
+% % Get closer sample to time_starting_recording for each drone
+% [~, ind_start2] = min(sqrt(abs(d2_pose.t.^2 - (time_start_experiment)^2)));
+% if n_drones == 3
+%     [~, ind_start3] = min(sqrt(abs(d3_pose.t.^2 - (time_start_experiment)^2)));
+% end
 
-size12 = size(d12_rel_ang,1);
+% [~, ind_start_ra] = min(sqrt(abs(relative_angle.t.^2 - (time_start_experiment)^2)));
 
-for i = 1:size(d12_rel_ang,1)
-    [value1_d2ip, ind1_d2ip] = min(sqrt(abs(d1_pose.t(i,1)^2 - points_to_inspect.t.^2)));
-    [value2_d2ip, ind2_d2ip] = min(sqrt(abs(d2_pose.t(i,1)^2 - points_to_inspect.t.^2)));
-    
-    angle_1 = atan2((d1_pose.p(i, 2) - points_to_inspect.p(ind1_d2ip, 2)), (d1_pose.p(i, 1) - points_to_inspect.p(ind1_d2ip, 1)));
-    if angle_1 < 0
-        angle_1 = angle_1 + 2*pi;
-    end
-    
-    angle_2 = atan2((d2_pose.p(i, 2) - points_to_inspect.p(ind2_d2ip, 2)), (d2_pose.p(i, 1) - points_to_inspect.p(ind2_d2ip, 1)));
-    if angle_2 < 0
-        angle_2 = angle_2 + 2*pi;
-    end
-    
-    if (abs(angle_2 - angle_1) < pi)
-        d12_rel_ang(i) = abs(angle_2 - angle_1);
-    else
-        if angle_2 > angle_1
-            d12_rel_ang(i) = abs(2*pi - (angle_2 - angle_1));
-        else
-            d12_rel_ang(i) = abs(2*pi - (angle_1 - angle_2));
-        end
-    end
-end
+% figure(6); set(gcf, 'Position', get(0, 'Screensize'));
+% if n_drones == 3
+%     subplot(2,1,1);
+%     plot(d2_pose.t(ind_start2:size12), d12_rel_ang(ind_start2:size12)*(180/pi), 'b', 'LineWidth', 1.5); grid on; hold on;
+%     plot(relative_angle.t(ind_start_ra:end), relative_angle.d(ind_start_ra:end)*(180/pi), 'r', 'LineWidth', 1.2); hold off;
+%     xlabel('Time (s)'); ylabel('Angle (rad)');
+%     title('Evolution of the relative angle by Drone 2');
+%     legend('Drone_{2}', 'Reference', 'Location', 'Best');
+%     axis tight;
+%     
+%     subplot(2,1,2);
+%     plot(d3_pose.t(ind_start3:size13), d13_rel_ang(ind_start3:size13)*(180/pi), 'b', 'LineWidth', 1.5); grid on; hold on;
+%     plot(relative_angle.t(ind_start_ra:end), relative_angle.d(ind_start_ra:end)*(180/pi), 'r', 'LineWidth', 1.2); hold off;
+%     xlabel('Time (s)'); ylabel('Angle (rad)');
+%     title('Evolution of the relative angle by Drone 3');
+%     legend('Drone_{3}', 'Reference', 'Location', 'Best');
+%     axis tight;
+% 
+% else
+%     plot(d2_pose.t(ind_start2:size12), d12_rel_ang(ind_start2:size12)*(180/pi), 'b', 'LineWidth', 1.5); grid on; hold on;
+%     plot(relative_angle.t(ind_start_ra:end), relative_angle.d(ind_start_ra:end)*(180/pi), 'r', 'LineWidth', 1.2); hold off;
+%     xlabel('Time (s)'); ylabel('Angle (rad)');
+%     title('Evolution of the relative angle by Drone 2');
+%     legend('Drone_{2}', 'Reference', 'Location', 'Best');
+%     axis tight;
+% 
+% end
 
 
-if n_drones == 3
-    if ( size(d1_pose.p,1) == size(d3_pose.p,1) )
-        d13_rel_ang = zeros(size(d1_pose.p,1), 1);
 
-    else
-        if ( size(d1_pose.p,1) >= size(d3_pose.p,1) )
-            d13_rel_ang = zeros(size(d3_pose.p,1), 1);
-
-        else
-            d13_rel_ang = zeros(size(d1_pose.p,1), 1);
-
-        end
-    end
-    
-    size13 = size(d13_rel_ang,1);
-    
-    for i = 1:size(d13_rel_ang,1)
-        [value1_d2ip, ind1_d2ip] = min(sqrt(abs(d1_pose.t(i,1)^2 - points_to_inspect.t.^2)));
-        [value3_d2ip, ind3_d2ip] = min(sqrt(abs(d3_pose.t(i,1)^2 - points_to_inspect.t.^2)));
-        
-        angle_1 = atan2((d1_pose.p(i, 2) - points_to_inspect.p(ind1_d2ip, 2)), (d1_pose.p(i, 1) - points_to_inspect.p(ind1_d2ip, 1)));
-        if angle_1 < 0
-            angle_1 = angle_1 + 2*pi;
-        end
-        
-        angle_3 = atan2((d3_pose.p(i, 2) - points_to_inspect.p(ind3_d2ip, 2)), (d3_pose.p(i, 1) - points_to_inspect.p(ind3_d2ip, 1)));
-        if angle_3 < 0
-            angle_3 = angle_3 + 2*pi;
-        end
-        
-        if (abs(angle_3 - angle_1) < pi)
-            d13_rel_ang(i) = abs(angle_3 - angle_1);
-        else
-            if angle_3 > angle_1
-                d13_rel_ang(i) = abs(2*pi - (angle_3 - angle_1));
-            else
-                d13_rel_ang(i) = abs(2*pi - (angle_1 - angle_3));
-            end
-        end
-        
-    end
-end
 
 % Get closer sample to time_starting_recording for each drone
-[~, ind_start2] = min(sqrt(abs(d2_pose.t.^2 - (time_start_experiment)^2)));
+[~, ind_start2] = min(sqrt(abs(formation_angle_1.t.^2 - (time_start_experiment)^2)));
 if n_drones == 3
-    [~, ind_start3] = min(sqrt(abs(d3_pose.t.^2 - (time_start_experiment)^2)));
+    [~, ind_start3] = min(sqrt(abs(formation_angle_2.t.^2 - (time_start_experiment)^2)));
 end
 
 [~, ind_start_ra] = min(sqrt(abs(relative_angle.t.^2 - (time_start_experiment)^2)));
 
-
 figure(6); set(gcf, 'Position', get(0, 'Screensize'));
 if n_drones == 3
     subplot(2,1,1);
-    plot(d2_pose.t(ind_start2:size12), d12_rel_ang(ind_start2:size12)*(180/pi), 'b', 'LineWidth', 1.5); grid on; hold on;
+    plot(formation_angle_1.t(ind_start2:end), formation_angle_1.d(ind_start2:end)*(180/pi), 'b', 'LineWidth', 1.5); grid on; hold on;
     plot(relative_angle.t(ind_start_ra:end), relative_angle.d(ind_start_ra:end)*(180/pi), 'r', 'LineWidth', 1.2); hold off;
-    xlabel('Time (s)'); ylabel('Angle (rad)');
+    xlabel('Time (s)'); ylabel('Angle (º)');
     title('Evolution of the relative angle by Drone 2');
     legend('Drone_{2}', 'Reference', 'Location', 'Best');
     axis tight;
     
     subplot(2,1,2);
-    plot(d3_pose.t(ind_start3:size13), d13_rel_ang(ind_start3:size13)*(180/pi), 'b', 'LineWidth', 1.5); grid on; hold on;
+    plot(formation_angle_2.t(ind_start3:end), formation_angle_2.d(ind_start3:end)*(180/pi), 'b', 'LineWidth', 1.5); grid on; hold on;
     plot(relative_angle.t(ind_start_ra:end), relative_angle.d(ind_start_ra:end)*(180/pi), 'r', 'LineWidth', 1.2); hold off;
-    xlabel('Time (s)'); ylabel('Angle (rad)');
+    xlabel('Time (s)'); ylabel('Angle (º)');
     title('Evolution of the relative angle by Drone 3');
     legend('Drone_{3}', 'Reference', 'Location', 'Best');
     axis tight;
 
 else
-    plot(d2_pose.t(ind_start2:size12), d12_rel_ang(ind_start2:size12)*(180/pi), 'b', 'LineWidth', 1.5); grid on; hold on;
+    plot(formation_angle_1.t(ind_start2:end), formation_angle_1.d(ind_start2:end)*(180/pi), 'b', 'LineWidth', 1.5); grid on; hold on;
     plot(relative_angle.t(ind_start_ra:end), relative_angle.d(ind_start_ra:end)*(180/pi), 'r', 'LineWidth', 1.2); hold off;
-    xlabel('Time (s)'); ylabel('Angle (rad)');
+    xlabel('Time (s)'); ylabel('Angle (º)');
     title('Evolution of the relative angle by Drone 2');
     legend('Drone_{2}', 'Reference', 'Location', 'Best');
     axis tight;
 
 end
-
 
 if save_plots
     saveas(gcf, ['~/bagfiles/plots/Experiment_', experiment_date, '_Relative_angles.png']);
 end
 
 
-
-
+ref_traj_vs_exec_traj;

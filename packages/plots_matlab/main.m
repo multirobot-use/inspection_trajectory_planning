@@ -3,10 +3,10 @@
 clc; clear all; close all;
 
 cd ~/bagfiles
-experiment_date = 'test_1'; % For saving plots
+experiment_date = 'test_3'; % For saving plots
 % bagfile = rosbag("simulations/exp5_drone_1_experiment_2021-07-28*");
 % bagfile = rosbag("simulations/exp5_drone_2_experiment_2021-07-28*");
-bagfile = rosbag("25_nov/test_1.bag");
+bagfile = rosbag("16_dic/simulation_2021-12-16-10-03*");
 
 n_drones = 2;
 
@@ -29,7 +29,9 @@ if n_drones == 2
     topic_velocity = ["/drone_1/ual/velocity", "/drone_2/ual/velocity"];
 %     topic_camera = ["/drone_1/cgo3_camera/image_raw/compressed", "/drone_2/cgo3_camera/image_raw/compressed"];
     topic_distance_to_inspect = ["/drone_1/absolute_distance_to_inspect", "/drone_2/absolute_distance_to_inspect"];
+    topic_inspection_distance = ["/drone_1/inspection_distance", "/drone_2/inspection_distance"];
     topic_relative_angle = ["/drone_1/absolute_relative_angle", "/drone_2/absolute_relative_angle"];
+    topic_formation_angle = ["/drone_2/formation_angle"];
     topic_mission_status = ["/drone_1/mission_status", "/drone_2/mission_status"];
 else % n_drones = 3
     topic_traj_to_follow = ["/drone_1/follower/trajectory_to_follow", "/drone_2/follower/trajectory_to_follow", "/drone_3/follower/trajectory_to_follow"];
@@ -40,7 +42,9 @@ else % n_drones = 3
     topic_velocity = ["/drone_1/ual/velocity", "/drone_2/ual/velocity", "/drone_3/ual/velocity"];
 %     topic_camera = ["/drone_1/cgo3_camera/image_raw/compressed", "/drone_2/cgo3_camera/image_raw/compressed", "/drone_3/cgo3_camera/image_raw/compressed"];
     topic_distance_to_inspect = ["/drone_1/absolute_distance_to_inspect", "/drone_2/absolute_distance_to_inspect", "/drone_3/absolute_distance_to_inspect"];
+    topic_inspection_distance = ["/drone_1/inspection_distance", "/drone_2/inspection_distance", "/drone_3/inspection_distance"];
     topic_relative_angle = ["/drone_1/absolute_relative_angle", "/drone_2/absolute_relative_angle", "/drone_3/absolute_relative_angle"];
+    topic_formation_angle = ["/drone_2/formation_angle", "/drone_3/formation_angle"];
     topic_mission_status = ["/drone_1/mission_status", "/drone_2/mission_status", "/drone_3/mission_status"];
 end
 

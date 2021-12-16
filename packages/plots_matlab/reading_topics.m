@@ -49,7 +49,7 @@ final = length(traj_to_follow1);
 interpolate = 1;
 horizon = size(traj_to_follow1{1,1}.Poses, 2);
 
-for k = start:interpolate:final
+for k = start:interpolate:final-1
     for l=1:horizon
         pose = traj_to_follow1{k,1}.Poses(l).Pose.Position;
         orientation = traj_to_follow1{k,1}.Poses(l).Pose.Orientation;
@@ -68,6 +68,9 @@ for k = start:interpolate:final
         d1_traj_to_follow.q(k, l, 2) = orientation.X;
         d1_traj_to_follow.q(k, l, 3) = orientation.Y;
         d1_traj_to_follow.q(k, l, 4) = orientation.Z;
+        
+        % Refresh horizon
+        horizon = size(traj_to_follow1{k+1,1}.Poses, 2);
     end
 end
 
@@ -79,7 +82,7 @@ final = length(traj_to_follow2);
 interpolate = 1;
 horizon = size(traj_to_follow2{1,1}.Poses, 2);
 
-for k = start:interpolate:final
+for k = start:interpolate:final-1
     for l=1:horizon
         pose = traj_to_follow2{k,1}.Poses(l).Pose.Position;
         orientation = traj_to_follow2{k,1}.Poses(l).Pose.Orientation;
@@ -98,6 +101,9 @@ for k = start:interpolate:final
         d2_traj_to_follow.q(k, l, 2) = orientation.X;
         d2_traj_to_follow.q(k, l, 3) = orientation.Y;
         d2_traj_to_follow.q(k, l, 4) = orientation.Z;
+        
+        % Refresh horizon
+        horizon = size(traj_to_follow2{k+1,1}.Poses, 2);
     end
 end
 
@@ -110,7 +116,7 @@ if n_drones == 3
     interpolate = 1;
     horizon = size(traj_to_follow3{1,1}.Poses, 2);
 
-    for k = start:interpolate:final
+    for k = start:interpolate:final-1
         for l=1:horizon
             pose = traj_to_follow3{k,1}.Poses(l).Pose.Position;
             orientation = traj_to_follow3{k,1}.Poses(l).Pose.Orientation;
@@ -129,6 +135,9 @@ if n_drones == 3
             d3_traj_to_follow.q(k, l, 2) = orientation.X;
             d3_traj_to_follow.q(k, l, 3) = orientation.Y;
             d3_traj_to_follow.q(k, l, 4) = orientation.Z;
+            
+            % Refresh horizon
+            horizon = size(traj_to_follow3{k+1,1}.Poses, 2);
         end
     end
 end
@@ -199,6 +208,64 @@ for k = start:interpolate:final
 
 end
 
+%% INSPECTION DISTANCE
+% Selection of topics
+topic_select = select(bagfile, 'Topic', topic_inspection_distance(1));
+inspection_distance_ = readMessages(topic_select, 'DataFormat', 'struct');
+start = 1;
+final = length(inspection_distance_);
+interpolate = 1;
+
+for k = start:interpolate:final
+    distance = inspection_distance_{k,1}.Data;
+    
+    % Get time
+    t = double(inspection_distance_{k,1}.Header.Stamp.Sec) + double(inspection_distance_{k,1}.Header.Stamp.Nsec) * 1e-9;
+    inspection_distance_1.t(k, 1) = t;
+    
+    % Position
+    inspection_distance_1.d(k, 1) = distance;
+
+end
+
+topic_select = select(bagfile, 'Topic', topic_inspection_distance(2));
+inspection_distance_ = readMessages(topic_select, 'DataFormat', 'struct');
+start = 1;
+final = length(inspection_distance_);
+interpolate = 1;
+
+for k = start:interpolate:final
+    distance = inspection_distance_{k,1}.Data;
+    
+    % Get time
+    t = double(inspection_distance_{k,1}.Header.Stamp.Sec) + double(inspection_distance_{k,1}.Header.Stamp.Nsec) * 1e-9;
+    inspection_distance_2.t(k, 1) = t;
+    
+    % Position
+    inspection_distance_2.d(k, 1) = distance;
+
+end
+
+if n_drones == 3
+    topic_select = select(bagfile, 'Topic', topic_formation_angle(2));
+    inspection_distance_ = readMessages(topic_select, 'DataFormat', 'struct');
+    start = 1;
+    final = length(inspection_distance_);
+    interpolate = 1;
+
+    for k = start:interpolate:final
+        distance = inspection_distance_{k,1}.Data;
+
+        % Get time
+        t = double(inspection_distance_{k,1}.Header.Stamp.Sec) + double(inspection_distance_{k,1}.Header.Stamp.Nsec) * 1e-9;
+        inspection_distance_2.t(k, 1) = t;
+
+        % Position
+        inspection_distance_2.d(k, 1) = distance;
+
+    end
+end
+
 
 %% RELATIVE ANGLE (should be the same for all the topics)
 % Selection of topics
@@ -220,6 +287,45 @@ for k = start:interpolate:final
 
 end
 
+%% FORMATION ANGLE
+% Selection of topics
+topic_select = select(bagfile, 'Topic', topic_formation_angle(1));
+formation_angle_ = readMessages(topic_select, 'DataFormat', 'struct');
+start = 1;
+final = length(formation_angle_);
+interpolate = 1;
+
+for k = start:interpolate:final
+    distance = formation_angle_{k,1}.Data;
+    
+    % Get time
+    t = double(formation_angle_{k,1}.Header.Stamp.Sec) + double(formation_angle_{k,1}.Header.Stamp.Nsec) * 1e-9;
+    formation_angle_1.t(k, 1) = t;
+    
+    % Position
+    formation_angle_1.d(k, 1) = distance;
+
+end
+
+if n_drones == 3
+    topic_select = select(bagfile, 'Topic', topic_formation_angle(2));
+    formation_angle_ = readMessages(topic_select, 'DataFormat', 'struct');
+    start = 1;
+    final = length(formation_angle_);
+    interpolate = 1;
+
+    for k = start:interpolate:final
+        distance = formation_angle_{k,1}.Data;
+
+        % Get time
+        t = double(formation_angle_{k,1}.Header.Stamp.Sec) + double(formation_angle_{k,1}.Header.Stamp.Nsec) * 1e-9;
+        formation_angle_2.t(k, 1) = t;
+
+        % Position
+        formation_angle_2.d(k, 1) = distance;
+
+    end
+end
 
 %% REFERENCE TRAJECTORY
 % Selection of topics
@@ -230,25 +336,33 @@ final = length(ref_traj1);
 interpolate = 1;
 horizon = size(ref_traj1{1,1}.Poses, 2);
 
-for k = start:interpolate:final
+for k = start:interpolate:final-1
     for l=1:horizon
         pose = ref_traj1{k,1}.Poses(l).Pose.Position;
-        orientation = ref_traj1{k,1}.Poses(l).Pose.Orientation;
+        if ~(pose.X == 0 || pose.Y == 0)
+            
+            orientation = ref_traj1{k,1}.Poses(l).Pose.Orientation;
 
-        % Get time
-        t = double(ref_traj1{k,1}.Header.Stamp.Sec) + double(ref_traj1{k,1}.Header.Stamp.Nsec) * 1e-9;
-        d1_ref_traj.t(k, :, 1) = t;
+            % Get time
+            t = double(ref_traj1{k,1}.Header.Stamp.Sec) + double(ref_traj1{k,1}.Header.Stamp.Nsec) * 1e-9;
+            d1_ref_traj.t(k, :, 1) = t;
 
-        % Position
-        d1_ref_traj.p(k, l, 1) = pose.X;
-        d1_ref_traj.p(k, l, 2) = pose.Y;
-        d1_ref_traj.p(k, l, 3) = pose.Z;
+            % Position
+            d1_ref_traj.p(k, l, 1) = pose.X;
+            d1_ref_traj.p(k, l, 2) = pose.Y;
+            d1_ref_traj.p(k, l, 3) = pose.Z;
 
-        % Orientation
-        d1_ref_traj.q(k, l, 1) = orientation.W;
-        d1_ref_traj.q(k, l, 2) = orientation.X;
-        d1_ref_traj.q(k, l, 3) = orientation.Y;
-        d1_ref_traj.q(k, l, 4) = orientation.Z;
+            % Orientation
+            d1_ref_traj.q(k, l, 1) = orientation.W;
+            d1_ref_traj.q(k, l, 2) = orientation.X;
+            d1_ref_traj.q(k, l, 3) = orientation.Y;
+            d1_ref_traj.q(k, l, 4) = orientation.Z;
+
+            % Refresh horizon
+            horizon = size(ref_traj1{k+1,1}.Poses, 2);
+        else
+            display("IN");
+        end
     end
 end
 
@@ -260,25 +374,33 @@ final = length(ref_traj2);
 interpolate = 1;
 horizon = size(ref_traj2{1,1}.Poses, 2);
 
-for k = start:interpolate:final
+for k = start:interpolate:final-1
     for l=1:horizon
         pose = ref_traj2{k,1}.Poses(l).Pose.Position;
-        orientation = ref_traj2{k,1}.Poses(l).Pose.Orientation;
+        if ~(sqrt(pose.X^2 + pose.Y^2) < 0.1)
 
-        % Get time
-        t = double(ref_traj2{k,1}.Header.Stamp.Sec) + double(ref_traj2{k,1}.Header.Stamp.Nsec) * 1e-9;
-        d2_ref_traj.t(k, :, 1) = t;
+            orientation = ref_traj2{k,1}.Poses(l).Pose.Orientation;
 
-        % Position
-        d2_ref_traj.p(k, l, 1) = pose.X;
-        d2_ref_traj.p(k, l, 2) = pose.Y;
-        d2_ref_traj.p(k, l, 3) = pose.Z;
+            % Get time
+            t = double(ref_traj2{k,1}.Header.Stamp.Sec) + double(ref_traj2{k,1}.Header.Stamp.Nsec) * 1e-9;
+            d2_ref_traj.t(k, :, 1) = t;
 
-        % Orientation
-        d2_ref_traj.q(k, l, 1) = orientation.W;
-        d2_ref_traj.q(k, l, 2) = orientation.X;
-        d2_ref_traj.q(k, l, 3) = orientation.Y;
-        d2_ref_traj.q(k, l, 4) = orientation.Z;
+            % Position
+            d2_ref_traj.p(k, l, 1) = pose.X;
+            d2_ref_traj.p(k, l, 2) = pose.Y;
+            d2_ref_traj.p(k, l, 3) = pose.Z;
+
+            % Orientation
+            d2_ref_traj.q(k, l, 1) = orientation.W;
+            d2_ref_traj.q(k, l, 2) = orientation.X;
+            d2_ref_traj.q(k, l, 3) = orientation.Y;
+            d2_ref_traj.q(k, l, 4) = orientation.Z;
+
+            % Refresh horizon
+            horizon = size(ref_traj2{k+1,1}.Poses, 2);
+        else
+            display("IN");
+        end
     end
 end
 
@@ -291,25 +413,31 @@ if n_drones == 3
     interpolate = 1;
     horizon = size(ref_traj3{1,1}.Poses, 2);
     
-    for k = start:interpolate:final
+    for k = start:interpolate:final-1
         for l=1:horizon
             pose = ref_traj3{k,1}.Poses(l).Pose.Position;
-            orientation = ref_traj3{k,1}.Poses(l).Pose.Orientation;
+            if ~(pose.X == 0 || pose.Y == 0)
 
-            % Get time
-            t = double(ref_traj3{k,1}.Header.Stamp.Sec) + double(ref_traj3{k,1}.Header.Stamp.Nsec) * 1e-9;
-            d3_ref_traj.t(k, :, 1) = t;
+                orientation = ref_traj3{k,1}.Poses(l).Pose.Orientation;
 
-            % Position
-            d3_ref_traj.p(k, l, 1) = pose.X;
-            d3_ref_traj.p(k, l, 2) = pose.Y;
-            d3_ref_traj.p(k, l, 3) = pose.Z;
+                % Get time
+                t = double(ref_traj3{k,1}.Header.Stamp.Sec) + double(ref_traj3{k,1}.Header.Stamp.Nsec) * 1e-9;
+                d3_ref_traj.t(k, :, 1) = t;
 
-            % Orientation
-            d3_ref_traj.q(k, l, 1) = orientation.W;
-            d3_ref_traj.q(k, l, 2) = orientation.X;
-            d3_ref_traj.q(k, l, 3) = orientation.Y;
-            d3_ref_traj.q(k, l, 4) = orientation.Z;
+                % Position
+                d3_ref_traj.p(k, l, 1) = pose.X;
+                d3_ref_traj.p(k, l, 2) = pose.Y;
+                d3_ref_traj.p(k, l, 3) = pose.Z;
+
+                % Orientation
+                d3_ref_traj.q(k, l, 1) = orientation.W;
+                d3_ref_traj.q(k, l, 2) = orientation.X;
+                d3_ref_traj.q(k, l, 3) = orientation.Y;
+                d3_ref_traj.q(k, l, 4) = orientation.Z;
+
+                % Refresh horizon
+                horizon = size(ref_traj3{k+1,1}.Poses, 2);
+            end
         end
     end
 end
@@ -324,7 +452,7 @@ final = length(solved_traj1);
 interpolate = 1;
 horizon = size(solved_traj1{1,1}.Poses, 2);
 
-for k = start:interpolate:final
+for k = start:interpolate:final-1
     for l=1:horizon
         pose = solved_traj1{k,1}.Poses(l).Pose.Position;
         orientation = solved_traj1{k,1}.Poses(l).Pose.Orientation;
@@ -343,6 +471,9 @@ for k = start:interpolate:final
         d1_solved_traj.q(k, l, 2) = orientation.X;
         d1_solved_traj.q(k, l, 3) = orientation.Y;
         d1_solved_traj.q(k, l, 4) = orientation.Z;
+        
+        % Refresh horizon
+        horizon = size(solved_traj1{k+1,1}.Poses, 2);
     end
 end
 
@@ -354,7 +485,7 @@ final = length(solved_traj2);
 interpolate = 1;
 horizon = size(solved_traj2{1,1}.Poses, 2);
 
-for k = start:interpolate:final
+for k = start:interpolate:final-1
     for l=1:horizon
         pose = solved_traj2{k,1}.Poses(l).Pose.Position;
         orientation = solved_traj2{k,1}.Poses(l).Pose.Orientation;
@@ -373,6 +504,9 @@ for k = start:interpolate:final
         d2_solved_traj.q(k, l, 2) = orientation.X;
         d2_solved_traj.q(k, l, 3) = orientation.Y;
         d2_solved_traj.q(k, l, 4) = orientation.Z;
+        
+        % Refresh horizon
+        horizon = size(solved_traj2{k+1,1}.Poses, 2);
     end
 end
 
@@ -385,7 +519,7 @@ if n_drones == 3
     interpolate = 1;
     horizon = size(solved_traj3{1,1}.Poses, 2);
     
-    for k = start:interpolate:final
+    for k = start:interpolate:final-1
         for l=1:horizon
             pose = solved_traj3{k,1}.Poses(l).Pose.Position;
             orientation = solved_traj3{k,1}.Poses(l).Pose.Orientation;
@@ -404,6 +538,9 @@ if n_drones == 3
             d3_solved_traj.q(k, l, 2) = orientation.X;
             d3_solved_traj.q(k, l, 3) = orientation.Y;
             d3_solved_traj.q(k, l, 4) = orientation.Z;
+            
+            % Refresh horizon
+            horizon = size(solved_traj3{k+1,1}.Poses, 2);
         end
     end
 end
