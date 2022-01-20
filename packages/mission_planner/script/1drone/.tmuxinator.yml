@@ -5,7 +5,7 @@ windows:
   - gazebo:
       layout: even-vertical
       panes:
-        - roslaunch mission_planner simulation_windmill_1drone.launch
+        - roslaunch mission_planner simulation_windmill_1drone_light.launch
   - leader:
       layout: even-vertical
       panes:
