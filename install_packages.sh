@@ -32,7 +32,7 @@ sudo apt-get install python3-catkin-tools
 sudo apt-get install sudo apt-get install libeigen3-dev ros-$(rosversion -d)-geodesy ros-$(rosversion -d)-joy
 sudo apt install tmuxinator
 echo "alias kmux='tmux kill-server'" >> ~/.bashrc 
-pip install pynput
+sudo pip install pynput
 sudo pip3 install gitman
 sudo apt install xz-utils
 
@@ -93,11 +93,13 @@ cmake ..
 make
 
 
-## Install and configure UAL. Only MAVROS needed. Dependencies
+## Install and configure UAL. Only MAVROS and Gazebo Light needed. Dependencies
 echo "Installing and configuring UAL. Only MAVROS needed. Install dependencies"
 cd $WORKSPACE_PATH/inspection_trajectory_planning/packages/grvc-ual
 ./configure.py
 
+## Need to install it TWICE
+./configure.py
 
 ## Install MAVROS packages
 echo "Installing MAVROS necessary packages"
