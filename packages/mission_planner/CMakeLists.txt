@@ -41,6 +41,7 @@ add_service_files(
   FILES
   WaypointSrv.srv
   FlightModeSrv.srv
+  GoAroundTimeSrv.srv
   PointToInspectSrv.srv
   DistanceSrv.srv
   AngleSrv.srv

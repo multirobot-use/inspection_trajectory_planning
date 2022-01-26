@@ -176,6 +176,9 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   service_relative_angle = nh_.advertiseService(
       "change_relative_angle",
       &MissionPlannerRos::changeRelativeAngleServiceCallback, this);
+  service_go_around_time = nh_.advertiseService(
+      "go_around_time",
+      &MissionPlannerRos::goAroundTimeServiceCallback, this);
   service_flight_mode = nh_.advertiseService(
       "change_flight_mode",
       &MissionPlannerRos::changeFlightModeServiceCallback, this);
@@ -281,6 +284,21 @@ bool MissionPlannerRos::distanceToInspectServiceCallback(
       "[%s]: Distance to inspection point changed successfully!  New distance: "
       " %f meters",
       ros::this_node::getName().c_str(), req.distance);
+  res.success = true;
+}
+
+bool MissionPlannerRos::goAroundTimeServiceCallback(
+    mission_planner::GoAroundTimeSrv::Request &req,
+    mission_planner::GoAroundTimeSrv::Response &res) {
+  ROS_INFO("[%s]: Go around time service called.",
+           ros::this_node::getName().c_str());
+
+  mission_planner_ptr_->setGoAroundTime(req.time);
+
+  ROS_INFO(
+      "[%s]: Go around time changed successfully!  New time: "
+      " %f seconds",
+      ros::this_node::getName().c_str(), req.time);
   res.success = true;
 }
 

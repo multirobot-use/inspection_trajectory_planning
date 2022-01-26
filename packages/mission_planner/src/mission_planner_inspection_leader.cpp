@@ -145,7 +145,7 @@ void MissionPlannerInspectionLeader::appendGoal(const state &_new_goal) {
 
 float MissionPlannerInspectionLeader::calculateVel(const float &_distance){
   // Velocity*Time = Distance
-  float vel = (2*M_PI*_distance)/param_.go_around_time;
+  float vel = (2*M_PI*_distance)/go_around_time_;
   if (vel < param_.vel_min)       vel = param_.vel_min;
   else if (vel > param_.vel_max)  vel = param_.vel_max;
 
