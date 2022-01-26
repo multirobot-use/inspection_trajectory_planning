@@ -6,6 +6,7 @@ windows:
       layout: even-vertical
       panes:
         - roslaunch mission_planner simulation_windmill_1drone_light.launch
+        # - roslaunch mission_planner simulation_windmill_1drone.launch
   - leader:
       layout: even-vertical
       panes:
