@@ -5,8 +5,8 @@ windows:
   - gazebo:
       layout: even-vertical
       panes:
-        - roslaunch mission_planner simulation_windmill.launch
-        # - roslaunch mission_planner simulation_windmill_3drones.launch
+        - roslaunch mission_planner simulation_wind_turbine.launch
+        # - roslaunch mission_planner simulation_wind_turbine_light.launch
   - leader:
       layout: even-vertical
       panes:
