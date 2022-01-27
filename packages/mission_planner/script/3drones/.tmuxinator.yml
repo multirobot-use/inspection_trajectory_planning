@@ -6,8 +6,8 @@ windows:
       layout: even-vertical
       panes:
         # - roslaunch mission_planner simulation_wind_turbine_3drones.launch
-        # - roslaunch mission_planner simulation_wind_turbine_3drones_light.launch
-        - roslaunch mission_planner simulation_obstacle_avoidance_3drones.launch
+        - roslaunch mission_planner simulation_wind_turbine_3drones_light.launch
+        # - roslaunch mission_planner simulation_obstacle_avoidance_3drones.launch
   - leader:
       layout: even-vertical
       panes:
