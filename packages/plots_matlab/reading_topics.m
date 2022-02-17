@@ -42,109 +42,109 @@
 
 %% TRAJECTORY TO FOLLOW
 % Selection of topics
-topic_select = select(bagfile, 'Topic', topic_traj_to_follow(1));
-traj_to_follow1 = readMessages(topic_select, 'DataFormat', 'struct');
-start = 1;
-final = length(traj_to_follow1);
-interpolate = 1;
-horizon = size(traj_to_follow1{1,1}.Poses, 2);
-
-for k = start:interpolate:final-1
-    for l=1:horizon
-        pose = traj_to_follow1{k,1}.Poses(l).Pose.Position;
-        orientation = traj_to_follow1{k,1}.Poses(l).Pose.Orientation;
-
-        % Get time
-        t = double(traj_to_follow1{k,1}.Header.Stamp.Sec) + double(traj_to_follow1{k,1}.Header.Stamp.Nsec) * 1e-9;
-        d1_traj_to_follow.t(k, :, 1) = t; % May need a fix for plotting
-
-        % Position
-        d1_traj_to_follow.p(k, l, 1) = pose.X;
-        d1_traj_to_follow.p(k, l, 2) = pose.Y;
-        d1_traj_to_follow.p(k, l, 3) = pose.Z;
-
-        % Orientation
-        d1_traj_to_follow.q(k, l, 1) = orientation.W;
-        d1_traj_to_follow.q(k, l, 2) = orientation.X;
-        d1_traj_to_follow.q(k, l, 3) = orientation.Y;
-        d1_traj_to_follow.q(k, l, 4) = orientation.Z;
-        
-        % Refresh horizon
-        horizon = size(traj_to_follow1{k+1,1}.Poses, 2);
-    end
-end
-
-% Selection of topics
-topic_select = select(bagfile, 'Topic', topic_traj_to_follow(2));
-traj_to_follow2 = readMessages(topic_select, 'DataFormat', 'struct');
-start = 1;
-final = length(traj_to_follow2);
-interpolate = 1;
-horizon = size(traj_to_follow2{1,1}.Poses, 2);
-
-for k = start:interpolate:final-1
-    for l=1:horizon
-        pose = traj_to_follow2{k,1}.Poses(l).Pose.Position;
-        orientation = traj_to_follow2{k,1}.Poses(l).Pose.Orientation;
-
-        % Get time
-        t = double(traj_to_follow2{k,1}.Header.Stamp.Sec) + double(traj_to_follow2{k,1}.Header.Stamp.Nsec) * 1e-9;
-        d2_traj_to_follow.t(k, :, 1) = t; % May need a fix for plotting
-
-        % Position
-        d2_traj_to_follow.p(k, l, 1) = pose.X;
-        d2_traj_to_follow.p(k, l, 2) = pose.Y;
-        d2_traj_to_follow.p(k, l, 3) = pose.Z;
-
-        % Orientation
-        d2_traj_to_follow.q(k, l, 1) = orientation.W;
-        d2_traj_to_follow.q(k, l, 2) = orientation.X;
-        d2_traj_to_follow.q(k, l, 3) = orientation.Y;
-        d2_traj_to_follow.q(k, l, 4) = orientation.Z;
-        
-        % Refresh horizon
-        horizon = size(traj_to_follow2{k+1,1}.Poses, 2);
-    end
-end
-
-if n_drones == 3
-    % Selection of topics
-    topic_select = select(bagfile, 'Topic', topic_traj_to_follow(3));
-    traj_to_follow3 = readMessages(topic_select, 'DataFormat', 'struct');
-    start = 1;
-    final = length(traj_to_follow3);
-    interpolate = 1;
-    horizon = size(traj_to_follow3{1,1}.Poses, 2);
-
-    for k = start:interpolate:final-1
-        for l=1:horizon
-            pose = traj_to_follow3{k,1}.Poses(l).Pose.Position;
-            orientation = traj_to_follow3{k,1}.Poses(l).Pose.Orientation;
-
-            % Get time
-            t = double(traj_to_follow3{k,1}.Header.Stamp.Sec) + double(traj_to_follow3{k,1}.Header.Stamp.Nsec) * 1e-9;
-            d3_traj_to_follow.t(k, :, 1) = t; % May need a fix for plotting
-
-            % Position
-            d3_traj_to_follow.p(k, l, 1) = pose.X;
-            d3_traj_to_follow.p(k, l, 2) = pose.Y;
-            d3_traj_to_follow.p(k, l, 3) = pose.Z;
-
-            % Orientation
-            d3_traj_to_follow.q(k, l, 1) = orientation.W;
-            d3_traj_to_follow.q(k, l, 2) = orientation.X;
-            d3_traj_to_follow.q(k, l, 3) = orientation.Y;
-            d3_traj_to_follow.q(k, l, 4) = orientation.Z;
-            
-            % Refresh horizon
-            horizon = size(traj_to_follow3{k+1,1}.Poses, 2);
-        end
-    end
-end
+% topic_select = select(bagfile, 'Topic', topic_traj_to_follow(1));
+% traj_to_follow1 = readMessages(topic_select, 'DataFormat', 'struct');
+% start = 1;
+% final = length(traj_to_follow1);
+% interpolate = 1;
+% horizon = size(traj_to_follow1{1,1}.Poses, 2);
+% 
+% for k = start:interpolate:final-1
+%     for l=1:horizon
+%         pose = traj_to_follow1{k,1}.Poses(l).Pose.Position;
+%         orientation = traj_to_follow1{k,1}.Poses(l).Pose.Orientation;
+% 
+%         % Get time
+%         t = double(traj_to_follow1{k,1}.Header.Stamp.Sec) + double(traj_to_follow1{k,1}.Header.Stamp.Nsec) * 1e-9;
+%         d1_traj_to_follow.t(k, :, 1) = t; % May need a fix for plotting
+% 
+%         % Position
+%         d1_traj_to_follow.p(k, l, 1) = pose.X;
+%         d1_traj_to_follow.p(k, l, 2) = pose.Y;
+%         d1_traj_to_follow.p(k, l, 3) = pose.Z;
+% 
+%         % Orientation
+%         d1_traj_to_follow.q(k, l, 1) = orientation.W;
+%         d1_traj_to_follow.q(k, l, 2) = orientation.X;
+%         d1_traj_to_follow.q(k, l, 3) = orientation.Y;
+%         d1_traj_to_follow.q(k, l, 4) = orientation.Z;
+%         
+%         % Refresh horizon
+%         horizon = size(traj_to_follow1{k+1,1}.Poses, 2);
+%     end
+% end
+% 
+% % Selection of topics
+% topic_select = select(bagfile, 'Topic', topic_traj_to_follow(2));
+% traj_to_follow2 = readMessages(topic_select, 'DataFormat', 'struct');
+% start = 1;
+% final = length(traj_to_follow2);
+% interpolate = 1;
+% horizon = size(traj_to_follow2{1,1}.Poses, 2);
+% 
+% for k = start:interpolate:final-1
+%     for l=1:horizon
+%         pose = traj_to_follow2{k,1}.Poses(l).Pose.Position;
+%         orientation = traj_to_follow2{k,1}.Poses(l).Pose.Orientation;
+% 
+%         % Get time
+%         t = double(traj_to_follow2{k,1}.Header.Stamp.Sec) + double(traj_to_follow2{k,1}.Header.Stamp.Nsec) * 1e-9;
+%         d2_traj_to_follow.t(k, :, 1) = t; % May need a fix for plotting
+% 
+%         % Position
+%         d2_traj_to_follow.p(k, l, 1) = pose.X;
+%         d2_traj_to_follow.p(k, l, 2) = pose.Y;
+%         d2_traj_to_follow.p(k, l, 3) = pose.Z;
+% 
+%         % Orientation
+%         d2_traj_to_follow.q(k, l, 1) = orientation.W;
+%         d2_traj_to_follow.q(k, l, 2) = orientation.X;
+%         d2_traj_to_follow.q(k, l, 3) = orientation.Y;
+%         d2_traj_to_follow.q(k, l, 4) = orientation.Z;
+%         
+%         % Refresh horizon
+%         horizon = size(traj_to_follow2{k+1,1}.Poses, 2);
+%     end
+% end
+% 
+% if n_drones == 3
+%     % Selection of topics
+%     topic_select = select(bagfile, 'Topic', topic_traj_to_follow(3));
+%     traj_to_follow3 = readMessages(topic_select, 'DataFormat', 'struct');
+%     start = 1;
+%     final = length(traj_to_follow3);
+%     interpolate = 1;
+%     horizon = size(traj_to_follow3{1,1}.Poses, 2);
+% 
+%     for k = start:interpolate:final-1
+%         for l=1:horizon
+%             pose = traj_to_follow3{k,1}.Poses(l).Pose.Position;
+%             orientation = traj_to_follow3{k,1}.Poses(l).Pose.Orientation;
+% 
+%             % Get time
+%             t = double(traj_to_follow3{k,1}.Header.Stamp.Sec) + double(traj_to_follow3{k,1}.Header.Stamp.Nsec) * 1e-9;
+%             d3_traj_to_follow.t(k, :, 1) = t; % May need a fix for plotting
+% 
+%             % Position
+%             d3_traj_to_follow.p(k, l, 1) = pose.X;
+%             d3_traj_to_follow.p(k, l, 2) = pose.Y;
+%             d3_traj_to_follow.p(k, l, 3) = pose.Z;
+% 
+%             % Orientation
+%             d3_traj_to_follow.q(k, l, 1) = orientation.W;
+%             d3_traj_to_follow.q(k, l, 2) = orientation.X;
+%             d3_traj_to_follow.q(k, l, 3) = orientation.Y;
+%             d3_traj_to_follow.q(k, l, 4) = orientation.Z;
+%             
+%             % Refresh horizon
+%             horizon = size(traj_to_follow3{k+1,1}.Poses, 2);
+%         end
+%     end
+% end
 
 %% MISSION STATUS (should be the same for all the topics)
 % Selection of topics
-topic_select = select(bagfile, 'Topic', topic_mission_status(1));
+topic_select = select(bagfile, 'Topic', convertStringsToChars(topic_mission_status(1)));
 mission_status_ = readMessages(topic_select, 'DataFormat', 'struct');
 start = 1;
 final = length(mission_status_);
@@ -162,7 +162,7 @@ end
 
 %% POINTS TO INSPECT (should be the same for all the topics)
 % Selection of topics
-topic_select = select(bagfile, 'Topic', topic_points_to_inspect(1));
+topic_select = select(bagfile, 'Topic', convertStringsToChars(topic_points_to_inspect(1)));
 points_to_inspect_ = readMessages(topic_select, 'DataFormat', 'struct');
 start = 1;
 final = length(points_to_inspect_);
@@ -190,7 +190,7 @@ end
 
 %% DISTANCE TO INSPECTION POINT (should be the same for all the topics)
 % Selection of topics
-topic_select = select(bagfile, 'Topic', topic_distance_to_inspect(1));
+topic_select = select(bagfile, 'Topic', convertStringsToChars(topic_distance_to_inspect(1)));
 distance_inspection_ = readMessages(topic_select, 'DataFormat', 'struct');
 start = 1;
 final = length(distance_inspection_);
@@ -210,7 +210,7 @@ end
 
 %% INSPECTION DISTANCE
 % Selection of topics
-topic_select = select(bagfile, 'Topic', topic_inspection_distance(1));
+topic_select = select(bagfile, 'Topic', convertStringsToChars(topic_inspection_distance(1)));
 inspection_distance_ = readMessages(topic_select, 'DataFormat', 'struct');
 start = 1;
 final = length(inspection_distance_);
@@ -228,7 +228,7 @@ for k = start:interpolate:final
 
 end
 
-topic_select = select(bagfile, 'Topic', topic_inspection_distance(2));
+topic_select = select(bagfile, 'Topic', convertStringsToChars(topic_inspection_distance(2)));
 inspection_distance_ = readMessages(topic_select, 'DataFormat', 'struct');
 start = 1;
 final = length(inspection_distance_);
@@ -247,7 +247,7 @@ for k = start:interpolate:final
 end
 
 if n_drones == 3
-    topic_select = select(bagfile, 'Topic', topic_formation_angle(2));
+    topic_select = select(bagfile, 'Topic', convertStringsToChars(topic_inspection_distance(3)));
     inspection_distance_ = readMessages(topic_select, 'DataFormat', 'struct');
     start = 1;
     final = length(inspection_distance_);
@@ -258,10 +258,10 @@ if n_drones == 3
 
         % Get time
         t = double(inspection_distance_{k,1}.Header.Stamp.Sec) + double(inspection_distance_{k,1}.Header.Stamp.Nsec) * 1e-9;
-        inspection_distance_2.t(k, 1) = t;
+        inspection_distance_3.t(k, 1) = t;
 
         % Position
-        inspection_distance_2.d(k, 1) = distance;
+        inspection_distance_3.d(k, 1) = distance;
 
     end
 end
@@ -269,7 +269,7 @@ end
 
 %% RELATIVE ANGLE (should be the same for all the topics)
 % Selection of topics
-topic_select = select(bagfile, 'Topic', topic_relative_angle(1));
+topic_select = select(bagfile, 'Topic', convertStringsToChars(topic_relative_angle(1)));
 relative_angle_ = readMessages(topic_select, 'DataFormat', 'struct');
 start = 1;
 final = length(relative_angle_);
@@ -289,7 +289,7 @@ end
 
 %% FORMATION ANGLE
 % Selection of topics
-topic_select = select(bagfile, 'Topic', topic_formation_angle(1));
+topic_select = select(bagfile, 'Topic', convertStringsToChars(topic_formation_angle(1)));
 formation_angle_ = readMessages(topic_select, 'DataFormat', 'struct');
 start = 1;
 final = length(formation_angle_);
@@ -308,7 +308,7 @@ for k = start:interpolate:final
 end
 
 if n_drones == 3
-    topic_select = select(bagfile, 'Topic', topic_formation_angle(2));
+    topic_select = select(bagfile, 'Topic', convertStringsToChars(topic_formation_angle(2)));
     formation_angle_ = readMessages(topic_select, 'DataFormat', 'struct');
     start = 1;
     final = length(formation_angle_);
@@ -322,233 +322,233 @@ if n_drones == 3
         formation_angle_2.t(k, 1) = t;
 
         % Position
-        formation_angle_2.d(k, 1) = distance;
+        formation_angle_2.d(k, 1) = -distance;
 
     end
 end
 
 %% REFERENCE TRAJECTORY
 % Selection of topics
-topic_select = select(bagfile, 'Topic', topic_ref_traj(1));
-ref_traj1 = readMessages(topic_select, 'DataFormat', 'struct');
-start = 1;
-final = length(ref_traj1);
-interpolate = 1;
-horizon = size(ref_traj1{1,1}.Poses, 2);
-
-for k = start:interpolate:final-1
-    for l=1:horizon
-        pose = ref_traj1{k,1}.Poses(l).Pose.Position;
-        if ~(pose.X == 0 || pose.Y == 0)
-            
-            orientation = ref_traj1{k,1}.Poses(l).Pose.Orientation;
-
-            % Get time
-            t = double(ref_traj1{k,1}.Header.Stamp.Sec) + double(ref_traj1{k,1}.Header.Stamp.Nsec) * 1e-9;
-            d1_ref_traj.t(k, :, 1) = t;
-
-            % Position
-            d1_ref_traj.p(k, l, 1) = pose.X;
-            d1_ref_traj.p(k, l, 2) = pose.Y;
-            d1_ref_traj.p(k, l, 3) = pose.Z;
-
-            % Orientation
-            d1_ref_traj.q(k, l, 1) = orientation.W;
-            d1_ref_traj.q(k, l, 2) = orientation.X;
-            d1_ref_traj.q(k, l, 3) = orientation.Y;
-            d1_ref_traj.q(k, l, 4) = orientation.Z;
-
-            % Refresh horizon
-            horizon = size(ref_traj1{k+1,1}.Poses, 2);
-        else
-            display("IN");
-        end
-    end
-end
-
-% Selection of topics
-topic_select = select(bagfile, 'Topic', topic_ref_traj(2));
-ref_traj2 = readMessages(topic_select, 'DataFormat', 'struct');
-start = 1;
-final = length(ref_traj2);
-interpolate = 1;
-horizon = size(ref_traj2{1,1}.Poses, 2);
-
-for k = start:interpolate:final-1
-    for l=1:horizon
-        pose = ref_traj2{k,1}.Poses(l).Pose.Position;
-        if ~(sqrt(pose.X^2 + pose.Y^2) < 0.1)
-
-            orientation = ref_traj2{k,1}.Poses(l).Pose.Orientation;
-
-            % Get time
-            t = double(ref_traj2{k,1}.Header.Stamp.Sec) + double(ref_traj2{k,1}.Header.Stamp.Nsec) * 1e-9;
-            d2_ref_traj.t(k, :, 1) = t;
-
-            % Position
-            d2_ref_traj.p(k, l, 1) = pose.X;
-            d2_ref_traj.p(k, l, 2) = pose.Y;
-            d2_ref_traj.p(k, l, 3) = pose.Z;
-
-            % Orientation
-            d2_ref_traj.q(k, l, 1) = orientation.W;
-            d2_ref_traj.q(k, l, 2) = orientation.X;
-            d2_ref_traj.q(k, l, 3) = orientation.Y;
-            d2_ref_traj.q(k, l, 4) = orientation.Z;
-
-            % Refresh horizon
-            horizon = size(ref_traj2{k+1,1}.Poses, 2);
-        else
-            display("IN");
-        end
-    end
-end
-
-if n_drones == 3
-    % Selection of topics
-    topic_select = select(bagfile, 'Topic', topic_ref_traj(3));
-    ref_traj3 = readMessages(topic_select, 'DataFormat', 'struct');
-    start = 1;
-    final = length(ref_traj3);
-    interpolate = 1;
-    horizon = size(ref_traj3{1,1}.Poses, 2);
-    
-    for k = start:interpolate:final-1
-        for l=1:horizon
-            pose = ref_traj3{k,1}.Poses(l).Pose.Position;
-            if ~(pose.X == 0 || pose.Y == 0)
-
-                orientation = ref_traj3{k,1}.Poses(l).Pose.Orientation;
-
-                % Get time
-                t = double(ref_traj3{k,1}.Header.Stamp.Sec) + double(ref_traj3{k,1}.Header.Stamp.Nsec) * 1e-9;
-                d3_ref_traj.t(k, :, 1) = t;
-
-                % Position
-                d3_ref_traj.p(k, l, 1) = pose.X;
-                d3_ref_traj.p(k, l, 2) = pose.Y;
-                d3_ref_traj.p(k, l, 3) = pose.Z;
-
-                % Orientation
-                d3_ref_traj.q(k, l, 1) = orientation.W;
-                d3_ref_traj.q(k, l, 2) = orientation.X;
-                d3_ref_traj.q(k, l, 3) = orientation.Y;
-                d3_ref_traj.q(k, l, 4) = orientation.Z;
-
-                % Refresh horizon
-                horizon = size(ref_traj3{k+1,1}.Poses, 2);
-            end
-        end
-    end
-end
+% topic_select = select(bagfile, 'Topic', topic_ref_traj(1));
+% ref_traj1 = readMessages(topic_select, 'DataFormat', 'struct');
+% start = 1;
+% final = length(ref_traj1);
+% interpolate = 1;
+% horizon = size(ref_traj1{1,1}.Poses, 2);
+% 
+% for k = start:interpolate:final-1
+%     for l=1:horizon
+%         pose = ref_traj1{k,1}.Poses(l).Pose.Position;
+%         if ~(pose.X == 0 || pose.Y == 0)
+%             
+%             orientation = ref_traj1{k,1}.Poses(l).Pose.Orientation;
+% 
+%             % Get time
+%             t = double(ref_traj1{k,1}.Header.Stamp.Sec) + double(ref_traj1{k,1}.Header.Stamp.Nsec) * 1e-9;
+%             d1_ref_traj.t(k, :, 1) = t;
+% 
+%             % Position
+%             d1_ref_traj.p(k, l, 1) = pose.X;
+%             d1_ref_traj.p(k, l, 2) = pose.Y;
+%             d1_ref_traj.p(k, l, 3) = pose.Z;
+% 
+%             % Orientation
+%             d1_ref_traj.q(k, l, 1) = orientation.W;
+%             d1_ref_traj.q(k, l, 2) = orientation.X;
+%             d1_ref_traj.q(k, l, 3) = orientation.Y;
+%             d1_ref_traj.q(k, l, 4) = orientation.Z;
+% 
+%             % Refresh horizon
+%             horizon = size(ref_traj1{k+1,1}.Poses, 2);
+%         else
+%             display("IN");
+%         end
+%     end
+% end
+% 
+% % Selection of topics
+% topic_select = select(bagfile, 'Topic', topic_ref_traj(2));
+% ref_traj2 = readMessages(topic_select, 'DataFormat', 'struct');
+% start = 1;
+% final = length(ref_traj2);
+% interpolate = 1;
+% horizon = size(ref_traj2{1,1}.Poses, 2);
+% 
+% for k = start:interpolate:final-1
+%     for l=1:horizon
+%         pose = ref_traj2{k,1}.Poses(l).Pose.Position;
+%         if ~(sqrt(pose.X^2 + pose.Y^2) < 0.1)
+% 
+%             orientation = ref_traj2{k,1}.Poses(l).Pose.Orientation;
+% 
+%             % Get time
+%             t = double(ref_traj2{k,1}.Header.Stamp.Sec) + double(ref_traj2{k,1}.Header.Stamp.Nsec) * 1e-9;
+%             d2_ref_traj.t(k, :, 1) = t;
+% 
+%             % Position
+%             d2_ref_traj.p(k, l, 1) = pose.X;
+%             d2_ref_traj.p(k, l, 2) = pose.Y;
+%             d2_ref_traj.p(k, l, 3) = pose.Z;
+% 
+%             % Orientation
+%             d2_ref_traj.q(k, l, 1) = orientation.W;
+%             d2_ref_traj.q(k, l, 2) = orientation.X;
+%             d2_ref_traj.q(k, l, 3) = orientation.Y;
+%             d2_ref_traj.q(k, l, 4) = orientation.Z;
+% 
+%             % Refresh horizon
+%             horizon = size(ref_traj2{k+1,1}.Poses, 2);
+%         else
+%             display("IN");
+%         end
+%     end
+% end
+% 
+% if n_drones == 3
+%     % Selection of topics
+%     topic_select = select(bagfile, 'Topic', topic_ref_traj(3));
+%     ref_traj3 = readMessages(topic_select, 'DataFormat', 'struct');
+%     start = 1;
+%     final = length(ref_traj3);
+%     interpolate = 1;
+%     horizon = size(ref_traj3{1,1}.Poses, 2);
+%     
+%     for k = start:interpolate:final-1
+%         for l=1:horizon
+%             pose = ref_traj3{k,1}.Poses(l).Pose.Position;
+%             if ~(pose.X == 0 || pose.Y == 0)
+% 
+%                 orientation = ref_traj3{k,1}.Poses(l).Pose.Orientation;
+% 
+%                 % Get time
+%                 t = double(ref_traj3{k,1}.Header.Stamp.Sec) + double(ref_traj3{k,1}.Header.Stamp.Nsec) * 1e-9;
+%                 d3_ref_traj.t(k, :, 1) = t;
+% 
+%                 % Position
+%                 d3_ref_traj.p(k, l, 1) = pose.X;
+%                 d3_ref_traj.p(k, l, 2) = pose.Y;
+%                 d3_ref_traj.p(k, l, 3) = pose.Z;
+% 
+%                 % Orientation
+%                 d3_ref_traj.q(k, l, 1) = orientation.W;
+%                 d3_ref_traj.q(k, l, 2) = orientation.X;
+%                 d3_ref_traj.q(k, l, 3) = orientation.Y;
+%                 d3_ref_traj.q(k, l, 4) = orientation.Z;
+% 
+%                 % Refresh horizon
+%                 horizon = size(ref_traj3{k+1,1}.Poses, 2);
+%             end
+%         end
+%     end
+% end
 
 
 %% SOLVED TRAJECTORY
 % Selection of topics
-topic_select = select(bagfile, 'Topic', topic_solved_traj(1));
-solved_traj1 = readMessages(topic_select, 'DataFormat', 'struct');
-start = 1;
-final = length(solved_traj1);
-interpolate = 1;
-horizon = size(solved_traj1{1,1}.Poses, 2);
-
-for k = start:interpolate:final-1
-    for l=1:horizon
-        pose = solved_traj1{k,1}.Poses(l).Pose.Position;
-        orientation = solved_traj1{k,1}.Poses(l).Pose.Orientation;
-
-        % Get time
-        t = double(solved_traj1{k,1}.Header.Stamp.Sec) + double(solved_traj1{k,1}.Header.Stamp.Nsec) * 1e-9;
-        d1_solved_traj.t(k, :, 1) = t;
-
-        % Position
-        d1_solved_traj.p(k, l, 1) = pose.X;
-        d1_solved_traj.p(k, l, 2) = pose.Y;
-        d1_solved_traj.p(k, l, 3) = pose.Z;
-
-        % Orientation
-        d1_solved_traj.q(k, l, 1) = orientation.W;
-        d1_solved_traj.q(k, l, 2) = orientation.X;
-        d1_solved_traj.q(k, l, 3) = orientation.Y;
-        d1_solved_traj.q(k, l, 4) = orientation.Z;
-        
-        % Refresh horizon
-        horizon = size(solved_traj1{k+1,1}.Poses, 2);
-    end
-end
-
-% Selection of topics
-topic_select = select(bagfile, 'Topic', topic_solved_traj(2));
-solved_traj2 = readMessages(topic_select, 'DataFormat', 'struct');
-start = 1;
-final = length(solved_traj2);
-interpolate = 1;
-horizon = size(solved_traj2{1,1}.Poses, 2);
-
-for k = start:interpolate:final-1
-    for l=1:horizon
-        pose = solved_traj2{k,1}.Poses(l).Pose.Position;
-        orientation = solved_traj2{k,1}.Poses(l).Pose.Orientation;
-
-        % Get time
-        t = double(solved_traj2{k,1}.Header.Stamp.Sec) + double(solved_traj2{k,1}.Header.Stamp.Nsec) * 1e-9;
-        d2_solved_traj.t(k, :, 1) = t;
-
-        % Position
-        d2_solved_traj.p(k, l, 1) = pose.X;
-        d2_solved_traj.p(k, l, 2) = pose.Y;
-        d2_solved_traj.p(k, l, 3) = pose.Z;
-
-        % Orientation
-        d2_solved_traj.q(k, l, 1) = orientation.W;
-        d2_solved_traj.q(k, l, 2) = orientation.X;
-        d2_solved_traj.q(k, l, 3) = orientation.Y;
-        d2_solved_traj.q(k, l, 4) = orientation.Z;
-        
-        % Refresh horizon
-        horizon = size(solved_traj2{k+1,1}.Poses, 2);
-    end
-end
-
-if n_drones == 3
-    % Selection of topics
-    topic_select = select(bagfile, 'Topic', topic_solved_traj(3));
-    solved_traj3 = readMessages(topic_select, 'DataFormat', 'struct');
-    start = 1;
-    final = length(solved_traj3);
-    interpolate = 1;
-    horizon = size(solved_traj3{1,1}.Poses, 2);
-    
-    for k = start:interpolate:final-1
-        for l=1:horizon
-            pose = solved_traj3{k,1}.Poses(l).Pose.Position;
-            orientation = solved_traj3{k,1}.Poses(l).Pose.Orientation;
-
-            % Get time
-            t = double(solved_traj3{k,1}.Header.Stamp.Sec) + double(solved_traj3{k,1}.Header.Stamp.Nsec) * 1e-9;
-            d3_solved_traj.t(k, :, 1) = t;
-
-            % Position
-            d3_solved_traj.p(k, l, 1) = pose.X;
-            d3_solved_traj.p(k, l, 2) = pose.Y;
-            d3_solved_traj.p(k, l, 3) = pose.Z;
-
-            % Orientation
-            d3_solved_traj.q(k, l, 1) = orientation.W;
-            d3_solved_traj.q(k, l, 2) = orientation.X;
-            d3_solved_traj.q(k, l, 3) = orientation.Y;
-            d3_solved_traj.q(k, l, 4) = orientation.Z;
-            
-            % Refresh horizon
-            horizon = size(solved_traj3{k+1,1}.Poses, 2);
-        end
-    end
-end
+% topic_select = select(bagfile, 'Topic', topic_solved_traj(1));
+% solved_traj1 = readMessages(topic_select, 'DataFormat', 'struct');
+% start = 1;
+% final = length(solved_traj1);
+% interpolate = 1;
+% horizon = size(solved_traj1{1,1}.Poses, 2);
+% 
+% for k = start:interpolate:final-1
+%     for l=1:horizon
+%         pose = solved_traj1{k,1}.Poses(l).Pose.Position;
+%         orientation = solved_traj1{k,1}.Poses(l).Pose.Orientation;
+% 
+%         % Get time
+%         t = double(solved_traj1{k,1}.Header.Stamp.Sec) + double(solved_traj1{k,1}.Header.Stamp.Nsec) * 1e-9;
+%         d1_solved_traj.t(k, :, 1) = t;
+% 
+%         % Position
+%         d1_solved_traj.p(k, l, 1) = pose.X;
+%         d1_solved_traj.p(k, l, 2) = pose.Y;
+%         d1_solved_traj.p(k, l, 3) = pose.Z;
+% 
+%         % Orientation
+%         d1_solved_traj.q(k, l, 1) = orientation.W;
+%         d1_solved_traj.q(k, l, 2) = orientation.X;
+%         d1_solved_traj.q(k, l, 3) = orientation.Y;
+%         d1_solved_traj.q(k, l, 4) = orientation.Z;
+%         
+%         % Refresh horizon
+%         horizon = size(solved_traj1{k+1,1}.Poses, 2);
+%     end
+% end
+% 
+% % Selection of topics
+% topic_select = select(bagfile, 'Topic', topic_solved_traj(2));
+% solved_traj2 = readMessages(topic_select, 'DataFormat', 'struct');
+% start = 1;
+% final = length(solved_traj2);
+% interpolate = 1;
+% horizon = size(solved_traj2{1,1}.Poses, 2);
+% 
+% for k = start:interpolate:final-1
+%     for l=1:horizon
+%         pose = solved_traj2{k,1}.Poses(l).Pose.Position;
+%         orientation = solved_traj2{k,1}.Poses(l).Pose.Orientation;
+% 
+%         % Get time
+%         t = double(solved_traj2{k,1}.Header.Stamp.Sec) + double(solved_traj2{k,1}.Header.Stamp.Nsec) * 1e-9;
+%         d2_solved_traj.t(k, :, 1) = t;
+% 
+%         % Position
+%         d2_solved_traj.p(k, l, 1) = pose.X;
+%         d2_solved_traj.p(k, l, 2) = pose.Y;
+%         d2_solved_traj.p(k, l, 3) = pose.Z;
+% 
+%         % Orientation
+%         d2_solved_traj.q(k, l, 1) = orientation.W;
+%         d2_solved_traj.q(k, l, 2) = orientation.X;
+%         d2_solved_traj.q(k, l, 3) = orientation.Y;
+%         d2_solved_traj.q(k, l, 4) = orientation.Z;
+%         
+%         % Refresh horizon
+%         horizon = size(solved_traj2{k+1,1}.Poses, 2);
+%     end
+% end
+% 
+% if n_drones == 3
+%     % Selection of topics
+%     topic_select = select(bagfile, 'Topic', topic_solved_traj(3));
+%     solved_traj3 = readMessages(topic_select, 'DataFormat', 'struct');
+%     start = 1;
+%     final = length(solved_traj3);
+%     interpolate = 1;
+%     horizon = size(solved_traj3{1,1}.Poses, 2);
+%     
+%     for k = start:interpolate:final-1
+%         for l=1:horizon
+%             pose = solved_traj3{k,1}.Poses(l).Pose.Position;
+%             orientation = solved_traj3{k,1}.Poses(l).Pose.Orientation;
+% 
+%             % Get time
+%             t = double(solved_traj3{k,1}.Header.Stamp.Sec) + double(solved_traj3{k,1}.Header.Stamp.Nsec) * 1e-9;
+%             d3_solved_traj.t(k, :, 1) = t;
+% 
+%             % Position
+%             d3_solved_traj.p(k, l, 1) = pose.X;
+%             d3_solved_traj.p(k, l, 2) = pose.Y;
+%             d3_solved_traj.p(k, l, 3) = pose.Z;
+% 
+%             % Orientation
+%             d3_solved_traj.q(k, l, 1) = orientation.W;
+%             d3_solved_traj.q(k, l, 2) = orientation.X;
+%             d3_solved_traj.q(k, l, 3) = orientation.Y;
+%             d3_solved_traj.q(k, l, 4) = orientation.Z;
+%             
+%             % Refresh horizon
+%             horizon = size(solved_traj3{k+1,1}.Poses, 2);
+%         end
+%     end
+% end
 
 
 %% POSE
 % Selection of topics
-topic_select = select(bagfile, 'Topic', topic_pose(1));
+topic_select = select(bagfile, 'Topic', convertStringsToChars(topic_pose(1)));
 pose1 = readMessages(topic_select, 'DataFormat', 'struct');
 start = 1;
 final = length(pose1);
@@ -575,7 +575,7 @@ for k = start:interpolate:final
 end
 
 % Selection of topics
-topic_select = select(bagfile, 'Topic', topic_pose(2));
+topic_select = select(bagfile, 'Topic', convertStringsToChars(topic_pose(2)));
 pose2 = readMessages(topic_select, 'DataFormat', 'struct');
 start = 1;
 final = length(pose2);
@@ -603,7 +603,7 @@ end
 
 if n_drones == 3
     % Selection of topics
-    topic_select = select(bagfile, 'Topic', topic_pose(3));
+    topic_select = select(bagfile, 'Topic', convertStringsToChars(topic_pose(3)));
     pose3 = readMessages(topic_select, 'DataFormat', 'struct');
     start = 1;
     final = length(pose3);
@@ -632,7 +632,7 @@ end
 
 %% VELOCITY
 % Selection of topics
-topic_select = select(bagfile, 'Topic', topic_velocity(1));
+topic_select = select(bagfile, 'Topic', convertStringsToChars(topic_velocity(1)));
 velocity1 = readMessages(topic_select, 'DataFormat', 'struct');
 start = 1;
 final = length(velocity1);
@@ -658,7 +658,7 @@ for k = start:interpolate:final
 end
 
 % Selection of topics
-topic_select = select(bagfile, 'Topic', topic_velocity(2));
+topic_select = select(bagfile, 'Topic', convertStringsToChars(topic_velocity(2)));
 velocity2 = readMessages(topic_select, 'DataFormat', 'struct');
 start = 1;
 final = length(velocity2);
@@ -686,7 +686,7 @@ end
 if n_drones == 3
 
     % Selection of topics
-    topic_select = select(bagfile, 'Topic', topic_velocity(3));
+    topic_select = select(bagfile, 'Topic', convertStringsToChars(topic_velocity(3)));
     velocity3 = readMessages(topic_select, 'DataFormat', 'struct');
     start = 1;
     final = length(velocity3);

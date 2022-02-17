@@ -15,7 +15,7 @@ obstacles = [3.5, 0; -3.5, 0;
 
 % Start evaluating when the drones start moving. Since then, check the
 % following time_vector instants of time
-time_vector = [6, 12, 18, 30, 40, 50];
+time_vector = [5, 10, 15, 20, 25, 30];
 
 % Getting increment time of pose topic
 inc_time_pose = d1_pose.t(2) - d1_pose.t(1);
@@ -28,7 +28,7 @@ while (mission_status.d(ind_start1, 1) ~= 1)
 end
 
 % Give extra seconds to let the drones go to the cylinder
-time_start_experiment = mission_status.t(ind_start1, 1) + 110;
+time_start_experiment = mission_status.t(ind_start1, 1) + 33;
 
 % Get closer sample to time_starting_experiment for each drone
 [value1, ind_start1] = min(sqrt(abs(d1_pose.t.^2 - time_start_experiment^2)));
@@ -82,7 +82,7 @@ for i = 1:size(time_vector,2)
     end
     plot(points_to_inspect.p(ind_finish_p2i, 1), points_to_inspect.p(ind_finish_p2i, 1), 'k*', 'MarkerSize', 16, 'LineWidth', 2);
     plot(obstacles(:, 1), obstacles(:, 2), 'k.', 'MarkerSize', 50, 'LineWidth', 2);
-    hold off;
+    hold off; set(gca, 'FontSize', 18, 'LineWidth', 1.2);
     
     if i >= 5
         xlabel('X (m)','FontSize',18,'FontWeight','bold'); 
@@ -105,5 +105,5 @@ for i = 1:size(time_vector,2)
 end
 
 if save_plots
-    saveas(gcf, ['~/bagfiles/plots/Experiment_', experiment_date, '_Drones_traj_mosaic.png']);
+    saveas(gcf, ['~/bagfiles/plots/Experiment_' + experiment_date + '_Drones_traj_mosaic.png']);
 end

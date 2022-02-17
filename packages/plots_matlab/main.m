@@ -2,13 +2,14 @@
 % https://es.mathworks.com/help/ros/ref/rosbag.html
 clc; clear all; close all;
 
-cd ~/bagfiles
-experiment_date = 'test_3'; % For saving plots
+cd ~/paper
+experiment_date = "obs_avoidance_1"; % For saving plots
 % bagfile = rosbag("simulations/exp5_drone_1_experiment_2021-07-28*");
 % bagfile = rosbag("simulations/exp5_drone_2_experiment_2021-07-28*");
-bagfile = rosbag("16_dic/simulation_2021-12-16-10-03*");
+% bagfile = rosbag('changing_references/simulation_2022-01-31-08-56-09*');
+bagfile = rosbag('obstacle_avoidance/good_one/simulation_2022-01-31-11-42-26*');
 
-n_drones = 2;
+n_drones = 3;
 
 start_time_1 = bagfile.StartTime;
 end_time_1   = bagfile.EndTime;
@@ -54,6 +55,7 @@ reading_topics;
 
 % Show plots and autosave
 save_plots = 1; % 0 to not save, 1 to save
-plot_figures_experiments;
-
+% plot_figures_experiments;
+% plot_obstacle_avoidance;
+plot_figures_experiments_obs_avoidance;
 
