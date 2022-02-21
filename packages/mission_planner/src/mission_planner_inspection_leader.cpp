@@ -11,8 +11,7 @@ std::vector<state> MissionPlannerInspectionLeader::initialTrajectory(
   refreshGoals();
 
   // Trajectory to return in that function
-  std::vector<state> traj;
-  traj.clear();
+  reference_trajectories_[param_.drone_id].clear();
 
   // Transform to polar initial and final point
   Eigen::Vector3d initial_pose_polar =
@@ -63,10 +62,10 @@ std::vector<state> MissionPlannerInspectionLeader::initialTrajectory(
     k_state.pos = k_point_xyz;  
 
     // Push back the state
-    traj.push_back(std::move(k_state));
+    reference_trajectories_[param_.drone_id].push_back(std::move(k_state));
   }
 
-  return traj;
+  return reference_trajectories_[param_.drone_id];
 }
 
 std::vector<state> MissionPlannerInspectionLeader::inspectionTrajectory(

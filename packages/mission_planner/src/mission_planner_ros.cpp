@@ -68,6 +68,13 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
           1,
           std::bind(&MissionPlannerRos::solvedTrajCallback, this,
                     std::placeholders::_1, drone));
+      
+      reference_trajectories_sub_[drone] = nh_.subscribe<nav_msgs::Path>(
+          "/drone_" + std::to_string(drone) +
+              "/mission_planner_ros/reference_traj",
+          1,
+          std::bind(&MissionPlannerRos::referenceTrajCallback, this,
+                    std::placeholders::_1, drone));
     }
     if (drone != inspection_params_.leader_id) {
       operation_mode_sub_[drone] = nh_.subscribe<std_msgs::UInt8>(
@@ -114,7 +121,7 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   sphere_pub_ =
       nh_.advertise<visualization_msgs::Marker>("inspection_sphere", 1);
   pub_path_ = nh_.advertise<nav_msgs::Path>("solved_traj", 1);
-  pub_ref_path_ = nh_.advertise<nav_msgs::Path>("ref_traj", 1);
+  pub_ref_path_ = nh_.advertise<nav_msgs::Path>("reference_traj", 1);
   tracking_pub_ = nh_.advertise<nav_msgs::Path>(
       "/drone_" + std::to_string(param_.drone_id) +
           "/upat_follower/follower/trajectory_to_follow",
@@ -445,7 +452,6 @@ void MissionPlannerRos::solvedTrajCallback(const nav_msgs::Path::ConstPtr &msg,
   float time = time_first_point.sec + (time_first_point.nsec / 1000000000.0);
   int i = 0;
 
-  // ROS_INFO("SOLVED TRAJ CALLBACK: Time of solved trajectory ID %d callback:  %3f seconds", id, time);
   for (auto pose : msg->poses) {
     aux_state.time_stamp = pose.header.stamp.sec + pose.header.stamp.nsec/1000000000.0; 
 
@@ -456,6 +462,27 @@ void MissionPlannerRos::solvedTrajCallback(const nav_msgs::Path::ConstPtr &msg,
     path.push_back(aux_state);
   }
   mission_planner_ptr_->setSolvedTrajectories(path, id);
+}
+
+void MissionPlannerRos::referenceTrajCallback(const nav_msgs::Path::ConstPtr &msg,
+                                              int id) {
+  state aux_state;
+  std::vector<state> path;
+
+  auto time_first_point = ros::Time::now();
+  float time = time_first_point.sec + (time_first_point.nsec / 1000000000.0);
+  int i = 0;
+
+  for (auto pose : msg->poses) {
+    aux_state.time_stamp = pose.header.stamp.sec + pose.header.stamp.nsec/1000000000.0; 
+
+    i = i + 1;
+    aux_state.pos(0) = pose.pose.position.x;
+    aux_state.pos(1) = pose.pose.position.y;
+    aux_state.pos(2) = pose.pose.position.z;
+    path.push_back(aux_state);
+  }
+  mission_planner_ptr_->setReferenceTrajectories(path, id);
 }
 
 void MissionPlannerRos::uavPoseCallback(

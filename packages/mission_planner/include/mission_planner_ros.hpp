@@ -59,6 +59,7 @@ class MissionPlannerRos {
   std::map<int, ros::Subscriber> cur_pose_sub_;
   std::map<int, ros::Subscriber> cur_vel_sub_;
   std::map<int, ros::Subscriber> solved_trajectories_sub_;
+  std::map<int, ros::Subscriber> reference_trajectories_sub_;
   std::map<int, ros::Subscriber> distance_to_inspection_point_sub_;
   std::map<int, ros::Subscriber> relative_angle_sub_;
   std::map<int, ros::Subscriber> operation_mode_sub_;
@@ -104,6 +105,14 @@ class MissionPlannerRos {
    * @param id drone id
    */
   void solvedTrajCallback(const nav_msgs::Path::ConstPtr &msg, int id);
+  
+  /**
+   * @brief Callback for the reference trajectories from others
+   *
+   * @param msg trajectory
+   * @param id drone id
+   */
+  void referenceTrajCallback(const nav_msgs::Path::ConstPtr &msg, int id);
 
   /**
    * @brief Callback for the leader's reference trajectory time
@@ -243,7 +252,7 @@ class MissionPlannerRos {
   void uavVelocityCallback(const geometry_msgs::TwistStamped::ConstPtr &msg,
                            int id);
 
-  /*! \brief function to publish last solved trajectory
+  /*! \brief function to publish a trajectory
    */
   void publishPath(const ros::Publisher &pub_path,
                    const std::vector<state> &trajectory);

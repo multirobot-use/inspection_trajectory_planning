@@ -4,8 +4,10 @@ MissionPlannerInspection::MissionPlannerInspection(const trajectory_planner::par
     : trajectory_planner::TrajectoryPlanner(_params),
       inspection_params_(_inspection_params)
  {
-  // initialize solved trajectory
+  // initialize reference and solved trajectory
   solved_trajectories_[param_.drone_id] =
+      std::vector<state>(param_.horizon_length);
+  reference_trajectories_[param_.drone_id] =
       std::vector<state>(param_.horizon_length);
 
   // initialize logger

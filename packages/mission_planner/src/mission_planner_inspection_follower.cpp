@@ -20,7 +20,7 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
   std::vector<state> trajectory_to_optimize;
   Eigen::Quaterniond rotation;
 
-  if (!solved_trajectories_[inspection_params_.leader_id].empty()) {
+  if (!reference_trajectories_[inspection_params_.leader_id].empty()) {
     refreshGoals();
     state aux;
 
@@ -30,10 +30,10 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
     bool solved = false;
 
     for (int i = 0; i < param_.horizon_length; i++){
-      if (solved_trajectories_[inspection_params_.leader_id][i].time_stamp > (start_plan_time_ + param_.planning_rate)){
+      if (reference_trajectories_[inspection_params_.leader_id][i].time_stamp > (start_plan_time_ + param_.planning_rate)){
         current_i = i;
         solved = true;
-        elapsed_time = start_plan_time_ - solved_trajectories_[inspection_params_.leader_id][0].time_stamp;
+        elapsed_time = start_plan_time_ - reference_trajectories_[inspection_params_.leader_id][0].time_stamp;
         std::cout << "  i == " << i << "  Elapsed time: " << elapsed_time << std::endl << std::endl;
 
         break;
@@ -48,8 +48,8 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
     trajectory_to_optimize.push_back(aux);
 
     // Need to know if the trajectory is being described clockwise or anticlockwise
-    bool clockwise = MissionPlannerInspection::isClockwise(solved_trajectories_[inspection_params_.leader_id][1].pos,
-                                                           solved_trajectories_[inspection_params_.leader_id][2].pos);
+    bool clockwise = MissionPlannerInspection::isClockwise(reference_trajectories_[inspection_params_.leader_id][1].pos,
+                                                           reference_trajectories_[inspection_params_.leader_id][2].pos);
 
     // Corrector angle: additional angle rotation because of lack synchronization
     // float corrector_angle = MissionPlannerInspectionFollower::calculateAngleCorrector(elapsed_time);
@@ -78,7 +78,7 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
     // Add the other points
     for (int i = current_i; i < param_.horizon_length; i++) {
       aux.time_stamp = start_plan_time_ + param_.planning_rate + (i - current_i + 1)*param_.step_size;
-      aux.pos = rotMat * (solved_trajectories_[inspection_params_.leader_id][i].pos -
+      aux.pos = rotMat * (reference_trajectories_[inspection_params_.leader_id][i].pos -
                           aux_point_to_inspect) +
                 aux_point_to_inspect;
       trajectory_to_optimize.push_back(std::move(aux));
