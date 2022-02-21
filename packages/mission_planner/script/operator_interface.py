@@ -24,8 +24,8 @@ from mission_planner.srv import PointToInspectSrvRequest
 from mission_planner.srv import PointToInspectSrv
 from mission_planner.srv import DistanceSrvRequest
 from mission_planner.srv import DistanceSrv
-from mission_planner.srv import GoAroundTimeSrvRequest
-from mission_planner.srv import GoAroundTimeSrv
+from mission_planner.srv import OrbitTimeSrvRequest
+from mission_planner.srv import OrbitTimeSrv
 from mission_planner.srv import AngleSrvRequest
 from mission_planner.srv import AngleSrv
 from mission_planner.srv import FlightModeSrvRequest
@@ -95,7 +95,7 @@ class Drone:
         change_flight_url    = drone_ns + "/mission_planner_ros/change_flight_mode"
         point_to_inspect_url = drone_ns + "/mission_planner_ros/point_to_inspect"
         distance_url         = drone_ns + "/mission_planner_ros/distance_to_inspect"
-        go_around_time_url   = drone_ns + "/mission_planner_ros/go_around_time"
+        orbit_time_url       = drone_ns + "/mission_planner_ros/orbit_time"
         relative_angle_url   = drone_ns + "/mission_planner_ros/change_relative_angle"
         take_off_url         = drone_ns + "/ual/take_off"
         land_url             = drone_ns + "/ual/land"
@@ -121,9 +121,9 @@ class Drone:
         rospy.wait_for_service(change_flight_url)
         self.change_flight_mode       = rospy.ServiceProxy(change_flight_url, FlightModeSrv)
 
-        # Go around time service
-        rospy.wait_for_service(go_around_time_url)
-        self.go_around_time           = rospy.ServiceProxy(go_around_time_url, GoAroundTimeSrv)
+        # Orbit time service
+        rospy.wait_for_service(orbit_time_url)
+        self.orbit_time               = rospy.ServiceProxy(orbit_time_url, OrbitTimeSrv)
 
         # Change point to inspect service
         rospy.wait_for_service(point_to_inspect_url)
@@ -227,17 +227,17 @@ class Drone:
         except:
             print("Failed calling change_flight_mode service")
 
-    # Go around time method
-    def change_go_around_time(self, time_ga):
-        time_req = GoAroundTimeSrvRequest()
-        time_req.time = time_ga
+    # Orbit time method
+    def change_orbit_time(self, time_orb):
+        time_req = OrbitTimeSrvRequest()
+        time_req.time = time_orb
         
         try:
-            self.go_around_time(time_req)
-            print "Go around time changed successfully!"
+            self.orbit_time(time_req)
+            print "Orbit time changed successfully!"
         
         except:
-            print("Failed calling go_around_time service")
+            print("Failed calling orbit_time service")
 
     # Go to waypoint method
     def go_to_waypoint(self, waypoint):
@@ -472,7 +472,7 @@ def show_menu(params,drones):
     print "\tl. Send to next waypoint (ONLY IN INSPECTION MODE)"
     print "\tm. Watch the evolution of the inspection distance & formation angle"
     print "\tn. Change flight mode"
-    print "\to. Change go around time"
+    print "\to. Change orbit time"
     print "\tz. Exit the console\n"
     print "################################################################################"
     
@@ -600,17 +600,17 @@ def show_menu(params,drones):
             drone.change_flight_mode(mode)
             time.sleep(0.5)
 
-    # Change go around time
+    # Change orbit time
     elif option == 14:
-        print "Please, select the desired go around time"
+        print "Please, select the desired orbit time"
         print "Minimum value: 15 seconds"
-        time_ga = float(raw_input(" >> "))
+        time_orb = float(raw_input(" >> "))
 
-        if time_ga < 15:
-            time_ga = 15
+        if time_orb < 15:
+            time_orb = 15
 
         for drone in drones:
-            drone.change_go_around_time(time_ga)
+            drone.change_orbit_time(time_orb)
         
     else:
         print ("Option '" + chr(option) + "' does not exist!")

@@ -57,12 +57,12 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
   }
 
   /**
-   * @brief changes the go around time
+   * @brief changes the orbit time
    *
-   * @param _time time of go around
+   * @param _time time of orbit the structure
    */
-  void setGoAroundTime(const float &_time) {
-    go_around_time_ = _time;
+  void setOrbitTime(const float &_time) {
+    orbit_time_ = _time;
   }
 
   /**
@@ -191,7 +191,7 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
   Eigen::Vector3d point_to_inspect_ = Eigen::Vector3d::Zero();
   float distance_to_inspect_point_ = 3;
   float relative_angle_ = 0.7;
-  float go_around_time_ = 90;
+  float orbit_time_ = 90;
   std::map<int, float> inspection_distance_;
   std::map<int, float> formation_angle_;
   inspection_params inspection_params_;

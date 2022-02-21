@@ -8,7 +8,7 @@
 #include <mission_planner/FlightModeSrv.h>
 #include <mission_planner/AngleSrv.h>
 #include <mission_planner/DistanceSrv.h>
-#include <mission_planner/GoAroundTimeSrv.h>
+#include <mission_planner/OrbitTimeSrv.h>
 #include <mission_planner/PointToInspectSrv.h>
 #include <mission_planner/WaypointSrv.h>
 #include <mission_planner/Float32withHeader.h>
@@ -93,7 +93,7 @@ class MissionPlannerRos {
   ros::ServiceServer service_relative_angle;
   ros::ServiceServer service_flight_mode;
   ros::ServiceServer clear_first_waypoint;
-  ros::ServiceServer service_go_around_time;
+  ros::ServiceServer service_orbit_time;
 
 
   //! Callback prototypes
@@ -156,13 +156,13 @@ class MissionPlannerRos {
       mission_planner::DistanceSrv::Request &req,
       mission_planner::DistanceSrv::Response &res);
 
-  /*! \brief Callback for the go around time service. It changes the
-   * go around time of the formation \param req time (float)
+  /*! \brief Callback for the orbit time service. It changes the
+   * orbit time of the formation \param req time (float)
    * \param res success
    */
-  bool goAroundTimeServiceCallback(
-      mission_planner::GoAroundTimeSrv::Request &req,
-      mission_planner::GoAroundTimeSrv::Response &res);
+  bool orbitTimeServiceCallback(
+      mission_planner::OrbitTimeSrv::Request &req,
+      mission_planner::OrbitTimeSrv::Response &res);
 
   /*! \brief Callback for change the relative angle service. It changes the
    * relative angles between the leader drone and the followers \param req angle

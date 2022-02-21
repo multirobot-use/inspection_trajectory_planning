@@ -12,7 +12,7 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   trajectory_planner::safeGetParam(nh_, "vel_max", param_.vel_max);
   trajectory_planner::safeGetParam(nh_, "vel_min", param_.vel_min);
   trajectory_planner::safeGetParam(nh_, "vel_inspect", param_.vel_inspect);
-  trajectory_planner::safeGetParam(nh_, "go_around_time", param_.go_around_time);
+  trajectory_planner::safeGetParam(nh_, "orbit_time", param_.orbit_time);
   trajectory_planner::safeGetParam(nh_, "acc_max", param_.acc_max);
   trajectory_planner::safeGetParam(nh_, "frame", param_.frame);
   trajectory_planner::safeGetParam(nh_, "drone_id", param_.drone_id);
@@ -176,9 +176,9 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   service_relative_angle = nh_.advertiseService(
       "change_relative_angle",
       &MissionPlannerRos::changeRelativeAngleServiceCallback, this);
-  service_go_around_time = nh_.advertiseService(
-      "go_around_time",
-      &MissionPlannerRos::goAroundTimeServiceCallback, this);
+  service_orbit_time = nh_.advertiseService(
+      "orbit_time",
+      &MissionPlannerRos::orbitTimeServiceCallback, this);
   service_flight_mode = nh_.advertiseService(
       "change_flight_mode",
       &MissionPlannerRos::changeFlightModeServiceCallback, this);
@@ -287,16 +287,16 @@ bool MissionPlannerRos::distanceToInspectServiceCallback(
   res.success = true;
 }
 
-bool MissionPlannerRos::goAroundTimeServiceCallback(
-    mission_planner::GoAroundTimeSrv::Request &req,
-    mission_planner::GoAroundTimeSrv::Response &res) {
-  ROS_INFO("[%s]: Go around time service called.",
+bool MissionPlannerRos::orbitTimeServiceCallback(
+    mission_planner::OrbitTimeSrv::Request &req,
+    mission_planner::OrbitTimeSrv::Response &res) {
+  ROS_INFO("[%s]: Orbit time service called.",
            ros::this_node::getName().c_str());
 
-  mission_planner_ptr_->setGoAroundTime(req.time);
+  mission_planner_ptr_->setOrbitTime(req.time);
 
   ROS_INFO(
-      "[%s]: Go around time changed successfully!  New time: "
+      "[%s]: Orbit time changed successfully!  New time: "
       " %f seconds",
       ros::this_node::getName().c_str(), req.time);
   res.success = true;
