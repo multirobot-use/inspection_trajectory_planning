@@ -184,6 +184,13 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
     }
   }
 
+  /**
+   * @brief function that calculates the velocity regarding the distance to the inspection point
+   *
+   * @return velocity
+   */
+  float calculateVel(const float &_distance);
+
 
  protected:
   bool mission_status_ = false;

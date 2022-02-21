@@ -336,7 +336,13 @@ bool MissionPlannerRos::changeOperationModeServiceCallback(
 }
 
 void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
+  // Refresh the Waypoint Tolerance value
+  float distance = mission_planner_ptr_ -> getDistanceToInspect();
+  float vel      = mission_planner_ptr_ -> calculateVel(distance);
+  mission_planner_ptr_ -> adaptiveWaypointTolerance(vel);
+
   auto trajectory_length = mission_planner_ptr_ -> getSizeTrajectory();
+
   if (mission_planner_ptr_->getStatus() != trajectory_planner::PlannerStatus::FIRST_PLAN) {
     if (trajectory_length > 0) {
       publishTrajectoryJoint(tracking_pub_trajectory_,

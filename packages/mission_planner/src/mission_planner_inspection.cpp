@@ -138,6 +138,15 @@ float MissionPlannerInspection::getPointAngle(const Eigen::Vector3d &_point){
   return angle;
 }
 
+float MissionPlannerInspection::calculateVel(const float &_distance){
+  // Velocity*Time = Distance
+  float vel = (2*M_PI*_distance)/orbit_time_;
+  if (vel < param_.vel_min)       vel = param_.vel_min;
+  else if (vel > param_.vel_max)  vel = param_.vel_max;
+
+  return vel;
+}
+
 bool MissionPlannerInspection::inspecting(){
 
   float distance = (states_[inspection_params_.leader_id].pos - pointOnCircle(goals_[0].pos)).norm();

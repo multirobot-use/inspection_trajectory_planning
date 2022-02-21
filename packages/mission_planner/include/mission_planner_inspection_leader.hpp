@@ -41,13 +41,6 @@ class MissionPlannerInspectionLeader : public MissionPlannerInspection {
   bool checks();
 
   /**
-   * @brief function that calculates the velocity regarding the distance to the inspection point
-   *
-   * @return velocity
-   */
-  float calculateVel(const float &_distance);
-
-  /**
    * @brief returns an initial trajectory to inspect for the drone according to
    * the initial pose
    *

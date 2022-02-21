@@ -38,7 +38,7 @@ std::vector<state> MissionPlannerInspectionLeader::initialTrajectory(
     k_state.time_stamp = start_plan_time_ + param_.planning_rate + k*param_.step_size;
 
     // Calculate vel and saturate if necessary
-    vel = calculateVel(k_point_polar(0));
+    vel = MissionPlannerInspection::calculateVel(k_point_polar(0));
 
     // Calculate parameter tk
     t_k = (vel * param_.step_size * k) / curve_length;
@@ -140,15 +140,6 @@ void MissionPlannerInspectionLeader::appendGoal(const state &_new_goal) {
   goal.pos = pointOnCircle(goal_vector);
 
   goals_.push_back(goal);
-}
-
-float MissionPlannerInspectionLeader::calculateVel(const float &_distance){
-  // Velocity*Time = Distance
-  float vel = (2*M_PI*_distance)/orbit_time_;
-  if (vel < param_.vel_min)       vel = param_.vel_min;
-  else if (vel > param_.vel_max)  vel = param_.vel_max;
-
-  return vel;
 }
 
 bool MissionPlannerInspectionLeader::checks() {
