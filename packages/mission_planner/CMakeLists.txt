@@ -40,7 +40,7 @@ add_message_files(
 add_service_files(
   FILES
   WaypointSrv.srv
-  FlightModeSrv.srv
+  OperationModeSrv.srv
   OrbitTimeSrv.srv
   PointToInspectSrv.srv
   DistanceSrv.srv

@@ -1,8 +1,0 @@
-# FLIGHT MODE:
-# 1 --> Non-stopping Flight Mode
-# 2 --> Smooth Flight Mode
-# 3 --> Stopping Flight Mode
-# 4 --> Inspection Flight Mode
-uint8 mode
----
-bool success

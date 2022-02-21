@@ -5,7 +5,7 @@
 #include <geometry_msgs/TwistStamped.h>
 #include <geometry_msgs/TwistWithCovariance.h>
 #include <geometry_msgs/PoseArray.h>
-#include <mission_planner/FlightModeSrv.h>
+#include <mission_planner/OperationModeSrv.h>
 #include <mission_planner/AngleSrv.h>
 #include <mission_planner/DistanceSrv.h>
 #include <mission_planner/OrbitTimeSrv.h>
@@ -61,7 +61,7 @@ class MissionPlannerRos {
   std::map<int, ros::Subscriber> solved_trajectories_sub_;
   std::map<int, ros::Subscriber> distance_to_inspection_point_sub_;
   std::map<int, ros::Subscriber> relative_angle_sub_;
-  std::map<int, ros::Subscriber> flight_mode_sub_;
+  std::map<int, ros::Subscriber> operation_mode_sub_;
   std::map<int, ros::Subscriber> planner_status_sub_;
   std::map<int, ros::Subscriber> waypoints_sub_;
 
@@ -81,7 +81,7 @@ class MissionPlannerRos {
   ros::Publisher pub_point_cloud_;
   ros::Publisher formation_angle_pub_;
   ros::Publisher inspection_distance_pub_;
-  ros::Publisher flight_mode_pub_;
+  ros::Publisher operation_mode_pub_;
   ros::Publisher planner_status_pub_;
 
   // Services
@@ -91,7 +91,7 @@ class MissionPlannerRos {
   ros::ServiceServer service_point_to_inspect;
   ros::ServiceServer service_distance_to_inspect;
   ros::ServiceServer service_relative_angle;
-  ros::ServiceServer service_flight_mode;
+  ros::ServiceServer service_operation_mode;
   ros::ServiceServer clear_first_waypoint;
   ros::ServiceServer service_orbit_time;
 
@@ -172,12 +172,12 @@ class MissionPlannerRos {
       mission_planner::AngleSrv::Request &req,
       mission_planner::AngleSrv::Response &res);
 
-  /*! \brief Callback for the flight mode service. It changes the
-   * flight mode \param req mode (int) \param res success
+  /*! \brief Callback for the operation mode service. It changes the
+   * operation mode \param req mode (int) \param res success
    */
-  bool changeFlightModeServiceCallback(
-      mission_planner::FlightModeSrv::Request &req,
-      mission_planner::FlightModeSrv::Response &res);
+  bool changeOperationModeServiceCallback(
+      mission_planner::OperationModeSrv::Request &req,
+      mission_planner::OperationModeSrv::Response &res);
 
   /*! \brief Callback for timer that publishes rviz markers
    * \param TimerEvent structure passed to callback invoked by ros::Timer
@@ -199,11 +199,11 @@ class MissionPlannerRos {
    */
   void clockCB(const ros::TimerEvent &e);
 
-  /*! \brief Callback for drone's flight mode
-   *   \param flight_mode leader's flight mode, std_msgs/Uint8
+  /*! \brief Callback for drone's operation mode
+   *   \param operation_mode leader's operation mode, std_msgs/Uint8
    *   \param id  identifier of the drone
    **/
-  void flightModeCallback(const std_msgs::UInt8::ConstPtr &flight_mode, int id);
+  void operationModeCallback(const std_msgs::UInt8::ConstPtr &operation_mode, int id);
 
   /*! \brief Callback for waypoints
    *   \param waypoints list of waypoints, geometry_msgs/PoseArray
@@ -252,9 +252,9 @@ class MissionPlannerRos {
    */
   void publishInitTrajTimeLeader(const ros::Publisher &pub_time_leader);
 
-  /*! \brief function to publish the flight mode
+  /*! \brief function to publish the operation mode
    */
-  void publishFlightMode(const ros::Publisher &pub_flight_mode);
+  void publishOperationMode(const ros::Publisher &pub_operation_mode);
 
   /*! \brief function to publish the planner status
    */

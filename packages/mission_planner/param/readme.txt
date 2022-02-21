@@ -12,15 +12,15 @@ leader_id           --> indicate an integer that depicts the leader_id.
 
 step_size           --> indicate a float that depicts the time (seconds) that each step will have.
 
-flight_mode         --> indicate an integer from 1 to 4 that depicts the Flight Mode.
-                        1.  Non-stopping Flight Mode: This mode forces the formation to not stop in any case as long as they have
+operation_mode      --> indicate an integer from 1 to 4 that depicts the Operation Mode.
+                        1.  Non-stopping Operation Mode: This mode forces the formation to not stop in any case as long as they have
                         waypoints to follow.
-                        2.  Smooth Flight Mode: This mode make the formation to stop only when there is a change of direction along
-                        the flight. This means that if, when the formation reaches a waypoint and the shortest path to the next
+                        2.  Smooth Operation Mode: This mode make the formation to stop only when there is a change of direction along
+                        the Operation. This means that if, when the formation reaches a waypoint and the shortest path to the next
                         waypoint is in the opposite direction, it will first stop and, then, go to the waypoint.
-                        3.  Stopping Flight Mode: This mode make the formation stop in every case when it reaches a waypoint.
-                        4.  Inspection Flight Mode: This mode make the formation stop in every case when it reaches a waypoint. However,
-                        as a difference with Stopping Flight Mode, when the formation reaches the waypoint, you can change the
+                        3.  Stopping Operation Mode: This mode make the formation stop in every case when it reaches a waypoint.
+                        4.  Inspection Operation Mode: This mode make the formation stop in every case when it reaches a waypoint. However,
+                        as a difference with Stopping Operation Mode, when the formation reaches the waypoint, you can change the
                         references of inspection distance and formation angle.
 
 planning_rate       --> indicate a float that depicts the planning rate (seconds).
@@ -45,7 +45,7 @@ vel_max             --> indicate a float that depicts the maximum cruising speed
 vel_min             --> indicate a float that depicts the minimum cruising speed (m/s) of the formation.
                         This is the value of the desired minimum cruising speed.
 
-go_around_time      --> indicate a float that depicts the time (s) that the formation has to last to describe a full circle around the structure.
+orbit_time          --> indicate a float that depicts the time (s) that the formation has to last to describe a full circle around the structure.
                         This time can be chosen independent of the inspection distance and this is used to adjust the cruising speed regarding
                         the inspection distance, the cruising speed has a minimum value (vel_min) and a maximum value (vel_max).
 

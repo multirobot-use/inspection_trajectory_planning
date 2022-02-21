@@ -16,7 +16,7 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   trajectory_planner::safeGetParam(nh_, "acc_max", param_.acc_max);
   trajectory_planner::safeGetParam(nh_, "frame", param_.frame);
   trajectory_planner::safeGetParam(nh_, "drone_id", param_.drone_id);
-  trajectory_planner::safeGetParam(nh_, "flight_mode", param_.flight_mode);
+  trajectory_planner::safeGetParam(nh_, "operation_mode", param_.operation_mode);
   trajectory_planner::safeGetParam(nh_, "inspection_dist", inspection_params_.inspection_dist);
   trajectory_planner::safeGetParam(nh_, "visualization_rate", param_.visualization_rate);
   trajectory_planner::safeGetParam(nh_, "clock_rate", param_.clock_rate);
@@ -71,10 +71,10 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
                     std::placeholders::_1, drone));
     }
     if (drone != inspection_params_.leader_id) {
-      flight_mode_sub_[drone] = nh_.subscribe<std_msgs::UInt8>(
-          "/drone_1/flight_mode",
+      operation_mode_sub_[drone] = nh_.subscribe<std_msgs::UInt8>(
+          "/drone_1/operation_mode",
           1,
-          std::bind(&MissionPlannerRos::flightModeCallback, this,
+          std::bind(&MissionPlannerRos::operationModeCallback, this,
                     std::placeholders::_1, drone));
       planner_status_sub_[drone] = nh_.subscribe<std_msgs::UInt8>(
           "/drone_1/planner_status",
@@ -136,9 +136,9 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
       "/drone_" + std::to_string(param_.drone_id) +
           "/mission_status",
       1);
-  flight_mode_pub_ = nh_.advertise<std_msgs::UInt8>(
+  operation_mode_pub_ = nh_.advertise<std_msgs::UInt8>(
       "/drone_" + std::to_string(param_.drone_id) +
-          "/flight_mode",
+          "/operation_mode",
       1);
   planner_status_pub_ = nh_.advertise<std_msgs::UInt8>(
       "/drone_" + std::to_string(param_.drone_id) +
@@ -179,9 +179,9 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   service_orbit_time = nh_.advertiseService(
       "orbit_time",
       &MissionPlannerRos::orbitTimeServiceCallback, this);
-  service_flight_mode = nh_.advertiseService(
-      "change_flight_mode",
-      &MissionPlannerRos::changeFlightModeServiceCallback, this);
+  service_operation_mode = nh_.advertiseService(
+      "change_operation_mode",
+      &MissionPlannerRos::changeOperationModeServiceCallback, this);
 }
 
 
@@ -315,16 +315,16 @@ bool MissionPlannerRos::changeRelativeAngleServiceCallback(
   res.success = true;
 }
 
-bool MissionPlannerRos::changeFlightModeServiceCallback(
-    mission_planner::FlightModeSrv::Request &req,
-    mission_planner::FlightModeSrv::Response &res) {
+bool MissionPlannerRos::changeOperationModeServiceCallback(
+    mission_planner::OperationModeSrv::Request &req,
+    mission_planner::OperationModeSrv::Response &res) {
 
-  ROS_INFO("[%s]: Change flight mode service called.",
+  ROS_INFO("[%s]: Change operation mode service called.",
            ros::this_node::getName().c_str());
   
-  mission_planner_ptr_ -> setFlightMode(req.mode);
+  mission_planner_ptr_ -> setOperationMode(req.mode);
 
-  ROS_INFO("[%s]: Flight mode changed successfully!  New mode: %d",
+  ROS_INFO("[%s]: Operation mode changed successfully!  New mode: %d",
            ros::this_node::getName().c_str(), req.mode);
   res.success = true;
 }
@@ -342,7 +342,7 @@ void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
     }
   }
   mission_planner_ptr_->plan();
-  publishFlightMode(flight_mode_pub_);
+  publishOperationMode(operation_mode_pub_);
   publishPlannerStatus(planner_status_pub_);
   publishDistance(distance_pub_);
   publishRelativeAngle(angle_pub_);
@@ -402,10 +402,10 @@ void MissionPlannerRos::distanceToInspectionPointCallback(
   mission_planner_ptr_ -> incDistanceToInspect(distance->data);
 }
 
-void MissionPlannerRos::flightModeCallback(
-    const std_msgs::UInt8::ConstPtr &flight_mode, int id){
+void MissionPlannerRos::operationModeCallback(
+    const std_msgs::UInt8::ConstPtr &operation_mode, int id){
 
-  mission_planner_ptr_ -> setFlightMode(flight_mode->data);
+  mission_planner_ptr_ -> setOperationMode(operation_mode->data);
 }
 
 void MissionPlannerRos::plannerStatusCallback(
@@ -567,12 +567,12 @@ void MissionPlannerRos::publishWaypoints(
   pub_waypoints.publish(points);
 }
 
-void MissionPlannerRos::publishFlightMode(const ros::Publisher &pub_flight_mode){
-  std_msgs::UInt8 flight_mode;
+void MissionPlannerRos::publishOperationMode(const ros::Publisher &pub_operation_mode){
+  std_msgs::UInt8 operation_mode;
 
-  flight_mode.data = mission_planner_ptr_ -> getFlightMode();
+  operation_mode.data = mission_planner_ptr_ -> getOperationMode();
 
-  pub_flight_mode.publish(flight_mode);
+  pub_operation_mode.publish(operation_mode);
 }
 
 void MissionPlannerRos::publishPlannerStatus(const ros::Publisher &pub_planner_status){

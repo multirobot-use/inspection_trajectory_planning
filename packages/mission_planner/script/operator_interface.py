@@ -28,8 +28,8 @@ from mission_planner.srv import OrbitTimeSrvRequest
 from mission_planner.srv import OrbitTimeSrv
 from mission_planner.srv import AngleSrvRequest
 from mission_planner.srv import AngleSrv
-from mission_planner.srv import FlightModeSrvRequest
-from mission_planner.srv import FlightModeSrv
+from mission_planner.srv import OperationModeSrvRequest
+from mission_planner.srv import OperationModeSrv
 import signal
 import sys
 from collections import namedtuple
@@ -67,7 +67,7 @@ class Drone:
     formation_angle = [1, 1]
     ref_angle = 1
 
-    flight_mode = 1
+    operation_mode = 1
 
     def __init__(self, drone_ns):
         print("I'm a python constructor")
@@ -76,12 +76,12 @@ class Drone:
         for id in drone_ids:
             rospy.Subscriber("/drone_" + str(id) + "/ual/state", State, self.callbackState)
             rospy.Subscriber("/drone_" + str(id) + "/inspection_distance", Float32withHeader, self.callbackInspectionDistance, id)
-            if (drone_ns != "/drone_1"):
+            if (id != 1):
                 rospy.Subscriber("/drone_" + str(id) + "/formation_angle", Float32withHeader, self.callbackFormationAngle)
         
         rospy.Subscriber("/drone_1/absolute_distance_to_inspect", Float32withHeader, self.callbackRefDistance)
         rospy.Subscriber("/drone_1/absolute_relative_angle", Float32withHeader, self.callbackRefAngle)
-        rospy.Subscriber("/drone_1/flight_mode", UInt8, self.callbackFlightMode)
+        rospy.Subscriber("/drone_1/operation_mode", UInt8, self.callbackOperationMode)
         
         # Publishers (only one drone topic needed for each one)
         self.distance_inspection_pub = rospy.Publisher('/drone_1/mission_planner_ros/distance_to_inspection_point', Bool, queue_size = 1)
@@ -92,7 +92,7 @@ class Drone:
         add_waypoint_url     = drone_ns + "/mission_planner_ros/add_waypoint"
         clear_1_waypoint_url = drone_ns + "/mission_planner_ros/clear_first_waypoint"
         clear_waypoints_url  = drone_ns + "/mission_planner_ros/clear_waypoints"
-        change_flight_url    = drone_ns + "/mission_planner_ros/change_flight_mode"
+        change_operation_url    = drone_ns + "/mission_planner_ros/change_operation_mode"
         point_to_inspect_url = drone_ns + "/mission_planner_ros/point_to_inspect"
         distance_url         = drone_ns + "/mission_planner_ros/distance_to_inspect"
         orbit_time_url       = drone_ns + "/mission_planner_ros/orbit_time"
@@ -117,9 +117,9 @@ class Drone:
         rospy.wait_for_service(clear_1_waypoint_url)
         self.clear_1_waypoint_service = rospy.ServiceProxy(clear_1_waypoint_url, Empty)
 
-        # Change flight mode service
-        rospy.wait_for_service(change_flight_url)
-        self.change_flight_mode       = rospy.ServiceProxy(change_flight_url, FlightModeSrv)
+        # Change operation mode service
+        rospy.wait_for_service(change_operation_url)
+        self.change_operation_mode       = rospy.ServiceProxy(change_operation_url, OperationModeSrv)
 
         # Orbit time service
         rospy.wait_for_service(orbit_time_url)
@@ -216,16 +216,16 @@ class Drone:
         except rospy.ServiceException, e:
             print "Service call failed: %s" %e
 
-    # Change Flight Mode method
-    def change_flight_mode(self, mode):
+    # Change Operation Mode method
+    def change_operation_mode(self, mode):
         try:
-            mode_req        = FlightModeSrvRequest()
+            mode_req        = OperationModeSrvRequest()
             mode_req.mode   = mode
-            self.change_flight_mode(mode_req)
-            print "Flight mode changed!"
+            self.change_operation_mode(mode_req)
+            print "Operation mode changed!"
             
         except:
-            print("Failed calling change_flight_mode service")
+            print("Failed calling change_operation_mode service")
 
     # Orbit time method
     def change_orbit_time(self, time_orb):
@@ -298,7 +298,7 @@ class Drone:
     # Clear the first waypoint method (FOR INSPECTION)
     def clear_first_waypoint(self):
 
-        if (self.flight_mode == 4):
+        if (self.operation_mode == 4):
             try:
                 self.clear_1_waypoint_service()
                 print "First waypoint cleared!"
@@ -347,7 +347,7 @@ class Drone:
             print "\tTo decrease the relative angle, press A\n"
             print "\tTo quit, press Q\n\n"
 
-            if (self.flight_mode == 4):
+            if (self.operation_mode == 4):
                 print "\tFORMATION IN INSPECTING MODE!"
                 print "\tPress N to go to the next waypoint"
 
@@ -368,7 +368,7 @@ class Drone:
                     inc_angle = True
                     self.relative_angle_pub.publish(inc_angle)
                 
-                elif ((pressed_key == 'n' or pressed_key == 'N') and (self.flight_mode == 4)):
+                elif ((pressed_key == 'n' or pressed_key == 'N') and (self.operation_mode == 4)):
                     self.clear_1_waypoint_service()
                     print "POINT SKIPPED!"
                     time.sleep(1)
@@ -403,20 +403,20 @@ class Drone:
             for id in drone_ids:
                 if (id != 1):
                     angle = drones[id - 1].formation_angle*(180/3.1415)
-                    diff_angle = abs(drones[id - 1].formation_angle - drones[0].ref_angle)*(180/3.1415)
+                    diff_angle = abs(abs(drones[id - 1].formation_angle) - drones[0].ref_angle)*(180/3.1415)
                     print "         Formation angle (degrees) for Drone %d:  %.3f" %(id, angle)
                     print "Error of formation angle (degrees) for Drone %d:  %.3f" %(id, diff_angle)
                     print "\n"
             print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
             print "\n"
-            print "Flight mode: "
-            if (self.flight_mode == 1):
+            print "Operation mode: "
+            if (self.operation_mode == 1):
                 print "\tNon-stopping"
-            elif (self.flight_mode == 2):
+            elif (self.operation_mode == 2):
                 print "\tSmooth mode"
-            elif (self.flight_mode == 3):
+            elif (self.operation_mode == 3):
                 print "\tStopping mode"
-            elif (self.flight_mode == 4):
+            elif (self.operation_mode == 4):
                 print "\tInspection mode"
             
             print "Exit the tracking screen when 'q' or 'Q' key is pressed"
@@ -444,9 +444,9 @@ class Drone:
     def callbackRefAngle(self, data):
         self.ref_angle = data.data
     
-    # Callback for the Flight Mode
-    def callbackFlightMode(self, data):
-        self.flight_mode = data.data 
+    # Callback for the Operation Mode
+    def callbackOperationMode(self, data):
+        self.operation_mode = data.data 
         
 
 # Menu function
@@ -471,7 +471,7 @@ def show_menu(params,drones):
     print "\tk. Land the drones"
     print "\tl. Send to next waypoint (ONLY IN INSPECTION MODE)"
     print "\tm. Watch the evolution of the inspection distance & formation angle"
-    print "\tn. Change flight mode"
+    print "\tn. Change operation mode"
     print "\to. Change orbit time"
     print "\tz. Exit the console\n"
     print "################################################################################"
@@ -592,12 +592,12 @@ def show_menu(params,drones):
     elif option == 12:
         drones[0].tracking_screen()
     
-    # Change flight mode
+    # Change operation mode
     elif option == 13:
-        print("New flight mode\nChoose 1 (NON-STOPPING), 2 (SMOOTH), 3 (STOPPING), 4 (INSPECTING)")
+        print("New operation mode\nChoose 1 (NON-STOPPING), 2 (SMOOTH), 3 (STOPPING), 4 (INSPECTING)")
         mode = (int(raw_input(" >> ")))
         for drone in drones:
-            drone.change_flight_mode(mode)
+            drone.change_operation_mode(mode)
             time.sleep(0.5)
 
     # Change orbit time

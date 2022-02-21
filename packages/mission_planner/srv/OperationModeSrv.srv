@@ -1,0 +1,8 @@
+# OPERATION MODE:
+# 1 --> Non-stopping Operation Mode
+# 2 --> Smooth Operation Mode
+# 3 --> Stopping Operation Mode
+# 4 --> Inspection Operation Mode
+uint8 mode
+---
+bool success
