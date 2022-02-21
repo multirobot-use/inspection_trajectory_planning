@@ -15,7 +15,6 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   trajectory_planner::safeGetParam(nh_, "orbit_time", param_.orbit_time);
   trajectory_planner::safeGetParam(nh_, "acc_max", param_.acc_max);
   trajectory_planner::safeGetParam(nh_, "frame", param_.frame);
-  trajectory_planner::safeGetParam(nh_, "drone_id", param_.drone_id);
   trajectory_planner::safeGetParam(nh_, "operation_mode", param_.operation_mode);
   trajectory_planner::safeGetParam(nh_, "inspection_dist", inspection_params_.inspection_dist);
   trajectory_planner::safeGetParam(nh_, "visualization_rate", param_.visualization_rate);
@@ -448,7 +447,6 @@ void MissionPlannerRos::solvedTrajCallback(const nav_msgs::Path::ConstPtr &msg,
 
   // ROS_INFO("SOLVED TRAJ CALLBACK: Time of solved trajectory ID %d callback:  %3f seconds", id, time);
   for (auto pose : msg->poses) {
-    // Check how would improve the formation angle by using the time_first_point instead of the poses one.
     aux_state.time_stamp = pose.header.stamp.sec + pose.header.stamp.nsec/1000000000.0; 
 
     i = i + 1;
@@ -647,9 +645,6 @@ void MissionPlannerRos::publishPath(const ros::Publisher &pub_path,
     float time_stamp = trajectory[0].time_stamp;
     div_t time_result;
 
-    // ROS_INFO("PUBLISH PATH METHOD: Current time sec: %3d  nsec: %3d", path_to_publish.header.stamp.sec, path_to_publish.header.stamp.nsec);
-    // ROS_INFO("PUBLISH PATH METHOD: Time of the first point of the trajectory: %f", time_stamp);
-
     for (const auto &state : trajectory) {
       time_result = div(state.time_stamp, 1);
       aux_pose.header.stamp.sec   = time_result.quot;
@@ -691,7 +686,6 @@ void MissionPlannerRos::publishTrajectoryJoint(
     for (auto &point : trajectory) {
       point_to_follow.positions.clear();
       point_to_follow.velocities.clear();
-      // std::cout << "   Time: " << point.time_stamp << std::endl;
       aux.sec  = int(point.time_stamp);
       aux.nsec = int( (point.time_stamp-int(point.time_stamp))*1000000000 );
       point_to_follow.time_from_start = aux - zero;

@@ -77,7 +77,7 @@ class Drone:
             rospy.Subscriber("/drone_" + str(id) + "/ual/state", State, self.callbackState)
             rospy.Subscriber("/drone_" + str(id) + "/inspection_distance", Float32withHeader, self.callbackInspectionDistance, id)
             if (id != 1):
-                rospy.Subscriber("/drone_" + str(id) + "/formation_angle", Float32withHeader, self.callbackFormationAngle)
+                rospy.Subscriber("/drone_" + str(id) + "/formation_angle", Float32withHeader, self.callbackFormationAngle, id)
         
         rospy.Subscriber("/drone_1/absolute_distance_to_inspect", Float32withHeader, self.callbackRefDistance)
         rospy.Subscriber("/drone_1/absolute_relative_angle", Float32withHeader, self.callbackRefAngle)
@@ -92,7 +92,7 @@ class Drone:
         add_waypoint_url     = drone_ns + "/mission_planner_ros/add_waypoint"
         clear_1_waypoint_url = drone_ns + "/mission_planner_ros/clear_first_waypoint"
         clear_waypoints_url  = drone_ns + "/mission_planner_ros/clear_waypoints"
-        change_operation_url    = drone_ns + "/mission_planner_ros/change_operation_mode"
+        change_operation_url = drone_ns + "/mission_planner_ros/change_operation_mode"
         point_to_inspect_url = drone_ns + "/mission_planner_ros/point_to_inspect"
         distance_url         = drone_ns + "/mission_planner_ros/distance_to_inspect"
         orbit_time_url       = drone_ns + "/mission_planner_ros/orbit_time"
@@ -119,7 +119,7 @@ class Drone:
 
         # Change operation mode service
         rospy.wait_for_service(change_operation_url)
-        self.change_operation_mode       = rospy.ServiceProxy(change_operation_url, OperationModeSrv)
+        self.change_operation_mode    = rospy.ServiceProxy(change_operation_url, OperationModeSrv)
 
         # Orbit time service
         rospy.wait_for_service(orbit_time_url)
@@ -331,12 +331,13 @@ class Drone:
             print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
             print " REFERENCE OF INSPECTION DISTANCE (meters): %.2f" %(drones[0].ref_distance)
             for id in drone_ids:
-                print " Inspection distance (meters) for Drone %d:  %.3f || Error: %.3f" %(id, drones[id - 1].inspection_distance[id-1], abs(drones[id - 1].inspection_distance[id-1] - drones[0].ref_distance))
+                print " Inspection distance (meters) for Drone %d:  %.3f || Error: %.3f" %(id, drones[0].inspection_distance[id - 1], abs(drones[0].inspection_distance[id - 1] - drones[0].ref_distance))
             print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
             print " REFERENCE OF FORMATION ANGLE (rad): %.2f" %(drones[0].ref_angle)
             for id in drone_ids:
                 if (id != 1):
-                    print " Formation angle (rad) for Drone %d:  %.3f || Error %.3f" %(id, abs(drones[id - 1].formation_angle), abs(abs(drones[id - 1].formation_angle) - drones[0].ref_angle))
+                    print " Formation angle (rad) for Drone %d:  %.3f || Error %.3f" %(id, abs(drones[0].formation_angle[id-2]), abs(abs(drones[0].formation_angle[id-2]) - drones[0].ref_angle))
+            
             print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
             print "\n"
             print "\t\t ~~~~~ JOYSTICK SIMULATOR ~~~~~\n\n"
@@ -402,8 +403,8 @@ class Drone:
             print "REFERENCE OF FORMATION ANGLE (rad): %.2f" %(angle)
             for id in drone_ids:
                 if (id != 1):
-                    angle = drones[id - 1].formation_angle*(180/3.1415)
-                    diff_angle = abs(abs(drones[id - 1].formation_angle) - drones[0].ref_angle)*(180/3.1415)
+                    angle = drones[0].formation_angle[id-2]*(180/3.1415)
+                    diff_angle = abs(abs(drones[0].formation_angle[id-2]) - drones[0].ref_angle)*(180/3.1415)
                     print "         Formation angle (degrees) for Drone %d:  %.3f" %(id, angle)
                     print "Error of formation angle (degrees) for Drone %d:  %.3f" %(id, diff_angle)
                     print "\n"
@@ -433,8 +434,8 @@ class Drone:
         self.inspection_distance[id-1] = data.data
     
     # Callback for formation angle
-    def callbackFormationAngle(self, data):
-        self.formation_angle = data.data
+    def callbackFormationAngle(self, data, id):
+        self.formation_angle[id-2] = data.data
 
     # Callback for the reference of the inspection distance
     def callbackRefDistance(self, data):
