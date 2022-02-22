@@ -51,18 +51,12 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
     bool clockwise = MissionPlannerInspection::isClockwise(reference_trajectories_[inspection_params_.leader_id][1].pos,
                                                            reference_trajectories_[inspection_params_.leader_id][2].pos);
 
-    // Corrector angle: additional angle rotation because of lack synchronization
-    // float corrector_angle = MissionPlannerInspectionFollower::calculateAngleCorrector(elapsed_time);
-    // float corrector_angle = 0;
+    // Previous check if the relative_angle_ is safe by using minimums and maximums values
+    float min_formation_angle = MissionPlannerInspection::minimumFormationAngle();
+    float max_formation_angle = MissionPlannerInspection::maximumFormationAngle();
 
-    // if (param_.drone_id == 2) {
-    //   if (clockwise){  rotation = trajectory_planner::eulerToQuat(0, 0, (relative_angle_ - corrector_angle));}
-    //   else{            rotation = trajectory_planner::eulerToQuat(0, 0, (relative_angle_ + corrector_angle));}
-    // }
-    // else {
-    //   if (clockwise){  rotation = trajectory_planner::eulerToQuat(0, 0, (relative_angle_ + corrector_angle));}
-    //   else{            rotation = trajectory_planner::eulerToQuat(0, 0, (relative_angle_ - corrector_angle));}
-    // } 
+    if (min_formation_angle > relative_angle_)      MissionPlannerInspection::setRelativeAngle(min_formation_angle);
+    else if (max_formation_angle < relative_angle_) MissionPlannerInspection::setRelativeAngle(max_formation_angle);
 
     if (param_.drone_id == 2) {
       rotation = trajectory_planner::eulerToQuat(0, 0, relative_angle_);
@@ -86,9 +80,9 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
 
     formation_angle_[param_.drone_id] = MissionPlannerInspection::calculateFormationAngle(param_.drone_id);
     
-    std::cout << "  Current relative angle (rad): "  << formation_angle_[param_.drone_id]
+    std::cout << "  Current relative angle (rad): "  << abs(formation_angle_[param_.drone_id])
               << "  Desired formation angle (rad): " << relative_angle_
-              << "  DIFFERENCE (º): "  << (abs(formation_angle_[param_.drone_id] - relative_angle_)*180/(M_PI)) << std::endl << std::endl;
+              << "  DIFFERENCE (º): "  << (abs(abs(formation_angle_[param_.drone_id]) - relative_angle_)*180/(M_PI)) << std::endl << std::endl;
 
     return trajectory_to_optimize;
   }

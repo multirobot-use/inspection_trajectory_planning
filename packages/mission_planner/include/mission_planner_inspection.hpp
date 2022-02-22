@@ -237,6 +237,19 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
    */
   float calculateInspectionDistance(const int &_id);
 
+  /**
+   * @brief calculates the minimum formation angle advisable
+   *
+   * @return minimum value of formation angle
+   */
+  float minimumFormationAngle();
+
+  /**
+   * @brief calculates the maximum formation angle advisable
+   *
+   * @return maximum value of formation angle
+   */
+  float maximumFormationAngle();
 
  private:
   /**

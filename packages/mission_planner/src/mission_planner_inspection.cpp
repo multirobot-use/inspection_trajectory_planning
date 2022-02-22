@@ -156,3 +156,15 @@ bool MissionPlannerInspection::inspecting(){
   else                            return false;
 
 }
+
+float MissionPlannerInspection::minimumFormationAngle(){
+  // (3*param_.planning_rate/orbit_time_)*2*pi                   // Get two planning rates as minimum
+  if ((3*param_.planning_rate/orbit_time_) > 0.5)  return M_PI;  // If exceeds the half of the circumference
+  else                                      return (3*param_.planning_rate/orbit_time_)*2*M_PI;
+}
+
+float MissionPlannerInspection::maximumFormationAngle(){
+  // Should never exceed M_PI - (x) radians
+  // In this case, x = (3*param_.planning_rate/orbit_time_) for safety
+  return (M_PI - (3*param_.planning_rate/orbit_time_)*2*M_PI);
+}

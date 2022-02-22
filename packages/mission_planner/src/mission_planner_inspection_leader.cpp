@@ -10,6 +10,13 @@ std::vector<state> MissionPlannerInspectionLeader::initialTrajectory(
   // Refresh the goals (waypoints) in case that either the inspection point or the inspection distance have changed
   refreshGoals();
 
+  // Refresh relative_angle_ considering its minimum/maximum value
+  float min_formation_angle = MissionPlannerInspection::minimumFormationAngle();
+  float max_formation_angle = MissionPlannerInspection::maximumFormationAngle();
+
+  if (min_formation_angle > relative_angle_)      MissionPlannerInspection::setRelativeAngle(min_formation_angle);
+  else if (max_formation_angle < relative_angle_) MissionPlannerInspection::setRelativeAngle(max_formation_angle);
+
   // Trajectory to return in that function
   reference_trajectories_[param_.drone_id].clear();
 
