@@ -31,13 +31,6 @@ class MissionPlannerInspectionFollower : public MissionPlannerInspection {
   bool checks();
 
   /**
-   * @brief function that infers the additional correction angle of the formation
-   *
-   * @return the angle corrector to apply
-   */
-  float calculateAngleCorrector(const float &_elapsed_time);
-
-  /**
    * @brief returns an initial trajectory to inspect for the drone according to
    * the initial pose
    *

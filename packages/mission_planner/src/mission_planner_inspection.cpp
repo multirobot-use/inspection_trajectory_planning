@@ -111,11 +111,9 @@ float MissionPlannerInspection::getTotalAngle(const float &_initial_angle,
   // Get the shortest path (should be always between [-M_PI, M_PI])
   if (final_angle - initial_angle > M_PI)
     total_angle = final_angle - (initial_angle + 2 * M_PI);
-  if ((final_angle - initial_angle < M_PI) && (final_angle - initial_angle < 0))
-    total_angle = final_angle - initial_angle;
   if (final_angle - initial_angle < -M_PI)
     total_angle = final_angle + (2 * M_PI - initial_angle);
-  if ((final_angle - initial_angle < M_PI) && (final_angle - initial_angle > 0))
+  else
     total_angle = final_angle - initial_angle;
 
   return total_angle;
@@ -148,7 +146,6 @@ float MissionPlannerInspection::calculateVel(const float &_distance){
 }
 
 bool MissionPlannerInspection::inspecting(){
-
   float distance = (states_[inspection_params_.leader_id].pos - pointOnCircle(goals_[0].pos)).norm();
   std::cout << "Distance: " << distance << std::endl;
 

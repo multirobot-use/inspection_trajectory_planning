@@ -151,7 +151,7 @@ class Drone:
 
     # Distance to inspect method
     def set_distance_inspection(self, distance):
-        r_inspect = DistanceSrvRequest()
+        r_inspect          = DistanceSrvRequest()
         r_inspect.distance = distance
         
         try:
@@ -163,7 +163,7 @@ class Drone:
 
     # Change relative angle method
     def change_relative_angle(self, angle):
-        relative_angle = AngleSrvRequest()
+        relative_angle       = AngleSrvRequest()
         relative_angle.angle = angle
         
         try:
@@ -191,9 +191,9 @@ class Drone:
     # Take off drones method
     def take_off(self, height, block_take_off):
         try:
-            take_off            = TakeOffRequest()
-            take_off.height     = height
-            take_off.blocking   = block_take_off
+            take_off          = TakeOffRequest()
+            take_off.height   = height
+            take_off.blocking = block_take_off
             
             self.take_off_service(take_off)
             print "Taking off the drone"
@@ -204,8 +204,8 @@ class Drone:
     # Land drones method
     def land(self):
         try:
-            land            = LandRequest()
-            land.blocking   = False
+            land          = LandRequest()
+            land.blocking = False
             
             # Stop the mission before calling the service of landing
             self.stop_mission()
@@ -219,8 +219,8 @@ class Drone:
     # Change Operation Mode method
     def change_operation_mode(self, mode):
         try:
-            mode_req        = OperationModeSrvRequest()
-            mode_req.mode   = mode
+            mode_req      = OperationModeSrvRequest()
+            mode_req.mode = mode
             self.change_operation_mode(mode_req)
             print "Operation mode changed!"
             
@@ -229,7 +229,7 @@ class Drone:
 
     # Orbit time method
     def change_orbit_time(self, time_orb):
-        time_req = OrbitTimeSrvRequest()
+        time_req      = OrbitTimeSrvRequest()
         time_req.time = time_orb
         
         try:
@@ -242,11 +242,11 @@ class Drone:
     # Go to waypoint method
     def go_to_waypoint(self, waypoint):
         try:
-            point              = GoToWaypointRequest()
-            point.blocking     = True
-            point.waypoint.pose.position.x     = waypoint[0]
-            point.waypoint.pose.position.y     = waypoint[1]
-            point.waypoint.pose.position.z     = waypoint[2]
+            point                          = GoToWaypointRequest()
+            point.blocking                 = True
+            point.waypoint.pose.position.x = waypoint[0]
+            point.waypoint.pose.position.y = waypoint[1]
+            point.waypoint.pose.position.z = waypoint[2]
             
             self.go_to_waypoint_service(point)
             print "Going to waypoint"
@@ -272,9 +272,9 @@ class Drone:
     def add_one_waypoint(self, waypoint):
         
         add_waypoint_req = WaypointSrvRequest()
-        add_waypoint_req.waypoint.pose.pose.position.x      = waypoint[0]
-        add_waypoint_req.waypoint.pose.pose.position.y      = waypoint[1]
-        add_waypoint_req.waypoint.pose.pose.position.z      = waypoint[2]
+        add_waypoint_req.waypoint.pose.pose.position.x = waypoint[0]
+        add_waypoint_req.waypoint.pose.pose.position.y = waypoint[1]
+        add_waypoint_req.waypoint.pose.pose.position.z = waypoint[2]
         print "Waypoint sent"
         print(waypoint)
         try:
@@ -383,10 +383,11 @@ class Drone:
     # Tracking screen
     def tracking_screen(self):
         global pressed_key
-        angle = 0
+        angle      = 0
         diff_angle = 0
         diff_dist  = 0
-        while(not(pressed_key == 'q' or pressed_key == 'Q')):
+        
+        while (not(pressed_key == 'q' or pressed_key == 'Q')):
         # Screen refresh
             os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -403,7 +404,7 @@ class Drone:
             print "REFERENCE OF FORMATION ANGLE (rad): %.2f" %(angle)
             for id in drone_ids:
                 if (id != 1):
-                    angle = drones[0].formation_angle[id-2]*(180/3.1415)
+                    angle      = drones[0].formation_angle[id-2]*(180/3.1415)
                     diff_angle = abs(abs(drones[0].formation_angle[id-2]) - drones[0].ref_angle)*(180/3.1415)
                     print "         Formation angle (degrees) for Drone %d:  %.3f" %(id, angle)
                     print "Error of formation angle (degrees) for Drone %d:  %.3f" %(id, diff_angle)
@@ -431,11 +432,11 @@ class Drone:
     
     # Callback for inspection distance
     def callbackInspectionDistance(self, data, id):
-        self.inspection_distance[id-1] = data.data
+        self.inspection_distance[id - 1] = data.data
     
     # Callback for formation angle
     def callbackFormationAngle(self, data, id):
-        self.formation_angle[id-2] = data.data
+        self.formation_angle[id - 2] = data.data
 
     # Callback for the reference of the inspection distance
     def callbackRefDistance(self, data):
@@ -484,6 +485,7 @@ def show_menu(params,drones):
             option = ord(raw_input (" >> "))
         except:
             pass
+
         if (option == ord('z')):
             sys.exit(0)
 
@@ -525,8 +527,10 @@ def show_menu(params,drones):
     elif option == 5:
         print "Please, put the desired relative angle between follower drones and the leader drone (Manual mode)"
         angle = drones[0].ref_angle*(180/3.1415)
+        
         print "Current formation angle (degrees): %.2f" %(angle)
         angle = (3.1415/180)*float(raw_input("Angle (degrees): "))
+        
         for drone in drones:
             drone.change_relative_angle(angle)
     
@@ -534,18 +538,21 @@ def show_menu(params,drones):
     elif option == 6:
         print "Please, put the desired distance to the inspection point (Manual mode)"
         dist = drones[0].ref_distance
+        
         print "Current distance to the inspection point (meters): %.2f" %(dist)
         distance = float(raw_input("Distance (meters): "))
+        
         for drone in drones:
             drone.set_distance_inspection(distance)
     
     # Change inspection point
     elif option == 7:
         print "Please, put the desired inspection point (Manual mode):\n"
-        point = [0, 0, 0]
+        point    = [0, 0, 0]
         point[0] = (float(raw_input("X (meters): ")))
         point[1] = (float(raw_input("Y (meters): ")))
         point[2] = (float(raw_input("Z (meters): ")))
+        
         for drone in drones:
             drone.change_inspection_point(point)
     
@@ -571,6 +578,7 @@ def show_menu(params,drones):
         time.sleep(2)
 
         print("Landing the UAVs...")
+        
         # Land the drones
         for drone in drones:
             drone.land()
@@ -578,6 +586,7 @@ def show_menu(params,drones):
     # Land the UAVs
     elif option == 10:
         print("Landing the UAVs...")
+        
         # Land the drones
         for drone in drones:
             drone.land()
@@ -585,7 +594,8 @@ def show_menu(params,drones):
     # Send UAVs to the next waypoint
     elif option == 11:
         print("Sending UAV to the next waypoint...")
-        # Land the drones
+        
+        # Send the UAVs to the next waypoint
         for drone in drones:
             drone.clear_first_waypoint()
     
@@ -597,6 +607,7 @@ def show_menu(params,drones):
     elif option == 13:
         print("New operation mode\nChoose 1 (NON-STOPPING), 2 (SMOOTH), 3 (STOPPING), 4 (INSPECTING)")
         mode = (int(raw_input(" >> ")))
+        
         for drone in drones:
             drone.change_operation_mode(mode)
             time.sleep(0.5)
@@ -607,7 +618,7 @@ def show_menu(params,drones):
         print "Minimum value: 15 seconds"
         time_orb = float(raw_input(" >> "))
 
-        if time_orb < 15:
+        if (time_orb < 15):
             time_orb = 15
 
         for drone in drones:
@@ -628,6 +639,7 @@ def auto_function(params,drones):
 
     # Taking of drones
     cont = 1
+    
     for drone in drones:
         if (cont != n_drones):
             drone.take_off(params.height, False)
@@ -664,21 +676,22 @@ if __name__ == "__main__":
     rospack = rospkg.RosPack()
 
     # Get n_drones param
-    f_route = rospack.get_path('mission_planner') + '/param/mission_planner.yml'
+    f_route     = rospack.get_path('mission_planner') + '/param/mission_planner.yml'
     yml_file    = open(f_route, 'r')
     yml_content = yaml.load(yml_file)
     
-    n_drones = yml_content.get('n_drones')
+    n_drones    = yml_content.get('n_drones')
 
     # Get configuration parameters
-    f_route = rospack.get_path('mission_planner') + '/config/exp_' + str(n_drones) + 'drones.yml'
+    f_route     = rospack.get_path('mission_planner') + '/config/exp_' + str(n_drones) + 'drones.yml'
     yml_file    = open(f_route, 'r')
     yml_content = yaml.load(yml_file)
 
-    drone_ids = yml_content.get('drone_ids')
+    drone_ids   = yml_content.get('drone_ids')
     
     # Create a vector of objects of class Drone
     drones = []
+    
     for id in drone_ids:
         drones.append(Drone("/drone_" + str(id)))
     
@@ -698,8 +711,9 @@ if __name__ == "__main__":
         params.drone_home[id - 1][2] = params.drone_home[id - 1][2] + 0.5 
 
     # Check all drones are landed armed. Know if we are reconnecting by studying if the drone is already flying
-    cont = 0
+    cont      = 0
     reconnect = 0
+    
     while cont != n_drones:
         cont = 0
         for drone in drones:

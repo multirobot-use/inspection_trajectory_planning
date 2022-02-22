@@ -27,13 +27,14 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
     // Need to know the elapsed time
     float elapsed_time;
     int current_i = 0;
-    bool solved = false;
+    bool solved   = false;
 
     for (int i = 0; i < param_.horizon_length; i++){
       if (reference_trajectories_[inspection_params_.leader_id][i].time_stamp > (start_plan_time_ + param_.planning_rate)){
-        current_i = i;
-        solved = true;
+        current_i    = i;
+        solved       = true;
         elapsed_time = start_plan_time_ - reference_trajectories_[inspection_params_.leader_id][0].time_stamp;
+
         std::cout << "  i == " << i << "  Elapsed time: " << elapsed_time << std::endl << std::endl;
 
         break;
@@ -43,7 +44,7 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
     if (!solved) return trajectory_to_optimize;
 
     // Add the initial point
-    aux = initial_pose;
+    aux            = initial_pose;
     aux.time_stamp = start_plan_time_ + param_.planning_rate;
     trajectory_to_optimize.push_back(aux);
 
@@ -55,8 +56,8 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
     float min_formation_angle = MissionPlannerInspection::minimumFormationAngle();
     float max_formation_angle = MissionPlannerInspection::maximumFormationAngle();
 
-    if (min_formation_angle > relative_angle_)      MissionPlannerInspection::setRelativeAngle(min_formation_angle);
-    else if (max_formation_angle < relative_angle_) MissionPlannerInspection::setRelativeAngle(max_formation_angle);
+    if      (min_formation_angle > relative_angle_)  MissionPlannerInspection::setRelativeAngle(min_formation_angle);
+    else if (max_formation_angle < relative_angle_)  MissionPlannerInspection::setRelativeAngle(max_formation_angle);
 
     if (param_.drone_id == 2) {
       rotation = trajectory_planner::eulerToQuat(0, 0, relative_angle_);
@@ -65,16 +66,17 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
       rotation = trajectory_planner::eulerToQuat(0, 0, -relative_angle_);
     } 
       
-    Eigen::Matrix3d rotMat = rotation.toRotationMatrix();
+    Eigen::Matrix3d rotMat               = rotation.toRotationMatrix();
     Eigen::Vector3d aux_point_to_inspect = point_to_inspect_;
+
+    // Z coordinate to 0 (by now)
     aux_point_to_inspect(2) = 0;
     
     // Add the other points
     for (int i = current_i; i < param_.horizon_length; i++) {
       aux.time_stamp = start_plan_time_ + param_.planning_rate + (i - current_i + 1)*param_.step_size;
-      aux.pos = rotMat * (reference_trajectories_[inspection_params_.leader_id][i].pos -
-                          aux_point_to_inspect) +
-                aux_point_to_inspect;
+      aux.pos        = rotMat * (reference_trajectories_[inspection_params_.leader_id][i].pos -
+                                 aux_point_to_inspect) + aux_point_to_inspect;
       trajectory_to_optimize.push_back(std::move(aux));
     }
 
@@ -93,15 +95,15 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
 
 std::vector<state> MissionPlannerInspectionFollower::inspectionTrajectory(
     const state &initial_pose){
-
+  // Refresh the goals before anything else
   refreshGoals();
+
   // Trajectory to return in that function
   std::vector<state> traj;
   traj.clear();
 
   // Transform to polar initial and final point
-  Eigen::Vector3d initial_pose_polar =
-      transformToPolar(initial_pose.pos, point_to_inspect_);
+  Eigen::Vector3d initial_pose_polar = transformToPolar(initial_pose.pos, point_to_inspect_);
   
   // DIFFERENT final_pose_polar
   Eigen::Vector3d final_pose_xyz   = pointOnCircle(goals_[0].pos);
@@ -138,8 +140,8 @@ std::vector<state> MissionPlannerInspectionFollower::inspectionTrajectory(
     if (curve_length < INSPECTING_TOL)      t_k = 1;
     else                                    t_k = (param_.vel_inspect * param_.step_size * k) / curve_length;
 
-    // Saturation of t_k value (Uncomment in order to slow down while is arriving the waypoint. Not overshooting behaviour)
-    if (t_k < 0)  t_k = 0;
+    // Saturation of t_k value
+    if (t_k < 0)       t_k = 0;
     else if (t_k > 1)  t_k = 1;
 
     // Calculate point with parameter tk
@@ -164,9 +166,3 @@ std::vector<state> MissionPlannerInspectionFollower::inspectionTrajectory(
   return traj;
 }
 
-float MissionPlannerInspectionFollower::calculateAngleCorrector(const float &_elapsed_time){
-  // Angle = (distance_traveled_in_elapsed_time / total_curve_length) * 2*pi
-  float angle = (_elapsed_time*param_.vel_max)/(distance_to_inspect_point_);
-
-  return angle;
-}

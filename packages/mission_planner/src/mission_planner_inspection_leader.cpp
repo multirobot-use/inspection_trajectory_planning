@@ -27,7 +27,7 @@ std::vector<state> MissionPlannerInspectionLeader::initialTrajectory(
       transformToPolar(goals_[0].pos, point_to_inspect_);
 
   // Calculate curve length and theta_total
-  float theta_total = MissionPlannerInspection::getTotalAngle(initial_pose_polar(1), final_pose_polar(1));
+  float theta_total  = MissionPlannerInspection::getTotalAngle(initial_pose_polar(1), final_pose_polar(1));
   float curve_length =
       sqrt(pow(distance_to_inspect_point_, 2) * pow(theta_total, 2) +
            pow(final_pose_polar(2) - initial_pose_polar(2), 2));
@@ -66,7 +66,7 @@ std::vector<state> MissionPlannerInspectionLeader::initialTrajectory(
     k_point_xyz(1) =
         k_point_polar(0) * sin(k_point_polar(1)) + point_to_inspect_(1);
     k_point_xyz(2) = k_point_polar(2);
-    k_state.pos = k_point_xyz;  
+    k_state.pos    = k_point_xyz;  
 
     // Push back the state
     reference_trajectories_[param_.drone_id].push_back(std::move(k_state));
@@ -87,8 +87,8 @@ std::vector<state> MissionPlannerInspectionLeader::inspectionTrajectory(
   // Transform to polar initial and final point
   Eigen::Vector3d initial_pose_polar =
       transformToPolar(initial_pose.pos, point_to_inspect_);
-  Eigen::Vector3d final_pose_xyz   = pointOnCircle(goals_[0].pos);
-  Eigen::Vector3d final_pose_polar = transformToPolar(final_pose_xyz, point_to_inspect_);
+  Eigen::Vector3d final_pose_xyz     = pointOnCircle(goals_[0].pos);
+  Eigen::Vector3d final_pose_polar   = transformToPolar(final_pose_xyz, point_to_inspect_);
 
   // Calculate curve length and theta_total
   float theta_total = MissionPlannerInspection::getTotalAngle(initial_pose_polar(1), final_pose_polar(1));
@@ -114,8 +114,8 @@ std::vector<state> MissionPlannerInspectionLeader::inspectionTrajectory(
     if (curve_length < INSPECTING_TOL)      t_k = 1;
     else                                    t_k = (param_.vel_inspect * param_.step_size * k) / curve_length;
 
-    // Saturation of t_k value (Uncomment in order to slow down while is arriving the waypoint. Not overshooting behaviour)
-    if (t_k < 0)  t_k = 0;
+    // Saturation of t_k value
+    if (t_k < 0)       t_k = 0;
     else if (t_k > 1)  t_k = 1;
 
     // Calculate point with parameter tk
@@ -131,7 +131,7 @@ std::vector<state> MissionPlannerInspectionLeader::inspectionTrajectory(
     k_point_xyz(1) =
         k_point_polar(0) * sin(k_point_polar(1)) + point_to_inspect_(1);
     k_point_xyz(2) = k_point_polar(2);
-    k_state.pos = k_point_xyz;
+    k_state.pos    = k_point_xyz;
 
     // Push back the state
     traj.push_back(std::move(k_state));
@@ -172,14 +172,12 @@ bool MissionPlannerInspectionLeader::checks() {
     
     // In the case of Operation Mode 1, it never stops
     if (operation_mode_ == trajectory_planner::OperationMode::NONSTOP) {
-      // planner_state_ = trajectory_planner::PlannerStatus::REPLANNED;
       stop_ = false;
       }
 
     // In the case of Operation Mode 2, if there are at least 2 waypoints (plus the current), it is important to verify
     // if the direction that has to follow is the same in both cases
     if (operation_mode_ == trajectory_planner::OperationMode::SMOOTH){
-      // planner_state_ = trajectory_planner::PlannerStatus::REPLANNED;
       if (goals_.size() >= 3){
         bool direction1 = MissionPlannerInspection::isClockwise(goals_[0].pos, goals_[1].pos);
         bool direction2 = MissionPlannerInspection::isClockwise(goals_[1].pos, goals_[2].pos);
@@ -195,7 +193,6 @@ bool MissionPlannerInspectionLeader::checks() {
 
     // In the case of Operation Mode 3 and 4, it always stops
     if (operation_mode_ == trajectory_planner::OperationMode::STOP){
-      // planner_state_ = trajectory_planner::PlannerStatus::REPLANNED;
       stop_ = true;
     }
 
