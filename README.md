@@ -1,6 +1,6 @@
 # Inspection Trajectory Planning
 ## Overview
-This repository is about an operator-oriented inspection task of cylindrical structures, in this case, of wind turbines, with optimal trajectory planning of a multi UAV formation. To generate the optimal trajectory planning, a reference path is given to an optimal solver in order to minimize the accelerations of each drone, making their paths smooth and avoiding jerky movements and going through the optimal path at a constant speed (cruising speed). This also encourages to have a good image taken from the drones, that is intended to build an AR image where some interesting information from the mission.
+This repository is about an operator-oriented inspection task of cylindrical structures, in this case, of wind turbines, with optimal trajectory planning of a multi UAV formation. To generate the optimal trajectory planning, a reference path is given to an optimal solver in order to minimize the accelerations of each drone, making their paths smooth and avoiding jerky movements and going through the optimal path at a constant speed (cruising speed). This also encourages to have a good image taken from the drones, that is intended to build an AR image where some interesting information from the mission in the early future.
 
 This work is developed on Ubuntu 18.04 with ROS Melodic and does not have been tested in other Ubuntu/ROS versions.
 
@@ -89,7 +89,7 @@ echo "source ~/your_ws/src/inspection_trajectory_planning/packages/acado/build/a
 ```
 
 
-7. Configure and setup *UAL*. Only MAVROS and Gazebo Light needed. Install dependencies
+7. Configure and setup *UAL*. Only *MAVROS* and *Gazebo Light* needed. Install dependencies
 
 https://github.com/grvcTeam/grvc-ual/wiki/How-to-build-and-install-grvc-ual
 
@@ -145,7 +145,7 @@ echo "source ~/your_ws/devel/setup.zsh" >> ~/.zshrc
 
 
 ## Automatic installation
-There is a .sh file available to install the necessary packages automatically (including ROS Melodic), except for the *safe_corridor* package. An interface for *grvc-ual* package will appear in the middle of the installation, it is only necessary to select *MAVROS*, *Gazebo Light* and the dependencies.
+There is a .sh file available to install the necessary packages automatically (including ROS Melodic). An interface for *grvc-ual* package will appear in the middle of the installation, it is only necessary to select *MAVROS*, *Gazebo Light* and the dependencies.
 
 ```
 cd ~
