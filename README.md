@@ -17,7 +17,7 @@ mkdir src
 cd src
 ```
 
-2. Install the inspection_trajectory_planning repository
+2. Install the *inspection_trajectory_planning* repository
 
 ```
 git clone https://github.com/grvcTeam/inspection_trajectory_planning
@@ -30,7 +30,7 @@ cd ~/your_ws/src/inspection_trajectory_planning
 git submodule update --init
 ```
 
-4. Clone the necessary packages, which are: ACADO, safe_corridor, catkin_simple, grvc-ual, seeker-ros, grvc-utils
+4. Clone the necessary packages, which are: *ACADO*, *safe_corridor*, *catkin_simple*, *grvc-ual*, *seeker-ros*, *grvc-utils*
 
 ```
 cd ~/your_ws/src/inspection_trajectory_planning/packages
@@ -52,7 +52,7 @@ sudo apt install xz-utils
 sudo apt-get install python3-catkin-tools
 ```
 
-5. Install safe_corridor_generator packages
+5. Install *safe_corridor_generator* packages
 
 ```
 cd ~/your_ws/src/inspection_trajectory_planning/packages/safe_corridor_generator/thirdparty/jps3d
@@ -68,7 +68,7 @@ cmake ..
 make
 ```
 
-6. Install ACADO
+6. Install *ACADO*
 
 https://acado.github.io/install_linux.html
 
@@ -89,7 +89,7 @@ echo "source ~/your_ws/src/inspection_trajectory_planning/packages/acado/build/a
 ```
 
 
-7. Configure and setup UAL. Only MAVROS and Gazebo Light needed. Install dependencies
+7. Configure and setup *UAL*. Only MAVROS and Gazebo Light needed. Install dependencies
 
 https://github.com/grvcTeam/grvc-ual/wiki/How-to-build-and-install-grvc-ual
 
@@ -98,13 +98,13 @@ cd ~/your_ws/src/inspection_trajectory_planning/packages/grvc-ual
 ./configure.py
 ```
 
-8. Install dependencies of grvc-ual
+8. Install dependencies of *grvc-ual*
 
 ```
 sudo apt-get install libeigen3-dev ros-$(rosversion -d)-geodesy ros-$(rosversion -d)-joy
 ```
 
-9. MAVROS
+9. *MAVROS*
 
 ```
 sudo apt install -y ros-$(rosversion -d)-mavros ros-$(rosversion -d)-mavros-extras
@@ -113,7 +113,7 @@ sudo usermod -a -G dialout $USER
 sudo apt remove modemmanager
 ```
 
-10. PX4 SITL Simulations
+10. *PX4* SITL Simulations
 
 https://github.com/grvcTeam/grvc-ual/wiki/Setup-instructions:-PX4-SITL
 
@@ -145,7 +145,7 @@ echo "source ~/your_ws/devel/setup.zsh" >> ~/.zshrc
 
 
 ## Automatic installation
-There is a .sh file available to install the necessary packages automatically (including ROS Melodic), except for the safe_corridor package. An interface for grvc-ual package will appear in the middle of the installation, it is only necessary to select MAVROS, Gazebo Light and the dependencies.
+There is a .sh file available to install the necessary packages automatically (including ROS Melodic), except for the *safe_corridor* package. An interface for *grvc-ual* package will appear in the middle of the installation, it is only necessary to select *MAVROS*, *Gazebo Light* and the dependencies.
 
 ```
 cd ~
@@ -183,7 +183,7 @@ tmuxinator
 There are two ways to launch the simulations: simulation-oriented and experiment-oriented; but only one way to launch the experiments in real life: experiment-oriented.
 
 ### Simulation-oriented:
-Simulation-oriented employs an interface that is mainly intended to be used to debug the code on simulations. Its functionality is based on executing an auto-configuration that take off the drones, add some waypoints (depending on the experiment that is going to be launched) and starts the mission. Afterwards, the operator can interact with the formation through it by landing the drones, adding new waypoints, changing the distance to the inspection point or the relative angle, among other things.
+Simulation-oriented employs an interface that is mainly intended to be used to debug the code on simulations. Its functionality is based on executing an auto-configuration file that take off the drones, add some waypoints (depending on the experiment that is going to be launched) and starts the mission. Afterwards, the operator can interact with the formation through it by landing the drones, adding new waypoints, changing the distance to the inspection point or the relative angle, among other things.
 
 Now, we show an overview of what you have to do to make the simulation work, adding some notes that may be of your interest:
 
