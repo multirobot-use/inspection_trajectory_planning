@@ -5,25 +5,25 @@ windows:
   - gazebo:
       layout: even-vertical
       panes:
-        - roslaunch mission_planner simulation_wind_turbine_1drone_light.launch
-        # - roslaunch mission_planner simulation_wind_turbine_1drone.launch
+        # - roslaunch mission_planner simulation_wind_turbine_1drone_light.launch
+        - roslaunch mission_planner simulation_wind_turbine_1drone.launch
         # - roslaunch mission_planner simulation_obstacle_avoidance_1drone.launch
   - leader:
       layout: even-vertical
       panes:
-        - sleep 12; roslaunch mission_planner mission_planner.launch drone_id:=1 leader:=true
+        - sleep 20; roslaunch mission_planner mission_planner.launch drone_id:=1 leader:=true
   - trajectory_follower:
       layout: even-vertical
       panes:
-        - sleep 12; roslaunch trajectory_follower trajectory_follower.launch drone_id:=1
+        - sleep 20; roslaunch trajectory_follower trajectory_follower.launch drone_id:=1
   - rviz:
       layout: even-vertical
       panes:
-        - sleep 12; roslaunch mission_planner rviz1.launch
+        - sleep 20; roslaunch mission_planner rviz1.launch
   - python script:  
       layout: even-vertical
       panes:
-        - sleep 14; python ../operator_interface.py
+        - sleep 22; python ../operator_interface.py
   # - rosbag:
   #     layout: even-vertical
   #     panes:

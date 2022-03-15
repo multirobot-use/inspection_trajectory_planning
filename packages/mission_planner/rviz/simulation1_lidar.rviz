@@ -170,7 +170,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: Intensity
       Decay Time: 0
-      Enabled: false
+      Enabled: true
       Invert Rainbow: false
       Max Color: 114; 159; 207
       Min Color: 239; 41; 41
@@ -181,11 +181,11 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.07000000029802322
       Style: Flat Squares
-      Topic: /os1_cloud_node/points
+      Topic: /drone_1/os1_cloud_node/points
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 150; 150; 150
@@ -214,25 +214,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 31.978185653686523
+      Distance: 35.81556701660156
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 1.3254648447036743
-        Y: -2.0249102115631104
-        Z: 0.7808142304420471
+        X: 1.9283326864242554
+        Y: -2.3279922008514404
+        Z: 1.4773190021514893
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.714798092842102
+      Pitch: 0.8747979402542114
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 2.771780490875244
+      Yaw: 3.1117846965789795
     Saved: ~
 Window Geometry:
   Displays:

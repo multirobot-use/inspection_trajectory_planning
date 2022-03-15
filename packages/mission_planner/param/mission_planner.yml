@@ -1,7 +1,7 @@
 # PARAMS for mission planner 
 
 horizon_length: 50     # steps
-n_drones: 3            # drones
+n_drones: 1            # drones
 leader_id: 1           # drone_id
 step_size: 0.2         # seconds
 operation_mode: 2      # 1 --> non-stopping, 2 --> stops when there is a change of direction, 3 --> stops always, 4 --> inspection mode 

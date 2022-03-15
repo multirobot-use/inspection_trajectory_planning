@@ -26,6 +26,11 @@
 #include "ros/ros.h"
 #include <math.h>
 
+#include <ros/callback_queue.h>
+#include <tf2_ros/transform_listener.h>
+#include <tf2_eigen/tf2_eigen.h>
+#include <pcl/common/transforms.h>
+
 enum Colors { RED = 0, BLUE = 2, YELLOW = 3 };
 
 //!  MissionPlannerRos class.
@@ -66,6 +71,8 @@ class MissionPlannerRos {
   std::map<int, ros::Subscriber> planner_status_sub_;
   std::map<int, ros::Subscriber> waypoints_sub_;
 
+  std::map<int, ros::Subscriber> pcd_sub_;
+
   // Publishers
   ros::Publisher points_pub_;
   ros::Publisher points_trans_pub_;
@@ -96,6 +103,18 @@ class MissionPlannerRos {
   ros::ServiceServer clear_first_waypoint;
   ros::ServiceServer service_orbit_time;
 
+  // Queues
+  ros::CallbackQueue pcd_queue_;
+  ros::AsyncSpinner async_spinner_{2, &pcd_queue_};
+
+  tf2_ros::Buffer tfBuffer;
+//   std::unique_ptr<tf2_ros::TransformListener> tfListener_;
+  tf2_ros::TransformListener tfListener_{tfBuffer, true};
+
+  /*! \brief Callback for point cloud data
+   *   \param msg point cloud information
+   **/
+  void pcdCallback(const sensor_msgs::PointCloud2::ConstPtr &msg);
 
   //! Callback prototypes
   /**

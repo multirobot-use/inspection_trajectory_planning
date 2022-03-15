@@ -50,16 +50,23 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
     distance_to_inspection_point_sub_[drone] = nh_.subscribe<std_msgs::Bool>(
         "/drone_" + std::to_string(drone) +
             "/mission_planner_ros/distance_to_inspection_point",
-        20,
+        1,
         std::bind(&MissionPlannerRos::distanceToInspectionPointCallback, this,
                   std::placeholders::_1, drone));
 
     relative_angle_sub_[drone] = nh_.subscribe<std_msgs::Bool>(
         "/drone_" + std::to_string(drone) +
             "/mission_planner_ros/relative_angle",
-        20,
+        1,
         std::bind(&MissionPlannerRos::relativeAngleCallback, this,
                   std::placeholders::_1, drone));
+    
+    // pcd_sub_[drone] = nh_.subscribe<sensor_msgs::PointCloud2>(
+    //     "/drone_" + std::to_string(drone) +
+    //         "/os1_cloud_node/points",
+    //     2,
+    //     std::bind(&MissionPlannerRos::pcdCallback, this,
+    //               std::placeholders::_1, drone));
 
     if (drone != param_.drone_id) {
       solved_trajectories_sub_[drone] = nh_.subscribe<nav_msgs::Path>(
@@ -94,6 +101,22 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
                     std::placeholders::_1, drone));
     }
   }
+
+  ros::SubscribeOptions ops =
+      ros::SubscribeOptions::create<sensor_msgs::PointCloud2>(
+          "/drone_" + std::to_string(param_.drone_id) +
+              "/os1_cloud_node/points",  // topic name
+          1,                             // queue length
+          boost::bind(&MissionPlannerRos::pcdCallback, this, _1),
+          ros::VoidPtr(),
+          &this->pcd_queue_  // pointer to callback queue object
+      );
+  ops.transport_hints = ros::TransportHints().tcpNoDelay();
+
+  // Only for Drone 1 by now
+  pcd_sub_[0] = nh_.subscribe(ops);
+
+  async_spinner_.start();
 
   // Create timers
   planTimer_ = nh_.createTimer(ros::Duration(param_.planning_rate),
@@ -335,7 +358,44 @@ bool MissionPlannerRos::changeOperationModeServiceCallback(
   res.success = true;
 }
 
+void MissionPlannerRos::pcdCallback(
+    const sensor_msgs::PointCloud2::ConstPtr &msg) {
+
+  pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_cloud_received(
+      new pcl::PointCloud<pcl::PointXYZ>());
+  pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_cloud_transformed(
+      new pcl::PointCloud<pcl::PointXYZ>());
+
+  pcl::fromROSMsg(*msg, *pcl_cloud_received);
+
+  geometry_msgs::TransformStamped Tstatic_frame_velodyne_frame;
+
+  bool can_transform;
+  // can_transform = tfBuffer.canTransform("map", "drone_" + std::to_string(param_.drone_id) + "/velodyne",
+        // ros::Time(0));
+  // can_transform = tfBuffer._frameExists("drone_" + std::to_string(param_.drone_id) + "/velodyne");
+  
+  // ROS_INFO("Can transform %d", can_transform);
+
+  try {
+    Tstatic_frame_velodyne_frame = tfBuffer.lookupTransform(
+        "map", "drone_" + std::to_string(param_.drone_id) + "/velodyne",
+        ros::Time(0));
+  } catch (tf2::TransformException ex) {
+    ROS_ERROR("%s", ex.what());
+    return;
+  }
+  Eigen::Affine3d transformation =
+      tf2::transformToEigen(Tstatic_frame_velodyne_frame);
+
+  pcl::transformPointCloud(*pcl_cloud_received, *pcl_cloud_transformed,
+                           transformation);
+
+  mission_planner_ptr_ -> updateMap(pcl_cloud_transformed);
+}
+
 void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
+
   // Refresh the Waypoint Tolerance value
   float distance = mission_planner_ptr_ -> getDistanceToInspect();
   float vel      = mission_planner_ptr_ -> calculateVel(distance);
@@ -351,8 +411,11 @@ void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
       publishPath(pub_ref_path_, mission_planner_ptr_->getReferenceTrajectory());
       mission_planner_ptr_->safe_corridor_generator_->publishCorridor(
           corridor_pub_);
+      mission_planner_ptr_->safe_corridor_generator_->updateMaps();
     }
   }
+  mission_planner_ptr_->safe_corridor_generator_->publishCloud(
+        pub_point_cloud_);
   mission_planner_ptr_->plan();
   publishOperationMode(operation_mode_pub_);
   publishPlannerStatus(planner_status_pub_);
