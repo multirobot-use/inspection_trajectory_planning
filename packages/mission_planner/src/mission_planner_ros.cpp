@@ -379,7 +379,7 @@ void MissionPlannerRos::pcdCallback(
 
   try {
     Tstatic_frame_velodyne_frame = tfBuffer.lookupTransform(
-        "map", "drone_" + std::to_string(param_.drone_id) + "/velodyne",
+        "map", "drone_" + std::to_string(param_.drone_id) + "/base_link",
         ros::Time(0));
   } catch (tf2::TransformException ex) {
     ROS_ERROR("%s", ex.what());
