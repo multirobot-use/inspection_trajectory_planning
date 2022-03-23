@@ -69,4 +69,6 @@ inc_angle           --> indicate a float that depicts the value of increment/dec
 frame               --> indicate a string that depicts the frame in which we are working.
                         Not advisable to change this value. Default: "map"
 
-
+static_map          --> indicate a bool that depicts if you want to use a static map for obstacle avoidance or not.
+                        If you want to use this map, it is very important to specify the route of the map in mission_planner launch files.
+                        Default: "true"
