@@ -103,18 +103,31 @@ class MissionPlannerRos {
   ros::ServiceServer clear_first_waypoint;
   ros::ServiceServer service_orbit_time;
 
+  // LiDAR and PointCloud necessary to instantiate: queues, spinners, buffers and listeners
   // Queues
-  ros::CallbackQueue pcd_queue_;
-  ros::AsyncSpinner async_spinner_{2, &pcd_queue_};
+  ros::CallbackQueue pcd_queue_1_;
+  ros::CallbackQueue pcd_queue_2_;
+  ros::CallbackQueue pcd_queue_3_;
 
-  tf2_ros::Buffer tfBuffer;
-//   std::unique_ptr<tf2_ros::TransformListener> tfListener_;
-  tf2_ros::TransformListener tfListener_{tfBuffer, true};
+  // Spinners (due to constructor, it cannot be grouped in a map)
+  ros::AsyncSpinner async_spinner_1_{1, &pcd_queue_1_};
+  ros::AsyncSpinner async_spinner_2_{1, &pcd_queue_2_};
+  ros::AsyncSpinner async_spinner_3_{1, &pcd_queue_3_};
+  
+  // Buffers
+  std::map<int, tf2_ros::Buffer> tfBuffer;
+
+  // Listeners (due to constructor, it cannot be grouped in a map)
+  tf2_ros::TransformListener tfListener_1_{tfBuffer[1], true};
+  tf2_ros::TransformListener tfListener_2_{tfBuffer[2], true};
+  tf2_ros::TransformListener tfListener_3_{tfBuffer[3], true};
+
+  std::map<int, ros::SubscribeOptions> ops;
 
   /*! \brief Callback for point cloud data
    *   \param msg point cloud information
    **/
-  void pcdCallback(const sensor_msgs::PointCloud2::ConstPtr &msg);
+  void pcdCallback(const sensor_msgs::PointCloud2::ConstPtr &msg, const int id);
 
   //! Callback prototypes
   /**

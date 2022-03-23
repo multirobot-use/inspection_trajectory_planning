@@ -60,13 +60,6 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
         1,
         std::bind(&MissionPlannerRos::relativeAngleCallback, this,
                   std::placeholders::_1, drone));
-    
-    // pcd_sub_[drone] = nh_.subscribe<sensor_msgs::PointCloud2>(
-    //     "/drone_" + std::to_string(drone) +
-    //         "/os1_cloud_node/points",
-    //     2,
-    //     std::bind(&MissionPlannerRos::pcdCallback, this,
-    //               std::placeholders::_1, drone));
 
     if (drone != param_.drone_id) {
       solved_trajectories_sub_[drone] = nh_.subscribe<nav_msgs::Path>(
@@ -102,20 +95,54 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
     }
   }
 
-  ros::SubscribeOptions ops =
+  // LiDAR
       ros::SubscribeOptions::create<sensor_msgs::PointCloud2>(
-          "/drone_" + std::to_string(param_.drone_id) +
-              "/os1_cloud_node/points",  // topic name
-          1,                             // queue length
-          boost::bind(&MissionPlannerRos::pcdCallback, this, _1),
-          ros::VoidPtr(),
-          &this->pcd_queue_  // pointer to callback queue object
-      );
-  ops.transport_hints = ros::TransportHints().tcpNoDelay();
+    if (param_.drone_id == 1){
+      ops[1] =
+          ros::SubscribeOptions::create<sensor_msgs::PointCloud2>(
+              "/drone_1/os1_cloud_node/points",  // topic name
+              1,                             // queue length
+              std::bind(&MissionPlannerRos::pcdCallback, this,
+                          std::placeholders::_1, 1),
+              ros::VoidPtr(),
+              &this->pcd_queue_1_  // pointer to callback queue object
+          );
+      ops[1].transport_hints = ros::TransportHints().tcpNoDelay();
+      pcd_sub_[1] = nh_.subscribe(ops[1]);
+      async_spinner_1_.start();
+    }
+    else if (param_.drone_id == 2){
+      ops[2] =
+          ros::SubscribeOptions::create<sensor_msgs::PointCloud2>(
+              "/drone_2/os1_cloud_node/points",  // topic name
+              1,                             // queue length
+              std::bind(&MissionPlannerRos::pcdCallback, this,
+                          std::placeholders::_1, 2),
+              ros::VoidPtr(),
+              &this->pcd_queue_2_  // pointer to callback queue object
+          );
 
-  // Only for Drone 1 by now
-  pcd_sub_[0] = nh_.subscribe(ops);
+      ops[2].transport_hints = ros::TransportHints().tcpNoDelay();
+      pcd_sub_[2] = nh_.subscribe(ops[2]);
+      async_spinner_2_.start();
+    }
+    else{
+      ops[3] =
+          ros::SubscribeOptions::create<sensor_msgs::PointCloud2>(
+              "/drone_3/os1_cloud_node/points",  // topic name
+              1,                             // queue length
+              std::bind(&MissionPlannerRos::pcdCallback, this,
+                          std::placeholders::_1, 3),
+              ros::VoidPtr(),
+              &this->pcd_queue_3_  // pointer to callback queue object
+          );
+        
+      ops[3].transport_hints = ros::TransportHints().tcpNoDelay();
+      pcd_sub_[3] = nh_.subscribe(ops[3]);
+      async_spinner_3_.start();
 
+    }
+  
   async_spinner_.start();
 
   // Create timers
@@ -359,7 +386,7 @@ bool MissionPlannerRos::changeOperationModeServiceCallback(
 }
 
 void MissionPlannerRos::pcdCallback(
-    const sensor_msgs::PointCloud2::ConstPtr &msg) {
+    const sensor_msgs::PointCloud2::ConstPtr &msg, const int id) {
 
   pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_cloud_received(
       new pcl::PointCloud<pcl::PointXYZ>());
@@ -378,8 +405,8 @@ void MissionPlannerRos::pcdCallback(
   // ROS_INFO("Can transform %d", can_transform);
 
   try {
-    Tstatic_frame_velodyne_frame = tfBuffer.lookupTransform(
-        "map", "drone_" + std::to_string(param_.drone_id) + "/base_link",
+    Tstatic_frame_velodyne_frame = tfBuffer[id].lookupTransform(
+        "map", "drone_" + std::to_string(id) + "/base_link",
         ros::Time(0));
   } catch (tf2::TransformException ex) {
     ROS_ERROR("%s", ex.what());
