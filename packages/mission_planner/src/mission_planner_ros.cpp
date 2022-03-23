@@ -23,6 +23,7 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   trajectory_planner::safeGetParam(nh_, "inc_distance", inspection_params_.inc_distance);
   trajectory_planner::safeGetParam(nh_, "inc_angle", inspection_params_.inc_angle);
   trajectory_planner::safeGetParam(nh_, "pcl_filepath", param_.pcd_file_path);
+  trajectory_planner::safeGetParam(nh_, "static_map", param_.static_map);
 
   // Initialize mission planner
   if (leader) {
@@ -96,7 +97,7 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   }
 
   // LiDAR
-      ros::SubscribeOptions::create<sensor_msgs::PointCloud2>(
+  if (param_.static_map =! 1){
     if (param_.drone_id == 1){
       ops[1] =
           ros::SubscribeOptions::create<sensor_msgs::PointCloud2>(
@@ -143,7 +144,7 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
 
     }
   
-  async_spinner_.start();
+  }
 
   // Create timers
   planTimer_ = nh_.createTimer(ros::Duration(param_.planning_rate),
