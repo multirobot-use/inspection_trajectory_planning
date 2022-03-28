@@ -13,16 +13,8 @@
 	</node>
 
     <!-- Launch robot id=1 -->
-    <include file="$(find px4_bringup)/launch/spawn_robot.launch" ns="drone_1">
-		<arg name="id" value="1"/>
-        <arg name="robot_model" value="$(arg robot_model)"/>
-		<arg name="material" value="Indigo"/>
-        <arg name="x" value="-10"/>
-        <arg name="y" value="5"/>
-        <arg name="z" value="0"/>
-        <arg name="yaw" value="0"/>
-        <arg name="use_mavros" value="false"/>
-	</include> 
+    <node pkg="px4_bringup" type="spawn_gzmodel.py" name="spawn_gzmodel_1" output="screen"
+        args="-model=mbzirc -id=1 -material=Orange -ual_backend=$(arg ual_backend) -x -10 -y 5 -z 0 -Y 0"/>
 
     <!-- Launch UAL server for uav id=1 -->
     <node pkg="ual_backend_gazebo_light" type="ual_backend_gazebo_light_server" name="ual" output="screen" ns="drone_1">
@@ -34,16 +26,8 @@
 
 
     <!-- Launch robot id=2 -->
-    <include file="$(find px4_bringup)/launch/spawn_robot.launch" ns="drone_2">
-		<arg name="id" value="2"/>
-        <arg name="robot_model" value="$(arg robot_model)"/>
-		<arg name="material" value="Indigo"/>
-        <arg name="x" value="-8"/>
-        <arg name="y" value="-5"/>
-        <arg name="z" value="0"/>
-        <arg name="yaw" value="0"/>
-        <arg name="use_mavros" value="false"/>
-	</include> 
+    <node pkg="px4_bringup" type="spawn_gzmodel.py" name="spawn_gzmodel_2" output="screen"
+        args="-model=mbzirc -id=2 -material=Orange -ual_backend=$(arg ual_backend) -x -8 -y -5 -z 0 -Y 0"/>
 
     <!-- Launch UAL server for uav id=2 -->
     <node pkg="ual_backend_gazebo_light" type="ual_backend_gazebo_light_server" name="ual" output="screen" ns="drone_2">
@@ -55,16 +39,8 @@
 
 
     <!-- Launch robot id=3 -->
-    <include file="$(find px4_bringup)/launch/spawn_robot.launch" ns="drone_3">
-		<arg name="id" value="3"/>
-        <arg name="robot_model" value="$(arg robot_model)"/>
-		<arg name="material" value="Indigo"/>
-        <arg name="x" value="-8"/>
-        <arg name="y" value="12"/>
-        <arg name="z" value="0"/>
-        <arg name="yaw" value="0"/>
-        <arg name="use_mavros" value="false"/>
-	</include> 
+    <node pkg="px4_bringup" type="spawn_gzmodel.py" name="spawn_gzmodel_3" output="screen"
+        args="-model=mbzirc -id=3 -material=Orange -ual_backend=$(arg ual_backend) -x -8 -y 12 -z 0 -Y 0"/>
 
     <!-- Launch UAL server for uav id=3 -->
     <node pkg="ual_backend_gazebo_light" type="ual_backend_gazebo_light_server" name="ual" output="screen" ns="drone_3">
