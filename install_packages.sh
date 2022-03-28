@@ -7,16 +7,39 @@ WORKSPACE_PATH="$( cd .. ; pwd -P )"
 
 ## ROS noetic installation
 sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
-sudo apt install curl
+sudo apt install -y curl
 curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
 sudo apt update
-sudo apt install ros-noetic-desktop-full
-echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
+sudo apt install -y ros-noetic-desktop-full
+
+# set bashrc
+num=`cat ~/.bashrc | grep "$WORKSPACE_PATH" | wc -l`
+if [ "$num" -lt "1" ]; then
+
+  echo "
+  source /opt/ros/noetic/setup.bash" >> ~/.bashrc
+fi
+
+# set zshrc
+num=`cat ~/.zshrc | grep "$WORKSPACE_PATH" | wc -l`
+if [ "$num" -lt "1" ]; then
+
+  echo "
+  source /opt/ros/noetic/setup.zsh" >> ~/.zshrc
+fi
+
 source ~/.bashrc
-sudo apt install python3-rosdep python3-rosinstall python3-rosinstall-generator python3-wstool build-essential
-sudo apt install python3-rosdep
+sudo apt install -y python3-rosdep python3-rosinstall python3-rosinstall-generator python3-wstool build-essential
+sudo apt install -y python3-rosdep
 sudo rosdep init
 rosdep update
+
+
+## Update Gazebo
+sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/gazebo-stable.list'
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D2486D2DD83DB69272AFE98867170598AF249743
+sudo apt update
+sudo apt upgrade
 
 
 ## Catkin tools
@@ -25,16 +48,32 @@ sudo sh \
         > /etc/apt/sources.list.d/ros-latest.list'
 wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
 sudo apt-get update
-sudo apt-get install python3-catkin-tools
+sudo apt-get install -y python3-catkin-tools
 
 
 ## Install necessary packages
-sudo apt-get install sudo apt-get install libeigen3-dev ros-$(rosversion -d)-geodesy ros-$(rosversion -d)-joy
-sudo apt install tmuxinator
-echo "alias kmux='tmux kill-server'" >> ~/.bashrc 
-sudo pip install pynput
+sudo apt-get install -y sudo apt-get install libeigen3-dev ros-$(rosversion -d)-geodesy ros-$(rosversion -d)-joy
+sudo apt install -y tmuxinator
+
+# set bashrc
+num=`cat ~/.bashrc | grep "$WORKSPACE_PATH" | wc -l`
+if [ "$num" -lt "1" ]; then
+
+  echo "
+  alias kmux='tmux kill-server'" >> ~/.bashrc 
+fi
+
+# set zshrc
+num=`cat ~/.zshrc | grep "$WORKSPACE_PATH" | wc -l`
+if [ "$num" -lt "1" ]; then
+
+  echo "
+  alias kmux='tmux kill-server'" >> ~/.zshrc 
+fi
+
+sudo pip3 install pynput
 sudo pip3 install gitman
-sudo apt install xz-utils
+sudo apt install -y xz-utils
 
 
 ## Submodule init & update
@@ -96,6 +135,10 @@ make
 ## Install and configure UAL. Only MAVROS and Gazebo Light needed. Dependencies
 echo "Installing and configuring UAL. Only MAVROS needed. Install dependencies"
 cd $WORKSPACE_PATH/inspection_trajectory_planning/packages/grvc-ual
+
+### NEED TO CHANGE TO NOETIC BRANCH
+git checkout -b origin/noetic
+
 ./configure.py
 
 ## Need to install it TWICE
@@ -132,8 +175,9 @@ fi
 
 ## Install PX4 for SITL simulations
 echo "Installing PX4 for SITL simulations"
-sudo apt install libgstreamer1.0-dev python-jinja2 python-pip
-pip install numpy toml
+sudo apt update
+sudo apt install -y libgstreamer1.0-dev python3-jinja2 python3-pip
+pip3 install numpy toml
 cd $WORKSPACE_PATH/inspection_trajectory_planning/packages
 git clone https://github.com/PX4/Firmware.git
 cd Firmware
