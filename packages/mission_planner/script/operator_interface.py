@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import sys
 import rospy
 import rospkg
@@ -156,7 +156,7 @@ class Drone:
         
         try:
             self.distance_service(r_inspect)
-            print "Distance to the inspection point changed successfully!"
+            print ("Distance to the inspection point changed successfully!")
         
         except:
             print("Failed calling distance_to_inspect service")
@@ -168,7 +168,7 @@ class Drone:
         
         try:
             self.relative_angle_service(relative_angle)
-            print "Relative angle changed successfully!"
+            print ("Relative angle changed successfully!")
 
         except:
             print("Failed calling change_relative_angle service")
@@ -183,7 +183,7 @@ class Drone:
 
         try:
             self.point_to_inspect_service(inspection_point)
-            print "Inspection point changed successfully!"
+            print ("Inspection point changed successfully!")
 
         except:
             print("Failed calling point_to_inspect service")
@@ -196,10 +196,10 @@ class Drone:
             take_off.blocking = block_take_off
             
             self.take_off_service(take_off)
-            print "Taking off the drone"
+            print ("Taking off the drone")
             
-        except rospy.ServiceException, e:
-            print "Service call failed: %s" %e
+        except (rospy.ServiceException, e):
+            print ("Service call failed: %s" %e)
     
     # Land drones method
     def land(self):
@@ -211,10 +211,10 @@ class Drone:
             self.stop_mission()
             
             self.land_service(land)
-            print "Landing the drone"
+            print ("Landing the drone")
             
-        except rospy.ServiceException, e:
-            print "Service call failed: %s" %e
+        except (rospy.ServiceException, e):
+            print ("Service call failed: %s" %e)
 
     # Change Operation Mode method
     def change_operation_mode(self, mode):
@@ -222,7 +222,7 @@ class Drone:
             mode_req      = OperationModeSrvRequest()
             mode_req.mode = mode
             self.change_operation_mode(mode_req)
-            print "Operation mode changed!"
+            print ("Operation mode changed!")
             
         except:
             print("Failed calling change_operation_mode service")
@@ -234,7 +234,7 @@ class Drone:
         
         try:
             self.orbit_time(time_req)
-            print "Orbit time changed successfully!"
+            print ("Orbit time changed successfully!")
         
         except:
             print("Failed calling orbit_time service")
@@ -249,10 +249,10 @@ class Drone:
             point.waypoint.pose.position.z = waypoint[2]
             
             self.go_to_waypoint_service(point)
-            print "Going to waypoint"
+            print ("Going to waypoint")
         
-        except rospy.ServiceException, e:
-            print "Service call failed: %s" %e
+        except (rospy.ServiceException, e):
+            print ("Service call failed: %s" %e)
 
     # Start mission method
     def start_mission(self):
@@ -261,9 +261,9 @@ class Drone:
                 req      = SetBoolRequest()
                 req.data = True
                 self.activate_planner_service(req)
-                print "Mission has started!"
+                print ("Mission has started!")
 
-            except rospy.ServiceException, e:
+            except (rospy.ServiceException, e):
                 print("Failed calling start_mission service")
         else:
             print("Start mission aborted, drone is not flying auto")
@@ -275,11 +275,11 @@ class Drone:
         add_waypoint_req.waypoint.pose.pose.position.x = waypoint[0]
         add_waypoint_req.waypoint.pose.pose.position.y = waypoint[1]
         add_waypoint_req.waypoint.pose.pose.position.z = waypoint[2]
-        print "Waypoint sent"
+        print ("Waypoint sent")
         print(waypoint)
         try:
             self.add_waypoint_service(add_waypoint_req)
-            print "Waypoint added!"
+            print ("Waypoint added!")
             
         except:
             print("Failed calling add_waypoint service")
@@ -290,9 +290,9 @@ class Drone:
             req      = SetBoolRequest()
             req.data = False
             self.activate_planner_service(req)
-            print "Mission has been stopped!"
+            print ("Mission has been stopped!")
         
-        except rospy.ServiceException, e:
+        except (rospy.ServiceException, e):
             print("Failed calling stop_mission service")
     
     # Clear the first waypoint method (FOR INSPECTION)
@@ -301,7 +301,7 @@ class Drone:
         if (self.operation_mode == 4):
             try:
                 self.clear_1_waypoint_service()
-                print "First waypoint cleared!"
+                print ("First waypoint cleared!")
                 
             except:
                 print("Failed calling clear_first_waypoint service")
@@ -310,7 +310,7 @@ class Drone:
     def clear_all_waypoints(self):
         try:
             self.clear_waypoints_service()
-            print "Waypoints cleared!"
+            print ("Waypoints cleared!")
             
         except:
             print("Failed calling clear_waypoints service")
@@ -328,29 +328,29 @@ class Drone:
             # Screen refresh
             os.system('cls' if os.name == 'nt' else 'clear')
 
-            print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-            print " REFERENCE OF INSPECTION DISTANCE (meters): %.2f" %(drones[0].ref_distance)
+            print ("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print (" REFERENCE OF INSPECTION DISTANCE (meters): %.2f" %(drones[0].ref_distance))
             for id in drone_ids:
-                print " Inspection distance (meters) for Drone %d:  %.3f || Error: %.3f" %(id, drones[0].inspection_distance[id - 1], abs(drones[0].inspection_distance[id - 1] - drones[0].ref_distance))
-            print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-            print " REFERENCE OF FORMATION ANGLE (rad): %.2f" %(drones[0].ref_angle)
+                print (" Inspection distance (meters) for Drone %d:  %.3f || Error: %.3f" %(id, drones[0].inspection_distance[id - 1], abs(drones[0].inspection_distance[id - 1] - drones[0].ref_distance)))
+            print ("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print (" REFERENCE OF FORMATION ANGLE (rad): %.2f" %(drones[0].ref_angle))
             for id in drone_ids:
                 if (id != 1):
-                    print " Formation angle (rad) for Drone %d:  %.3f || Error %.3f" %(id, abs(drones[0].formation_angle[id-2]), abs(abs(drones[0].formation_angle[id-2]) - drones[0].ref_angle))
+                    print (" Formation angle (rad) for Drone %d:  %.3f || Error %.3f" %(id, abs(drones[0].formation_angle[id-2]), abs(abs(drones[0].formation_angle[id-2]) - drones[0].ref_angle)))
             
-            print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-            print "\n"
-            print "\t\t ~~~~~ JOYSTICK SIMULATOR ~~~~~\n\n"
-            print "\t\tAFTER PRESSING A KEY, THEN RELEASE\n\n"
-            print "\tTo increase distance to inspection point, press W\n"
-            print "\tTo decrease distance to inspection point, press S\n"
-            print "\tTo increase the relative angle, press D\n"
-            print "\tTo decrease the relative angle, press A\n"
-            print "\tTo quit, press Q\n\n"
+            print ("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print ("\n")
+            print ("\t\t ~~~~~ JOYSTICK SIMULATOR ~~~~~\n\n")
+            print ("\t\tAFTER PRESSING A KEY, THEN RELEASE\n\n")
+            print ("\tTo increase distance to inspection point, press W\n")
+            print ("\tTo decrease distance to inspection point, press S\n")
+            print ("\tTo increase the relative angle, press D\n")
+            print ("\tTo decrease the relative angle, press A\n")
+            print ("\tTo quit, press Q\n\n")
 
             if (self.operation_mode == 4):
-                print "\tFORMATION IN INSPECTING MODE!"
-                print "\tPress N to go to the next waypoint"
+                print ("\tFORMATION IN INSPECTING MODE!")
+                print ("\tPress N to go to the next waypoint")
 
             if (aux_key != pressed_key):
                 if (pressed_key == 'w' or pressed_key == 'W'):
@@ -371,7 +371,7 @@ class Drone:
                 
                 elif ((pressed_key == 'n' or pressed_key == 'N') and (self.operation_mode == 4)):
                     self.clear_1_waypoint_service()
-                    print "POINT SKIPPED!"
+                    print ("POINT SKIPPED!")
                     time.sleep(1)
                 
                 aux_key = pressed_key
@@ -391,37 +391,37 @@ class Drone:
         # Screen refresh
             os.system('cls' if os.name == 'nt' else 'clear')
 
-            print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-            print "REFERENCE OF INSPECTION DISTANCE (meters): %.2f" %(drones[0].ref_distance)
+            print ("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print ("REFERENCE OF INSPECTION DISTANCE (meters): %.2f" %(drones[0].ref_distance))
             for id in drone_ids:
                 diff_dist = abs(drones[id - 1].inspection_distance[id-1] - drones[0].ref_distance)
-                print "         Inspection distance (meters) for Drone %d:  %.3f" %(id, drones[id - 1].inspection_distance[id-1])
-                print "Error of inspection distance (meters) for Drone %d:  %.3f" %(id, diff_dist)
-                print "\n"
-            print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                print ("         Inspection distance (meters) for Drone %d:  %.3f" %(id, drones[id - 1].inspection_distance[id-1]))
+                print ("Error of inspection distance (meters) for Drone %d:  %.3f" %(id, diff_dist))
+                print ("\n")
+            print ("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
             angle = drones[0].ref_angle*(180/3.1415)
-            print "REFERENCE OF FORMATION ANGLE (rad): %.2f" %(angle)
+            print ("REFERENCE OF FORMATION ANGLE (rad): %.2f" %(angle))
             for id in drone_ids:
                 if (id != 1):
                     angle      = drones[0].formation_angle[id-2]*(180/3.1415)
                     diff_angle = abs(abs(drones[0].formation_angle[id-2]) - drones[0].ref_angle)*(180/3.1415)
-                    print "         Formation angle (degrees) for Drone %d:  %.3f" %(id, angle)
-                    print "Error of formation angle (degrees) for Drone %d:  %.3f" %(id, diff_angle)
-                    print "\n"
-            print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-            print "\n"
-            print "Operation mode: "
+                    print ("         Formation angle (degrees) for Drone %d:  %.3f" %(id, angle))
+                    print ("Error of formation angle (degrees) for Drone %d:  %.3f" %(id, diff_angle))
+                    print ("\n")
+            print ("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print ("\n")
+            print ("Operation mode: ")
             if (self.operation_mode == 1):
-                print "\tNon-stopping"
+                print ("\tNon-stopping")
             elif (self.operation_mode == 2):
-                print "\tSmooth mode"
+                print ("\tSmooth mode")
             elif (self.operation_mode == 3):
-                print "\tStopping mode"
+                print ("\tStopping mode")
             elif (self.operation_mode == 4):
-                print "\tInspection mode"
+                print ("\tInspection mode")
             
-            print "Exit the tracking screen when 'q' or 'Q' key is pressed"
+            print ("Exit the tracking screen when 'q' or 'Q' key is pressed")
 
             time.sleep(0.1)
         time.sleep(0.2)
@@ -458,31 +458,31 @@ def show_menu(params,drones):
     os.system('cls' if os.name == 'nt' else 'clear')
 
     # Menu
-    print "\n################################################################################"
-    print "\n Welcome to the main menu. Choose the desired option:\n"
-    print "\ta. Take off the drones"
-    print "\tb. Start the mission"
-    print "\tc. Stop the mission"
-    print "\td. Add waypoint"
-    print "\te. Clear all the waypoints"
-    print "\tf. Change relative angles between followers and leader"
-    print "\tg. Change distance to inspection point"
-    print "\th. Change inspection point"
-    print "\ti. Joystick simulator"
-    print "\tj. Send the drones to HOME position"
-    print "\tk. Land the drones"
-    print "\tl. Send to next waypoint (ONLY IN INSPECTION MODE)"
-    print "\tm. Watch the evolution of the inspection distance & formation angle"
-    print "\tn. Change operation mode"
-    print "\to. Change orbit time"
-    print "\tz. Exit the console\n"
-    print "################################################################################"
+    print ("\n################################################################################")
+    print ("\n Welcome to the main menu. Choose the desired option:\n")
+    print ("\ta. Take off the drones")
+    print ("\tb. Start the mission")
+    print ("\tc. Stop the mission")
+    print ("\td. Add waypoint")
+    print ("\te. Clear all the waypoints")
+    print ("\tf. Change relative angles between followers and leader")
+    print ("\tg. Change distance to inspection point")
+    print ("\th. Change inspection point")
+    print ("\ti. Joystick simulator")
+    print ("\tj. Send the drones to HOME position")
+    print ("\tk. Land the drones")
+    print ("\tl. Send to next waypoint (ONLY IN INSPECTION MODE)")
+    print ("\tm. Watch the evolution of the inspection distance & formation angle")
+    print ("\tn. Change operation mode")
+    print ("\to. Change orbit time")
+    print ("\tz. Exit the console\n")
+    print ("################################################################################")
     
     option = 0
 
     while (option < (ord('a')) or option > (ord('o'))): # ASCII for make sure there is no error of inputs
         try: 
-            option = ord(raw_input (" >> "))
+            option = ord(input (" >> "))
         except:
             pass
 
@@ -511,9 +511,9 @@ def show_menu(params,drones):
     
     # Add waypoint
     elif option == 3:
-        px = float(raw_input("X pose (meters): "))
-        py = float(raw_input("Y pose (meters): "))
-        pz = float(raw_input("Z pose (meters): "))
+        px = float(input("X pose (meters): "))
+        py = float(input("Y pose (meters): "))
+        pz = float(input("Z pose (meters): "))
         wp = [px, py, pz]
         for drone in drones:
             drone.add_one_waypoint(wp)
@@ -525,33 +525,33 @@ def show_menu(params,drones):
     
     # Change relative angle
     elif option == 5:
-        print "Please, put the desired relative angle between follower drones and the leader drone (Manual mode)"
+        print ("Please, put the desired relative angle between follower drones and the leader drone (Manual mode)")
         angle = drones[0].ref_angle*(180/3.1415)
         
-        print "Current formation angle (degrees): %.2f" %(angle)
-        angle = (3.1415/180)*float(raw_input("Angle (degrees): "))
+        print ("Current formation angle (degrees): %.2f" %(angle))
+        angle = (3.1415/180)*float(input("Angle (degrees): "))
         
         for drone in drones:
             drone.change_relative_angle(angle)
     
     # Change distance to inspection point
     elif option == 6:
-        print "Please, put the desired distance to the inspection point (Manual mode)"
+        print ("Please, put the desired distance to the inspection point (Manual mode)")
         dist = drones[0].ref_distance
         
-        print "Current distance to the inspection point (meters): %.2f" %(dist)
-        distance = float(raw_input("Distance (meters): "))
+        print ("Current distance to the inspection point (meters): %.2f" %(dist))
+        distance = float(input("Distance (meters): "))
         
         for drone in drones:
             drone.set_distance_inspection(distance)
     
     # Change inspection point
     elif option == 7:
-        print "Please, put the desired inspection point (Manual mode):\n"
+        print ("Please, put the desired inspection point (Manual mode):\n")
         point    = [0, 0, 0]
-        point[0] = (float(raw_input("X (meters): ")))
-        point[1] = (float(raw_input("Y (meters): ")))
-        point[2] = (float(raw_input("Z (meters): ")))
+        point[0] = (float(input("X (meters): ")))
+        point[1] = (float(input("Y (meters): ")))
+        point[2] = (float(input("Z (meters): ")))
         
         for drone in drones:
             drone.change_inspection_point(point)
@@ -606,7 +606,7 @@ def show_menu(params,drones):
     # Change operation mode
     elif option == 13:
         print("New operation mode\nChoose 1 (NON-STOPPING), 2 (SMOOTH), 3 (STOPPING), 4 (INSPECTING)")
-        mode = (int(raw_input(" >> ")))
+        mode = (int(input(" >> ")))
         
         for drone in drones:
             drone.change_operation_mode(mode)
@@ -614,9 +614,9 @@ def show_menu(params,drones):
 
     # Change orbit time
     elif option == 14:
-        print "Please, select the desired orbit time"
-        print "Minimum value: 15 seconds"
-        time_orb = float(raw_input(" >> "))
+        print ("Please, select the desired orbit time")
+        print ("Minimum value: 15 seconds")
+        time_orb = float(input(" >> "))
 
         if (time_orb < 15):
             time_orb = 15
@@ -678,14 +678,14 @@ if __name__ == "__main__":
     # Get n_drones param
     f_route     = rospack.get_path('mission_planner') + '/param/mission_planner.yml'
     yml_file    = open(f_route, 'r')
-    yml_content = yaml.load(yml_file)
+    yml_content = yaml.safe_load(yml_file)
     
     n_drones    = yml_content.get('n_drones')
 
     # Get configuration parameters
     f_route     = rospack.get_path('mission_planner') + '/config/exp_' + str(n_drones) + 'drones.yml'
     yml_file    = open(f_route, 'r')
-    yml_content = yaml.load(yml_file)
+    yml_content = yaml.safe_load(yml_file)
 
     drone_ids   = yml_content.get('drone_ids')
     
@@ -727,13 +727,13 @@ if __name__ == "__main__":
         time.sleep(0.5)
 
     if (reconnect == 1):
-        print "Reconnecting..."
+        print ("Reconnecting...")
         time.sleep(1)
     
     # Auto mode
     if (params.auto and (reconnect == 0)):
         # raw_input(">> Press any key to start the AUTO interface ")
-        print "Using the automatic interface"
+        print ("Using the automatic interface")
         auto_function(params, drones)
 
     # Menu mode
