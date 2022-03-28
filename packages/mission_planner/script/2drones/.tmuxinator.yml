@@ -28,7 +28,7 @@ windows:
   - python script:  
       layout: even-vertical
       panes:
-        - sleep 24; python ../operator_interface.py
+        - sleep 24; python3 ../operator_interface.py
   # - rosbag:
   #     layout: even-vertical
   #     panes:
