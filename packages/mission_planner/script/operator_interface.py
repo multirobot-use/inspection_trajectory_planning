@@ -732,7 +732,7 @@ if __name__ == "__main__":
     
     # Auto mode
     if (params.auto and (reconnect == 0)):
-        # raw_input(">> Press any key to start the AUTO interface ")
+        # input(">> Press any key to start the AUTO interface ")
         print ("Using the automatic interface")
         auto_function(params, drones)
 
@@ -740,5 +740,5 @@ if __name__ == "__main__":
     while (not rospy.is_shutdown()):
         show_menu(params, drones)
         print("\n\nPRESS ENTER")
-        raw_input(" >>")
+        input(" >>")
         time.sleep(1)
