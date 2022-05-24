@@ -53,6 +53,7 @@ sudo apt-get install -y python3-catkin-tools
 
 ## Install necessary packages
 sudo apt-get install -y sudo apt-get install libeigen3-dev ros-$(rosversion -d)-geodesy ros-$(rosversion -d)-joy
+sudo apt-get install ros-$(rosversion -d)-rosbridge-server
 sudo apt install -y tmuxinator
 
 # set bashrc
@@ -90,6 +91,8 @@ git clone https://github.com/catkin/catkin_simple
 git clone https://github.com/grvcTeam/grvc-ual
 git clone https://github.com/aguramos93/seeker-ros
 git clone https://github.com/grvcTeam/grvc-utils
+git clone https://github.com/siemens/ros-sharp
+git clone https://github.com/Unity-Technologies/ROS-TCP-Endpoint
 
 
 ## Install acado
@@ -174,6 +177,7 @@ fi
 
 
 ## Install PX4 for SITL simulations
+### NOTE: PX4 compiles, but does not work on Ubuntu 20/ROS Noetic
 echo "Installing PX4 for SITL simulations"
 sudo apt update
 sudo apt install -y libgstreamer1.0-dev python3-jinja2 python3-pip
