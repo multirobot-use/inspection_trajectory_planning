@@ -76,6 +76,16 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
   }
 
   /**
+   * @brief increases/decreases the orbit time
+   *
+   * @param _time true if increase, false if decrease
+   */
+  void incOrbitTime(const bool &_time) {
+    if (_time)      setDistanceToInspect(orbit_time_ + inspection_params_.inc_orbit_time);
+    else            setDistanceToInspect(orbit_time_ - inspection_params_.inc_orbit_time);
+  }
+
+  /**
    * @brief gives the distance to the inspection point
    *
    * @return distance to the inspection point

@@ -22,6 +22,7 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   trajectory_planner::safeGetParam(nh_, "leader_id", inspection_params_.leader_id);
   trajectory_planner::safeGetParam(nh_, "inc_distance", inspection_params_.inc_distance);
   trajectory_planner::safeGetParam(nh_, "inc_angle", inspection_params_.inc_angle);
+  trajectory_planner::safeGetParam(nh_, "inc_orbit_time", inspection_params_.inc_orbit_time);
   trajectory_planner::safeGetParam(nh_, "pcl_filepath", param_.pcd_file_path);
   trajectory_planner::safeGetParam(nh_, "static_map", param_.static_map);
 
@@ -60,6 +61,13 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
             "/mission_planner_ros/relative_angle",
         1,
         std::bind(&MissionPlannerRos::relativeAngleCallback, this,
+                  std::placeholders::_1, drone));
+    
+    orbit_time_sub_[drone] = nh_.subscribe<std_msgs::Bool>(
+        "/drone_" + std::to_string(drone) +
+            "/mission_planner_ros/orbit_time_joy",
+        1,
+        std::bind(&MissionPlannerRos::orbitTimeJoyCallback, this,
                   std::placeholders::_1, drone));
 
     if (drone != param_.drone_id) {
@@ -503,6 +511,12 @@ void MissionPlannerRos::distanceToInspectionPointCallback(
     const std_msgs::Bool::ConstPtr &distance, int id) {
 
   mission_planner_ptr_ -> incDistanceToInspect(distance->data);
+}
+
+void MissionPlannerRos::orbitTimeJoyCallback(
+    const std_msgs::Bool::ConstPtr &time, int id) {
+
+  mission_planner_ptr_ -> incOrbitTime(time->data);
 }
 
 void MissionPlannerRos::operationModeCallback(

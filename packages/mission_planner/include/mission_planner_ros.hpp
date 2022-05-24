@@ -67,6 +67,7 @@ class MissionPlannerRos {
   std::map<int, ros::Subscriber> reference_trajectories_sub_;
   std::map<int, ros::Subscriber> distance_to_inspection_point_sub_;
   std::map<int, ros::Subscriber> relative_angle_sub_;
+  std::map<int, ros::Subscriber> orbit_time_sub_;
   std::map<int, ros::Subscriber> operation_mode_sub_;
   std::map<int, ros::Subscriber> planner_status_sub_;
   std::map<int, ros::Subscriber> waypoints_sub_;
@@ -270,6 +271,13 @@ class MissionPlannerRos {
    **/
   void distanceToInspectionPointCallback(
       const std_msgs::Bool::ConstPtr &distance, int id);
+
+  /*! \brief Callback for increasing/decreasing the orbit time (topic)
+   *   \param time true if want to increase the orbit time, false if want to decrease
+   *   \param id  identifier of the drone (not being used at this moment)
+   **/
+  void orbitTimeJoyCallback(
+        const std_msgs::Bool::ConstPtr &time, int id);
 
   /*! \brief Callback for relative angle (topic)
    *   \param distance desired relative angle (absolute)

@@ -4,10 +4,11 @@
 #include <trajectory_planner_types.hpp>
 
 struct inspection_params {
-  float inspection_dist = 1;  // meters
+  float inspection_dist = 3;    // meters
   int leader_id = 1;
-  float inc_distance = 0.1;
-  float inc_angle = 0.01;
+  float inc_distance = 0.1;     // m
+  float inc_angle = 0.01;       // rad
+  float inc_orbit_time = 0.25;  // s
 };
 
 inline Eigen::Vector3d pointOnSphere(const Eigen::Vector3d point,
