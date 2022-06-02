@@ -167,13 +167,13 @@ First, modify the parameter *n_drones*, which represents the number of drones wh
 packages/mission_planner/param/mission_planner.yml
 ```
 
-Second, we have to launch the tmuxinator file that is on the folder *packages/mission_planner/script/1drone*. 
+Second, we have to launch the session file that is on the folder *packages/mission_planner/session_files/session_1drone.yml*. 
 
 **Note**: If you do not know what is tmuxinator, it allows to create and manage tmux sessions easily. This way, we can execute several launch files in the same terminal at the same time. To do that, in this case:
 
 ```
-cd packages/mission_planner/script/1drone
-tmuxinator
+cd packages/mission_planner/
+./start1.sh
 ```
 
 **Note**: It is important to mention that, if you want to change the tab of the tmux, you have to press Ctrl + B + *number of desired tab*. Also, if you want to close the whole tmux session, you have to put *tmux kill-server* on any of the tabs or terminal.
@@ -189,12 +189,11 @@ Now, we show an overview of what you have to do to make the simulation work, add
 
 1. Modify the number of drones that you want to launch on:
     * mission_planner/param/mission_planner.yml
-        n_drones (possible values: 2 or 3)
+        n_drones (possible values: 1, 2 or 3)
 
-    * mission_planner/script/mission_script.py
-        f_route --> change the number of the experiment (0 to 4 for two drones, 5 to 9 for
-        three drones, watch the operator's interface oriented to experiments to know the
-        differences or watch the files to know where the waypoints are located)
+    * mission_planner/script/operator_interface.py
+        f_route --> change the name file depending on the number of drones that you want to
+        deploy: exp_1drones.yml, exp_2drones.yml or exp_3drones.yml. Modify it to test
 
     * mission_planner/script/.tmuxinator.yml
         Comment/uncomment the necessary lines to adapt what is going to be launched (2 or 
@@ -204,8 +203,8 @@ Now, we show an overview of what you have to do to make the simulation work, add
 Launch a terminal
 
 ```
-    cd your_workspace/src/inspection_trajectory_planning/packages/mission_planner/script
-    tmuxinator
+    cd your_workspace/src/inspection_trajectory_planning/packages/mission_planner/
+    ./startX.sh
 ```
 
 **Note**: what you are executing is actually a tmux file. Go through each tab using Ctrl + B + *number of desired tab* to see what is being launched. Remember that you can finish the session by putting *tmux kill-server* on any tab or terminal.
@@ -221,7 +220,13 @@ mission_planner/param/mission_planner.yml
             n_drones (possible values: 2 or 3)
 ```
 
-2. To make the simulation work:
+2. Modify the yml file that is being read in the *operator_interface.py*:
+* mission_planner/script/operator_interface.py
+        f_route --> change the number of the experiment (0 to 4 for two drones, 5 to 9 for
+        three drones, watch the operator's interface oriented to experiments to know the
+        differences or watch the files to know where the waypoints are located)
+
+3. To make the simulation work:
 
 Launch terminal 1 (Gazebo):
 
@@ -236,7 +241,7 @@ Launch terminal 2 (Operator's interface --> experiment oriented):
 
 ```
     cd your_workspace/src/inspection_trajectory_planning/packages/mission_planner/script
-    python experiments.py
+    python3 operator_interface.py
 ```
 
 Launch terminal 3 (Independent leader drone):
