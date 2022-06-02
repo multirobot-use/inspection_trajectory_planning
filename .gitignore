@@ -41,3 +41,5 @@ packages/catkin_simple/
 packages/upat_follower/
 packages/seeker-ros/
 packages/safe_corridor_generator/
+packages/ros-sharp/
+packages/ROS-TCP-Endpoint/
