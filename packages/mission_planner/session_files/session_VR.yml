@@ -26,14 +26,14 @@ windows:
         - sleep 13; roslaunch trajectory_follower trajectory_follower.launch drone_id:=1
         - sleep 13; roslaunch trajectory_follower trajectory_follower.launch drone_id:=2
         - sleep 13; roslaunch trajectory_follower trajectory_follower.launch drone_id:=3
-  # - rviz:
-  #     layout: even-vertical
-  #     panes:
-  #       - sleep 10; roslaunch mission_planner rviz_experiment3.launch
+  - rviz:
+      layout: even-vertical
+      panes:
+        - sleep 10; roslaunch mission_planner rviz_experiment3.launch
   # - python script:  
   #     layout: even-vertical
   #     panes:
-  #       - sleep 14; python3 ../operator_interface.py
+  #       - sleep 20; python3 ../operator_interface.py
   - layout_unity_tcp:
       layout: even-vertical
       panes:

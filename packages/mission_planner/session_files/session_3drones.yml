@@ -34,8 +34,14 @@ windows:
       layout: even-vertical
       panes:
         - sleep 15; python3 ../operator_interface.py
-  - rosbag:
-      layout: even-vertical
-      panes:
+  # - rosbag:
+  #     layout: even-vertical
+  #     panes:
         # - sleep 50; roslaunch mission_planner rosbag_recorder.launch
         # - sleep 40; roslaunch mission_planner rosbag_cameras.launch
+        # - sleep 20; rostopic echo /drone_1/ual/pose >> ~/Desktop/p_experiment6_uav1.txt
+        # - sleep 20; rostopic echo /drone_2/ual/pose >> ~/Desktop/p_experiment6_uav2.txt
+        # - sleep 20; rostopic echo /drone_3/ual/pose >> ~/Desktop/p_experiment6_uav3.txt
+        # - sleep 20; rostopic echo /drone_1/mission_planner_ros/solved_traj >> ~/Desktop/t_experiment6_uav1.txt
+        # - sleep 20; rostopic echo /drone_2/mission_planner_ros/solved_traj >> ~/Desktop/t_experiment6_uav2.txt
+        # - sleep 20; rostopic echo /drone_3/mission_planner_ros/solved_traj >> ~/Desktop/t_experiment6_uav3.txt
