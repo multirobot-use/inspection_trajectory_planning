@@ -54,6 +54,8 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
    */
   void setDistanceToInspect(const float &_distance) {
     distance_to_inspect_point_ = _distance;
+    if (distance_to_inspect_point_ > 12.5)    distance_to_inspect_point_ = 12.5;
+    else if (distance_to_inspect_point_ < 4)  distance_to_inspect_point_ = 4;
   }
 
   /**
@@ -97,7 +99,11 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
    *
    * @param _angle angle
    */
-  void setRelativeAngle(const float &_angle) { relative_angle_ = _angle; }
+  void setRelativeAngle(const float &_angle) { 
+    relative_angle_ = _angle;
+    if (relative_angle_ > 1.90)      relative_angle_ = 1.90;
+    else if (relative_angle_ < 0.5)  relative_angle_ = 0.5;
+  }
 
   /**
    * @brief gives the relative angle
@@ -206,7 +212,7 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
   bool mission_status_ = false;
   state last_goal_;
   Eigen::Vector3d point_to_inspect_ = Eigen::Vector3d::Zero();
-  float distance_to_inspect_point_ = 3;
+  float distance_to_inspect_point_ = 6.5;
   float relative_angle_ = 0.7;
   float orbit_time_ = 90;
   std::map<int, float> inspection_distance_;

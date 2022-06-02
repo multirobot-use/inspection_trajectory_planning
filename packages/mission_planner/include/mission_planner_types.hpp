@@ -4,7 +4,7 @@
 #include <trajectory_planner_types.hpp>
 
 struct inspection_params {
-  float inspection_dist = 3;    // meters
+  float inspection_dist = 6;    // meters
   int leader_id = 1;
   float inc_distance = 0.1;     // m
   float inc_angle = 0.01;       // rad
