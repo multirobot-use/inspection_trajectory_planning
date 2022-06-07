@@ -1,23 +1,25 @@
 # PARAMS for mission planner 
 
-horizon_length: 50     # steps
-n_drones: 3            # drones
-leader_id: 1           # drone_id
-step_size: 0.2         # seconds
-operation_mode: 2      # 1 --> non-stopping, 2 --> stops when there is a change of direction, 3 --> stops always, 4 --> inspection mode 
-planning_rate: 2       # sec
-visualization_rate: 2  # sec
-clock_rate: 0.05       # sec
-topics_rate: 0.2       # sec
-vel_max: 5             # m/s
-vel_min: 0.3           # m/s
-orbit_time: 60         # s
-vel_inspect: 0.2       # m/s
-acc_max: 1             # m/s²
-inspection_dist: 6     # m 
-inc_distance: 0.25     # m
-inc_angle: 0.03        # rad
-inc_orbit_time: 0.2    # s
-static_map: true       # true if static (not using LiDAR); false if dynamic (using LiDAR)
+horizon_length: 50          # steps
+n_drones: 3                 # drones
+leader_id: 1                # drone_id
+step_size: 0.2              # seconds
+operation_mode: 2           # 1 --> non-stopping, 2 --> stops when there is a change of direction, 3 --> stops always, 4 --> inspection mode 
+planning_rate: 2            # sec
+visualization_rate: 2       # sec
+clock_rate: 0.05            # sec
+topics_rate: 0.2            # sec
+vel_max: 5                  # m/s
+vel_min: 0.3                # m/s
+orbit_time: 60              # s
+vel_inspect: 0.2            # m/s
+acc_max: 1                  # m/s²
+inspection_dist: 6          # m 
+inc_distance: 0.25          # m
+inc_angle: 0.03             # rad
+inc_orbit_time: 0.2         # s
+static_map: true            # true if static (not using LiDAR); false if dynamic (using LiDAR)
+obstacle_avoidance: false   # turn on/off the obstacle avoidance
+opt_orientation: false      # turn on/off the optimization problem for the orientation
 
 frame: "map"

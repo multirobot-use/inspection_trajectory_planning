@@ -25,6 +25,8 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   trajectory_planner::safeGetParam(nh_, "inc_orbit_time", inspection_params_.inc_orbit_time);
   trajectory_planner::safeGetParam(nh_, "pcl_filepath", param_.pcd_file_path);
   trajectory_planner::safeGetParam(nh_, "static_map", param_.static_map);
+  trajectory_planner::safeGetParam(nh_, "obstacle_avoidance", param_.obstacle_avoidance);
+  trajectory_planner::safeGetParam(nh_, "opt_orientation", param_.opt_orientation);
 
   // Initialize mission planner
   if (leader) {
