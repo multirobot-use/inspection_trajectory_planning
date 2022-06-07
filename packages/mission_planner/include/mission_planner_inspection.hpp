@@ -101,8 +101,8 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
    */
   void setRelativeAngle(const float &_angle) { 
     relative_angle_ = _angle;
-    if (relative_angle_ > 1.90)      relative_angle_ = 1.90;
-    else if (relative_angle_ < 0.5)  relative_angle_ = 0.5;
+    if (relative_angle_ > maximumFormationAngle())        relative_angle_ = maximumFormationAngle();
+    else if (relative_angle_ < minimumFormationAngle())   relative_angle_ = minimumFormationAngle();
   }
 
   /**
