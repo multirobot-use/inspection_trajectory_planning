@@ -2,7 +2,7 @@
 ## Overview
 This repository is about an operator-oriented inspection task of cylindrical structures, in this case, of wind turbines, with optimal trajectory planning of a multi UAV formation. To generate the optimal trajectory planning, a reference path is given to an optimal solver in order to minimize the accelerations of each drone, making their paths smooth and avoiding jerky movements and going through the optimal path at a constant speed (cruising speed). This also encourages to have a good image taken from the drones, that is intended to build an AR image where some interesting information from the mission in the early future.
 
-This work is developed on Ubuntu 18.04 with ROS Melodic and does not have been tested in other Ubuntu/ROS versions.
+This work is developed on Ubuntu 18.04 with ROS Melodic. It has been tested in Ubuntu 20.04 with ROS Noetic as well, but it is not desirable to work on this version as *PX4/MAVROS* is not prepared to work on this version yet nor the LiDAR will work for the online obstacle avoidance. Anyway, we let you the automatic installation script for both Ubuntu 18.04 with ROS Melodic and Ubuntu 20.04 with ROS Noetic. Everything in this project is supposed to work with Python3 and it is not guaranteed that this work in another version of Python.
 
 ## Manual installation
 To install the repositories correctly, you have to follow the next steps:
@@ -39,6 +39,12 @@ git clone https://github.com/catkin/catkin_simple
 git clone https://github.com/grvcTeam/grvc-ual
 git clone https://github.com/aguramos93/seeker-ros
 git clone https://github.com/grvcTeam/grvc-utils
+```
+
+**Note**: *ros-sharp* and *ROS-TCP-Endpoint* are used to establish the connection to Unity/VR Interface, but they are not necessary:
+```
+git clone https://github.com/siemens/ros-sharp
+git clone https://github.com/Unity-Technologies/ROS-TCP-Endpoint
 ```
 
 **Note**: you may not have installed the following packages:
@@ -89,12 +95,13 @@ echo "source ~/your_ws/src/inspection_trajectory_planning/packages/acado/build/a
 ```
 
 
-7. Configure and setup *UAL*. Only *MAVROS* and *Gazebo Light* needed. Install dependencies
+7. Configure and setup *UAL* with the *noetic-dev* branch. Only *MAVROS* and *Gazebo Light* needed. Install dependencies
 
 https://github.com/grvcTeam/grvc-ual/wiki/How-to-build-and-install-grvc-ual
 
 ```
 cd ~/your_ws/src/inspection_trajectory_planning/packages/grvc-ual
+git checkout -b origin/noetic
 ./configure.py
 ```
 
@@ -113,7 +120,7 @@ sudo usermod -a -G dialout $USER
 sudo apt remove modemmanager
 ```
 
-10. *PX4* SITL Simulations
+10. *PX4* SITL Simulations. It may not compile for Ubuntu 20.
 
 https://github.com/grvcTeam/grvc-ual/wiki/Setup-instructions:-PX4-SITL
 
@@ -145,7 +152,7 @@ echo "source ~/your_ws/devel/setup.zsh" >> ~/.zshrc
 
 
 ## Automatic installation
-There is a .sh file available to install the necessary packages automatically (including ROS Melodic). An interface for *grvc-ual* package will appear in the middle of the installation, it is only necessary to select *MAVROS*, *Gazebo Light* and the dependencies.
+There is a .sh file available to install the necessary packages automatically (including ROS Melodic). An interface for *grvc-ual* package will appear in the middle of the installation, it is only necessary to select *MAVROS*, *Gazebo Light* and the dependencies. You can choose between Ubuntu 18 or Ubuntu 20.
 
 ```
 cd ~
@@ -155,7 +162,8 @@ mkdir -p src
 cd src
 git clone https://github.com/grvcTeam/inspection_trajectory_planning
 cd inspection_trajectory_planning
-./install_packages.sh
+./install_packages_u18_melodic.sh
+./install_packages_u20_noetic.sh
 ```
 
 ## Test to verify everything is installed correctly
@@ -190,10 +198,6 @@ Now, we show an overview of what you have to do to make the simulation work, add
 1. Modify the number of drones that you want to launch on:
     * mission_planner/param/mission_planner.yml
         n_drones (possible values: 1, 2 or 3)
-
-    * mission_planner/script/operator_interface.py
-        f_route --> change the name file depending on the number of drones that you want to
-        deploy: exp_1drones.yml, exp_2drones.yml or exp_3drones.yml. Modify it to test
 
     * mission_planner/script/.tmuxinator.yml
         Comment/uncomment the necessary lines to adapt what is going to be launched (2 or 
@@ -281,3 +285,7 @@ Once the repository is correctly installed, it is time to build the packages usi
 When the workspace has been built, the first try of running a simulation may not work: Gazebo does not start and, if that happens, there is nothing to see. Kill the tmuxinator server by putting on any tab of tmux *tmux kill-server* and try to run it again.
 
 If the formation has taken off and they do not generate trajectories, make sure that the mission has started correctly on the operator interface (HMI) and see if the parameter *n_drones* is the correct one as well.
+
+If you are using Ubuntu 20, you can only work with *Gazebo Light* because *PX4/MAVROS* is not still prepared to work in this version.
+
+The LiDAR is only available for the drone Typhoon H480, which requires to work in *MAVROS* so, regarding the last thing mentioned, it is not possible to work with this functionality correctly in Ubuntu 20.
