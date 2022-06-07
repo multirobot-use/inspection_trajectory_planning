@@ -483,6 +483,9 @@ void MissionPlannerRos::clockCB(const ros::TimerEvent &e) {
 }
 
 void MissionPlannerRos::topicsCB(const ros::TimerEvent &e) {
+  // Refresh the maximums and minimums for the formation angle
+  mission_planner_ptr_->refreshRelativeAngle();
+  
   if (param_.drone_id != inspection_params_.leader_id)  publishFormationAngle(formation_angle_pub_);
 
   publishInspectionDistance(inspection_distance_pub_);
