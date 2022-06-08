@@ -76,6 +76,13 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
         1,
         std::bind(&MissionPlannerRos::orbitTimeJoyCallback, this,
                   std::placeholders::_1, drone));
+    
+    point_to_inspect_sub_[drone] = nh_.subscribe<geometry_msgs::Pose>(
+        "/drone_" + std::to_string(drone) +
+            "/mission_planner_ros/point_to_inspect",
+        1,
+        std::bind(&MissionPlannerRos::pointToInspectCallback, this,
+                  std::placeholders::_1, drone));
 
     if (drone != param_.drone_id) {
       solved_trajectories_sub_[drone] = nh_.subscribe<nav_msgs::Path>(
@@ -179,9 +186,9 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
       nh_.advertise<decomp_ros_msgs::PolyhedronArray>("polyhedrons_out", 1);
   pub_point_cloud_ = nh_.advertise<sensor_msgs::PointCloud2>("pcl_map_out", 1);
   points_pub_ =
-      nh_.advertise<visualization_msgs::Marker>("points_to_inspect", 1);
+      nh_.advertise<visualization_msgs::Marker>("waypoints_to_inspect", 1);
   points_trans_pub_ = nh_.advertise<visualization_msgs::Marker>(
-      "points_to_inspect_transformed", 1);
+      "waypoints_to_inspect_transformed", 1);
   waypoints_pub_ =
       nh_.advertise<geometry_msgs::PoseArray>("waypoints", 1);
   sphere_pub_ =
@@ -541,6 +548,18 @@ void MissionPlannerRos::orbitTimeJoyCallback(
     const std_msgs::Bool::ConstPtr &time, int id) {
 
   mission_planner_ptr_ -> incOrbitTime(time->data);
+}
+
+void MissionPlannerRos::pointToInspectCallback(
+    const geometry_msgs::Pose::ConstPtr &point, int id) {
+
+  Eigen::Vector3d point_to_inspect;
+
+  point_to_inspect[0] = point->position.x;
+  point_to_inspect[1] = point->position.y;
+  point_to_inspect[2] = point->position.z;
+
+  mission_planner_ptr_ -> setPointToInspect(point_to_inspect);
 }
 
 void MissionPlannerRos::operationModeCallback(
