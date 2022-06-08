@@ -343,7 +343,7 @@ class MissionPlannerRos {
    *   \param pub_sphere publisher
    *   \param color color of the cylinder
    */
-  void publishSphere(const ros::Publisher &pub_sphere, const Colors &color);
+  void publishCylinder(const ros::Publisher &pub_cylinder, const Colors &color);
 
   /*! \brief function to publish the absolute distance to the inspection point
    *   \param pub_distance publisher

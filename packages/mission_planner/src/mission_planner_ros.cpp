@@ -522,7 +522,7 @@ void MissionPlannerRos::pubVisCB(const ros::TimerEvent &e) {
   }
 
   publishPoints(points_trans_pub_, points, Colors::BLUE);
-  publishSphere(sphere_pub_, Colors::YELLOW);
+  publishCylinder(sphere_pub_, Colors::YELLOW);
 }
 
 void MissionPlannerRos::distanceToInspectionPointCallback(
@@ -656,7 +656,7 @@ void MissionPlannerRos::setMarkerColor(visualization_msgs::Marker &marker,
   }
 }
 
-void MissionPlannerRos::publishSphere(const ros::Publisher &pub_sphere,
+void MissionPlannerRos::publishCylinder(const ros::Publisher &pub_cylinder,
                                       const Colors &color) {
   visualization_msgs::Marker marker;
   marker.header.frame_id = param_.frame;
@@ -685,7 +685,7 @@ void MissionPlannerRos::publishSphere(const ros::Publisher &pub_sphere,
 
   // Only if using a MESH_RESOURCE marker type:
   marker.mesh_resource = "package://pr2_description/meshes/base_v0/base.dae";
-  pub_sphere.publish(marker);
+  pub_cylinder.publish(marker);
 }
 
 void MissionPlannerRos::publishPoints(
