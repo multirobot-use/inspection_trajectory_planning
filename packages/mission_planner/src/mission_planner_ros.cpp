@@ -240,6 +240,8 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
       this);
   service_waypoint = nh_.advertiseService(
       "add_waypoint", &MissionPlannerRos::addWaypointServiceCallback, this);
+  service_waypoint_by_angle = nh_.advertiseService(
+      "add_waypoint_by_angle", &MissionPlannerRos::addWaypointByAngleServiceCallback, this);
   service_point_to_inspect = nh_.advertiseService(
       "point_to_inspect", &MissionPlannerRos::pointToInspectServiceCallback,
       this);
@@ -316,6 +318,31 @@ bool MissionPlannerRos::addWaypointServiceCallback(
   state_req.vel[0] = req.waypoint.twist.twist.linear.x;
   state_req.vel[1] = req.waypoint.twist.twist.linear.y;
   state_req.vel[2] = req.waypoint.twist.twist.linear.z;
+
+  mission_planner_ptr_->appendGoal(state_req);
+
+  res.success = true;
+  res.message = "Waypoint added successfully!";
+}
+
+bool MissionPlannerRos::addWaypointByAngleServiceCallback(
+    mission_planner::AddWaypointByAngle::Request &req,
+    mission_planner::AddWaypointByAngle::Response &res){
+  ROS_INFO("[%s]: Add waypoint by angle service called.",
+           ros::this_node::getName().c_str());
+
+  geometry_msgs::Point point;
+
+  point.x = 1*cos(req.angle);
+  point.y = 1*sin(req.angle);
+  point.z = req.height;
+  points_.push_back(std::move(point));
+
+  state state_req;
+
+  state_req.pos(0) = point.x;
+  state_req.pos(1) = point.y;
+  state_req.pos(2) = point.z;
 
   mission_planner_ptr_->appendGoal(state_req);
 

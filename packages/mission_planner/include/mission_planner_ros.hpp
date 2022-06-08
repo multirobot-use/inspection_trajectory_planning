@@ -12,6 +12,7 @@
 #include <mission_planner/PointToInspectSrv.h>
 #include <mission_planner/WaypointSrv.h>
 #include <mission_planner/Float32withHeader.h>
+#include <mission_planner/AddWaypointByAngle.h>
 #include <mission_planner/BoolWithHeader.h>
 #include <uav_abstraction_layer/State.h>
 #include <nav_msgs/Odometry.h>
@@ -99,6 +100,7 @@ class MissionPlannerRos {
   // Services
   ros::ServiceServer service_activate_planner;
   ros::ServiceServer service_waypoint;
+  ros::ServiceServer service_waypoint_by_angle;
   ros::ServiceServer clear_waypoints;
   ros::ServiceServer service_point_to_inspect;
   ros::ServiceServer service_distance_to_inspect;
@@ -173,6 +175,15 @@ class MissionPlannerRos {
    */
   bool addWaypointServiceCallback(mission_planner::WaypointSrv::Request &req,
                                   mission_planner::WaypointSrv::Response &res);
+
+  /*! \brief Callback for adding a waypoint by angle
+   *   \param req new desired waypoint
+   *   \param res success
+   *   \return success
+   */
+  bool addWaypointByAngleServiceCallback(
+        mission_planner::AddWaypointByAngle::Request &req,
+        mission_planner::AddWaypointByAngle::Response &res);
 
   /*! \brief Callback for the clean waypoints service. It cleans all the
    * waypoints queued \param req request \param res success \return success
