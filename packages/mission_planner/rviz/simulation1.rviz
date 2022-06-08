@@ -108,7 +108,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/Marker
       Enabled: true
-      Marker Topic: /drone_1/mission_planner_ros/points_to_inspect_transformed
+      Marker Topic: /drone_1/mission_planner_ros/waypoints_to_inspect_transformed
       Name: Marker
       Namespaces:
         "": true
