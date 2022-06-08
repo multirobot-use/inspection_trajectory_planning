@@ -313,6 +313,7 @@ bool MissionPlannerRos::addWaypointServiceCallback(
   mission_planner_ptr_->appendGoal(state_req);
 
   res.success = true;
+  res.message = "Waypoint added successfully!";
 }
 
 bool MissionPlannerRos::clearWaypointsServiceCallback(
@@ -350,6 +351,7 @@ bool MissionPlannerRos::pointToInspectServiceCallback(
       "%f]",
       ros::this_node::getName().c_str(), point[0], point[1], point[2]);
   res.success = true;
+  res.message = "Waypoint to inspect changed successfully!";
 }
 
 bool MissionPlannerRos::distanceToInspectServiceCallback(
@@ -365,6 +367,7 @@ bool MissionPlannerRos::distanceToInspectServiceCallback(
       " %f meters",
       ros::this_node::getName().c_str(), req.distance);
   res.success = true;
+  res.message = "Inspection distance changed successfully!";
 }
 
 bool MissionPlannerRos::orbitTimeServiceCallback(
@@ -380,6 +383,7 @@ bool MissionPlannerRos::orbitTimeServiceCallback(
       " %f seconds",
       ros::this_node::getName().c_str(), req.time);
   res.success = true;
+  res.message = "Orbit time changed successfully!";
 }
 
 bool MissionPlannerRos::changeRelativeAngleServiceCallback(
@@ -393,6 +397,7 @@ bool MissionPlannerRos::changeRelativeAngleServiceCallback(
   ROS_INFO("[%s]: Relative angle changed successfully!  New angle:  %f radians",
            ros::this_node::getName().c_str(), req.angle);
   res.success = true;
+  res.message = "Formation angle added successfully!";
 }
 
 bool MissionPlannerRos::changeOperationModeServiceCallback(
@@ -407,6 +412,7 @@ bool MissionPlannerRos::changeOperationModeServiceCallback(
   ROS_INFO("[%s]: Operation mode changed successfully!  New mode: %d",
            ros::this_node::getName().c_str(), req.mode);
   res.success = true;
+  res.message = "Operation mode changed successfully!";
 }
 
 void MissionPlannerRos::pcdCallback(
