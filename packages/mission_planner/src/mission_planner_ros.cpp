@@ -421,7 +421,7 @@ void MissionPlannerRos::pcdCallback(
 
   geometry_msgs::TransformStamped Tstatic_frame_velodyne_frame;
 
-  bool can_transform;
+  // bool can_transform;
   // can_transform = tfBuffer.canTransform("map", "drone_" + std::to_string(param_.drone_id) + "/velodyne",
         // ros::Time(0));
   // can_transform = tfBuffer._frameExists("drone_" + std::to_string(param_.drone_id) + "/velodyne");
