@@ -46,6 +46,11 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
         std::bind(&MissionPlannerRos::uavPoseCallback, this,
                   std::placeholders::_1, drone));
 
+    cur_state_sub_[drone] = nh_.subscribe<uav_abstraction_layer::State>(
+        "/drone_" + std::to_string(drone) + "/ual/state", 1,
+        std::bind(&MissionPlannerRos::uavStateCallback, this,
+                  std::placeholders::_1, drone));
+
     cur_vel_sub_[drone] = nh_.subscribe<geometry_msgs::TwistStamped>(
         "/drone_" + std::to_string(drone) + "/ual/velocity", 1,
         std::bind(&MissionPlannerRos::uavVelocityCallback, this,
@@ -263,17 +268,25 @@ bool MissionPlannerRos::activationPlannerServiceCallback(
 
   res.success = true;
 
-  if (req.data == false) {
-    ROS_INFO("[%s]: Planning deactivated.", ros::this_node::getName().c_str());
-    res.message = "Planning deactivated.";
-    planTimer_.stop();
-    mission_planner_ptr_ -> setMissionStatus(false);
-  } else {
-    ROS_INFO("[%s]: Planning activated.", ros::this_node::getName().c_str());
-    res.message = "Planning activated.";
-    planTimer_.start();
-    mission_planner_ptr_ -> setMissionStatus(true);
+  if (mission_planner_ptr_-> getDroneStatus(param_.drone_id) == 4){
+    if (req.data == false) {
+      ROS_INFO("[%s]: Planning deactivated.", ros::this_node::getName().c_str());
+      res.message = "Planning deactivated.";
+      planTimer_.stop();
+      mission_planner_ptr_ -> setMissionStatus(false);
+    } else {
+      ROS_INFO("[%s]: Planning activated.", ros::this_node::getName().c_str());
+      res.message = "Planning activated.";
+      planTimer_.start();
+      mission_planner_ptr_ -> setMissionStatus(true);
+    }
   }
+  else{
+    ROS_INFO("[%s]: Activate Planner unavailable, drone is not flying auto. Please, arm and take off the drone", ros::this_node::getName().c_str());
+    res.message = "Activate Planner unavailable, drone is not flying auto. Please, arm and take off the drone.";
+    res.success = false;
+  }
+  
   return true;
 }
 
@@ -606,6 +619,11 @@ void MissionPlannerRos::uavPoseCallback(
   mission_planner_ptr_->states_[id].pos[0] = msg->pose.position.x;
   mission_planner_ptr_->states_[id].pos[1] = msg->pose.position.y;
   mission_planner_ptr_->states_[id].pos[2] = msg->pose.position.z;
+}
+
+void MissionPlannerRos::uavStateCallback(
+    const uav_abstraction_layer::State::ConstPtr &msg, int id) {
+  mission_planner_ptr_->setDroneStatus(param_.drone_id, msg->state);
 }
 
 void MissionPlannerRos::uavVelocityCallback(

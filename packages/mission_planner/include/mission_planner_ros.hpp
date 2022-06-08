@@ -13,6 +13,7 @@
 #include <mission_planner/WaypointSrv.h>
 #include <mission_planner/Float32withHeader.h>
 #include <mission_planner/BoolWithHeader.h>
+#include <uav_abstraction_layer/State.h>
 #include <nav_msgs/Odometry.h>
 #include <nav_msgs/Path.h>
 #include <std_msgs/Bool.h>
@@ -62,6 +63,7 @@ class MissionPlannerRos {
 
   // Subscriptions
   std::map<int, ros::Subscriber> cur_pose_sub_;
+  std::map<int, ros::Subscriber> cur_state_sub_;
   std::map<int, ros::Subscriber> cur_vel_sub_;
   std::map<int, ros::Subscriber> solved_trajectories_sub_;
   std::map<int, ros::Subscriber> reference_trajectories_sub_;
@@ -264,6 +266,13 @@ class MissionPlannerRos {
    *   \param id  identifier of the drone
    **/
   void uavPoseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg, int id);
+
+  /*! \brief Callback for drone's state
+   *   \param msg drone's state, uav_abstraction_layer/State
+   *   \param id  identifier of the drone
+   **/
+  void uavStateCallback(
+      const uav_abstraction_layer::State::ConstPtr &msg, int id);
 
   /*! \brief Callback for distance to inspection point (topic)
    *   \param distance desired distance to inspection point (absolute)

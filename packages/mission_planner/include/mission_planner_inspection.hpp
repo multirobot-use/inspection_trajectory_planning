@@ -9,6 +9,7 @@
 // #include "log.h"
 #include "mission_planner_types.hpp"
 #include <trajectory_planner.hpp>
+#include <uav_abstraction_layer/State.h>
 
 typedef trajectory_planner::state state;
 
@@ -155,6 +156,23 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
   void setMissionStatus(const bool &_status) { mission_status_ = _status; }
 
   /**
+   * @brief returns the status of the drone
+   *
+   * @param _drone_id identifier of the drone
+   * @return state value
+   */
+  int getDroneStatus(const int _drone_id){ return drone_state_[param_.drone_id]; }
+
+  /**
+   * @brief sets the status of the drone
+   *
+   * @param _drone_id identifier of the drone
+   * @param _state value
+   */
+  void setDroneStatus(const int _drone_id, const int _state){
+    drone_state_[param_.drone_id] = _state; }
+
+  /**
    * @brief changes the operation mode of the formation
    *
    * @param _mode mode
@@ -220,6 +238,7 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
  protected:
   bool mission_status_ = false;
   state last_goal_;
+  std::map<int, int> drone_state_;
   Eigen::Vector3d point_to_inspect_ = Eigen::Vector3d::Zero();
   float distance_to_inspect_point_ = 6.5;
   float relative_angle_ = 0.7;
