@@ -1,0 +1,5 @@
+float32 angle       # rad
+float32 height      # m
+---
+bool success
+string message

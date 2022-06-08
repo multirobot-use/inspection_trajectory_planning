@@ -46,6 +46,7 @@ add_service_files(
   PointToInspectSrv.srv
   DistanceSrv.srv
   AngleSrv.srv
+  AddWaypointByAngle.srv
 )
 
 generate_messages(
