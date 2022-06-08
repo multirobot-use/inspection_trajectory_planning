@@ -3,6 +3,12 @@
 # 2 --> Smooth Operation Mode
 # 3 --> Stopping Operation Mode
 # 4 --> Inspection Operation Mode
+uint8 NON_STOPPING  = 1
+uint8 SMOOTH        = 2
+uint8 STOPPING      = 3
+uint8 INSPECTING    = 0
+
 uint8 mode
 ---
 bool success
+string message

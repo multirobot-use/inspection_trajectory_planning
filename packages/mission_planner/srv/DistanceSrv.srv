@@ -1,3 +1,4 @@
 float64 distance
 ---
 bool success
+string message
