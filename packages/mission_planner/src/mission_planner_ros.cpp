@@ -76,13 +76,6 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
         1,
         std::bind(&MissionPlannerRos::orbitTimeJoyCallback, this,
                   std::placeholders::_1, drone));
-    
-    point_to_inspect_sub_[drone] = nh_.subscribe<geometry_msgs::Pose>(
-        "/drone_" + std::to_string(drone) +
-            "/mission_planner_ros/point_to_inspect",
-        1,
-        std::bind(&MissionPlannerRos::pointToInspectCallback, this,
-                  std::placeholders::_1, drone));
 
     if (drone != param_.drone_id) {
       solved_trajectories_sub_[drone] = nh_.subscribe<nav_msgs::Path>(
@@ -191,6 +184,8 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
       "waypoints_to_inspect_transformed", 1);
   waypoints_pub_ =
       nh_.advertise<geometry_msgs::PoseArray>("waypoints", 1);
+  point_to_inspect_pub_ = 
+      nh_.advertise<geometry_msgs::Pose>("point_to_inspect", 1);
   sphere_pub_ =
       nh_.advertise<visualization_msgs::Marker>("inspection_sphere", 1);
   pub_path_ = nh_.advertise<nav_msgs::Path>("solved_traj", 1);
@@ -513,6 +508,7 @@ void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
   publishDistance(distance_pub_);
   publishRelativeAngle(angle_pub_);
   publishMissionStatus(mission_status_pub_);
+  publishPointToInspect(point_to_inspect_pub_);
 
   std::vector<state> goals = mission_planner_ptr_->getGoals();
 
@@ -575,18 +571,6 @@ void MissionPlannerRos::orbitTimeJoyCallback(
     const std_msgs::Bool::ConstPtr &time, int id) {
 
   mission_planner_ptr_ -> incOrbitTime(time->data);
-}
-
-void MissionPlannerRos::pointToInspectCallback(
-    const geometry_msgs::Pose::ConstPtr &point, int id) {
-
-  Eigen::Vector3d point_to_inspect;
-
-  point_to_inspect[0] = point->position.x;
-  point_to_inspect[1] = point->position.y;
-  point_to_inspect[2] = point->position.z;
-
-  mission_planner_ptr_ -> setPointToInspect(point_to_inspect);
 }
 
 void MissionPlannerRos::operationModeCallback(
@@ -843,6 +827,17 @@ void MissionPlannerRos::publishMissionStatus(const ros::Publisher &pub_status) {
   mission_status.data = mission_planner_ptr_ -> getMissionStatus();
 
   pub_status.publish(mission_status);
+}
+
+void MissionPlannerRos::publishPointToInspect(const ros::Publisher &pub_point_to_inspect) {
+  geometry_msgs::Pose point_to_inspect;
+  Eigen::Vector3d     point_to_inspect_v = mission_planner_ptr_ -> getPointToInspect();
+
+  point_to_inspect.position.x = point_to_inspect_v[0];
+  point_to_inspect.position.y = point_to_inspect_v[1];
+  point_to_inspect.position.z = point_to_inspect_v[2];
+
+  pub_point_to_inspect.publish(point_to_inspect);
 }
 
 void MissionPlannerRos::publishPath(const ros::Publisher &pub_path,

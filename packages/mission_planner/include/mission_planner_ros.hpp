@@ -74,7 +74,6 @@ class MissionPlannerRos {
   std::map<int, ros::Subscriber> operation_mode_sub_;
   std::map<int, ros::Subscriber> planner_status_sub_;
   std::map<int, ros::Subscriber> waypoints_sub_;
-  std::map<int, ros::Subscriber> point_to_inspect_sub_;
 
   std::map<int, ros::Subscriber> pcd_sub_;
 
@@ -82,6 +81,7 @@ class MissionPlannerRos {
   ros::Publisher points_pub_;
   ros::Publisher points_trans_pub_;
   ros::Publisher waypoints_pub_;
+  ros::Publisher point_to_inspect_pub_;
   ros::Publisher pub_path_;
   ros::Publisher pub_ref_path_;
   ros::Publisher tracking_pub_;
@@ -300,13 +300,6 @@ class MissionPlannerRos {
   void orbitTimeJoyCallback(
         const std_msgs::Bool::ConstPtr &time, int id);
 
-  /*! \brief Callback for changing the point to inspect
-   *   \param point new point to inspect
-   *   \param id    identifier of the drone
-   **/
-  void pointToInspectCallback(
-    const geometry_msgs::Pose::ConstPtr &point, int id);
-
   /*! \brief Callback for relative angle (topic)
    *   \param distance desired relative angle (absolute)
    *   \param id  identifier of the drone (not being used at this moment)
@@ -388,6 +381,11 @@ class MissionPlannerRos {
    *   \param pub_status publisher
    */
   void publishMissionStatus(const ros::Publisher &pub_status);
+
+  /*! \brief function to publish the point to inspect 
+   *   \param pub_point_to_inspect publisher
+   */
+  void publishPointToInspect(const ros::Publisher &pub_point_to_inspect);
 
   /*! \brief function to set the marker's color on RViz
    *   \param marker marker
