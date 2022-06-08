@@ -22,6 +22,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_srvs
   std_msgs
   message_generation
+  uav_abstraction_layer
   geometry_msgs
   nav_msgs
   trajectory_msgs
@@ -72,7 +73,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES mission_planner
-#  CATKIN_DEPENDS roscpp rospy std_msgs
+#  CATKIN_DEPENDS roscpp rospy std_msgs trajectory_planner uav_abstraction_layer
 #  DEPENDS system_lib
 )
 

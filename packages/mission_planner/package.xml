@@ -60,6 +60,7 @@
   <build_export_depend>std_msgs</build_export_depend>
   <build_export_depend>geometry_msgs</build_export_depend>
   <build_export_depend>nav_msgs</build_export_depend>
+  <build_depend>uav_abstraction_layer</build_depend>
   <build_depend>trajectory_msgs</build_depend>
   <build_depend>trajectory_planner</build_depend>
 
@@ -68,6 +69,7 @@
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>message_runtime</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>uav_abstraction_layer</exec_depend>
   <exec_depend>nav_msgs</exec_depend>
   <exec_depend>trajectory_msgs</exec_depend>
   <exec_depend>trajectory_planner</exec_depend>
