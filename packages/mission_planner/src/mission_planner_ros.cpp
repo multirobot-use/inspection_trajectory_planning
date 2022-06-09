@@ -17,6 +17,8 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   trajectory_planner::safeGetParam(nh_, "frame", param_.frame);
   trajectory_planner::safeGetParam(nh_, "operation_mode", param_.operation_mode);
   trajectory_planner::safeGetParam(nh_, "inspection_dist", inspection_params_.inspection_dist);
+  trajectory_planner::safeGetParam(nh_, "min_inspection_dist", inspection_params_.min_inspection_dist);
+  trajectory_planner::safeGetParam(nh_, "max_inspection_dist", inspection_params_.max_inspection_dist);
   trajectory_planner::safeGetParam(nh_, "visualization_rate", param_.visualization_rate);
   trajectory_planner::safeGetParam(nh_, "clock_rate", param_.clock_rate);
   trajectory_planner::safeGetParam(nh_, "leader_id", inspection_params_.leader_id);

@@ -55,8 +55,12 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
    */
   void setDistanceToInspect(const float &_distance) {
     distance_to_inspect_point_ = _distance;
-    if (distance_to_inspect_point_ > 12.5)    distance_to_inspect_point_ = 12.5;
-    else if (distance_to_inspect_point_ < 4)  distance_to_inspect_point_ = 4;
+    if (distance_to_inspect_point_ > inspection_params_.max_inspection_dist) {
+      distance_to_inspect_point_ = inspection_params_.max_inspection_dist;
+    }
+    else if (distance_to_inspect_point_ < inspection_params_.min_inspection_dist) {
+      distance_to_inspect_point_ = inspection_params_.min_inspection_dist;
+    }
   }
 
   /**
