@@ -15,6 +15,11 @@ struct inspection_params {
   float inc_orbit_time = 0.25;        // s
 };
 
+struct waypoint_angle_height {
+  float angle  = 1;     // rad
+  float height = 1;     // m
+};
+
 inline Eigen::Vector3d pointOnSphere(const Eigen::Vector3d point,
                                      const Eigen::Vector3d inspection_point,
                                      const float R) {
