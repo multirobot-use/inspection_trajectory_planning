@@ -9,6 +9,8 @@ struct inspection_params {
   float inc_distance = 0.1;           // m
   float min_inspection_dist = 4;      // m
   float max_inspection_dist = 12.5;   // m
+  float min_orbit_time = 15;          // s
+  float max_orbit_time = 120;         // s
   float inc_angle = 0.01;             // rad
   float inc_orbit_time = 0.25;        // s
 };

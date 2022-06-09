@@ -13,6 +13,8 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   trajectory_planner::safeGetParam(nh_, "vel_min", param_.vel_min);
   trajectory_planner::safeGetParam(nh_, "vel_inspect", param_.vel_inspect);
   trajectory_planner::safeGetParam(nh_, "orbit_time", param_.orbit_time);
+  trajectory_planner::safeGetParam(nh_, "min_orbit_time", inspection_params_.min_orbit_time);
+  trajectory_planner::safeGetParam(nh_, "max_orbit_time", inspection_params_.max_orbit_time);
   trajectory_planner::safeGetParam(nh_, "acc_max", param_.acc_max);
   trajectory_planner::safeGetParam(nh_, "frame", param_.frame);
   trajectory_planner::safeGetParam(nh_, "operation_mode", param_.operation_mode);

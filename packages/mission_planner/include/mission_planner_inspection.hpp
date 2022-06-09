@@ -69,7 +69,12 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
    * @param _time time of orbit the structure
    */
   void setOrbitTime(const float &_time) {
-    orbit_time_ = _time;
+    if (orbit_time_ > inspection_params_.max_orbit_time) {
+      orbit_time_ = inspection_params_.max_orbit_time;
+    }
+    else if (orbit_time_ < inspection_params_.min_orbit_time) {
+      orbit_time_ = inspection_params_.min_orbit_time;
+    }
   }
 
   /**
