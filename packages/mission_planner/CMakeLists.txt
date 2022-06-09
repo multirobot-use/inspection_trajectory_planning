@@ -36,6 +36,8 @@ add_message_files(
   FILES
   BoolWithHeader.msg
   Float32withHeader.msg
+  WaypointAngle.msg
+  WaypointAngleArray.msg
 )
 
 add_service_files(
