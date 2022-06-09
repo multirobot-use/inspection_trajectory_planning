@@ -16,12 +16,32 @@ MissionPlannerInspection::MissionPlannerInspection(const trajectory_planner::par
 
 MissionPlannerInspection::~MissionPlannerInspection() {}
 
-Eigen::Vector3d MissionPlannerInspection::pointOnCircle(const Eigen::Vector3d point) {
+Eigen::Vector3d MissionPlannerInspection::pointOnCircleAngle(const Eigen::Vector2d _vector) {
+  Eigen::Vector2d point_2D, point_on_circle_2D, inspection_point_2D;
+  Eigen::Vector3d point_on_circle_3D;
+
+  point_2D(0) = cos(_vector(0));
+  point_2D(1) = sin(_vector(0));
+
+  inspection_point_2D(0) = point_to_inspect_(0);
+  inspection_point_2D(1) = point_to_inspect_(1);
+
+  point_on_circle_2D = distance_to_inspect_point_*point_2D +
+                       inspection_point_2D;
+
+  point_on_circle_3D(0) = point_on_circle_2D(0);
+  point_on_circle_3D(1) = point_on_circle_2D(1);
+  point_on_circle_3D(2) = _vector(1);
+
+  return point_on_circle_3D;
+}
+
+Eigen::Vector3d MissionPlannerInspection::pointOnCircle(const Eigen::Vector3d _point) {
   Eigen::Vector2d point_2D, inspection_point_2D, point_on_circle_2D;
   Eigen::Vector3d point_on_circle_3D;
 
-  point_2D(0) = point(0);
-  point_2D(1) = point(1);
+  point_2D(0) = _point(0);
+  point_2D(1) = _point(1);
 
   inspection_point_2D(0) = point_to_inspect_(0);
   inspection_point_2D(1) = point_to_inspect_(1);
@@ -33,7 +53,7 @@ Eigen::Vector3d MissionPlannerInspection::pointOnCircle(const Eigen::Vector3d po
 
   point_on_circle_3D(0) = point_on_circle_2D(0);
   point_on_circle_3D(1) = point_on_circle_2D(1);
-  point_on_circle_3D(2) = point(2);
+  point_on_circle_3D(2) = _point(2);
 
   return point_on_circle_3D;
 }
@@ -117,6 +137,14 @@ float MissionPlannerInspection::getTotalAngle(const float &_initial_angle,
     total_angle = final_angle - initial_angle;
 
   return total_angle;
+}
+
+void MissionPlannerInspection::appendWaypointAngle(Eigen::Vector2d &_vector) {
+  waypoint_angle_height waypoint;
+
+  waypoint.angle  = _vector(0);
+  waypoint.height = _vector(1);
+  waypoints_angle_.push_back(std::move(waypoint));
 }
 
 void MissionPlannerInspection::initialOrientation(std::vector<state> &traj) {

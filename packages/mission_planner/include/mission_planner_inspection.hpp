@@ -49,6 +49,22 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
   Eigen::Vector3d getPointToInspect() { return point_to_inspect_; }
 
   /**
+   * @brief pushes the waypoints expressed by angle and height
+   *
+   * @param _vector first component: angle; second component: height
+   */
+  void appendWaypointAngle(Eigen::Vector2d &_vector);
+
+  /**
+   * @brief pushes the waypoints expressed by angle and height
+   *
+   * @param _vector first component: angle; second component: height
+   */
+  std::vector<waypoint_angle_height> getWaypointsAngle() {
+    return waypoints_angle_;
+  }
+
+  /**
    * @brief changes the desired distance to the inspection point
    *
    * @param _distance distance to the inspection point
@@ -212,7 +228,16 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
    * @param point desired point to fit on the cylinder/circle
    * @return point on the cylinder/circle
    */
-  Eigen::Vector3d pointOnCircle(const Eigen::Vector3d point);
+  Eigen::Vector3d pointOnCircle(const Eigen::Vector3d _point);
+
+  /**
+   * @brief fits a given point to the cylinder/circle where the drones are
+   * moving around
+   *
+   * @param _vector first component: angle (rad); second component: height (m)
+   * @return point on the cylinder/circle (3D)
+   */
+  Eigen::Vector3d pointOnCircleAngle(const Eigen::Vector2d _vector);
 
   /**
    * @brief gets the angle of a given point based on the inspection point
@@ -244,6 +269,11 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
   }
 
   /**
+   * @brief clears all the waypoints on the queue
+   */
+  void clearWaypointsAngle() { waypoints_angle_.clear(); }
+
+  /**
    * @brief function that calculates the velocity regarding the distance to the inspection point
    *
    * @return velocity
@@ -261,6 +291,7 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
   float orbit_time_ = 90;
   std::map<int, float> inspection_distance_;
   std::map<int, float> formation_angle_;
+  std::vector<waypoint_angle_height> waypoints_angle_;
   inspection_params inspection_params_;
 
   /**
@@ -269,6 +300,21 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
   void refreshGoals() {
     for (auto &goal : goals_) {
       goal.pos = pointOnCircle(goal.pos);
+    }
+  }
+
+  /**
+   * @brief refreshes the value of the goal points
+   */
+  void refreshGoalsExpressedInAngle() {
+    Eigen::Vector2d waypoint_aux;
+    int it = 0;
+    for (auto &goal : goals_) {
+      waypoint_aux(0) = waypoints_angle_[it].angle;
+      waypoint_aux(1) = waypoints_angle_[it].height;
+      goal.pos = pointOnCircleAngle(waypoint_aux);
+
+      it = it + 1;
     }
   }
 

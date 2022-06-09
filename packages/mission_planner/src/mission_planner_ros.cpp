@@ -112,6 +112,11 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
           1,
           std::bind(&MissionPlannerRos::waypointsCallback, this,
                     std::placeholders::_1, drone));
+      waypoints_angle_sub_[drone] = nh_.subscribe<mission_planner::WaypointAngleArray>(
+          "/drone_1/mission_planner_ros/set_new_bunch_of_waypoints_angle",
+          1,
+          std::bind(&MissionPlannerRos::waypointsAngleCallback, this,
+                    std::placeholders::_1, drone));
     }
   }
 
@@ -187,7 +192,9 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   points_trans_pub_ = nh_.advertise<visualization_msgs::Marker>(
       "waypoints_to_inspect_transformed", 1);
   waypoints_pub_ =
-      nh_.advertise<geometry_msgs::PoseArray>("waypoints", 1);
+      nh_.advertise<geometry_msgs::PoseArray>("set_new_bunch_of_waypoints", 1);
+  waypoints_angle_pub_ =
+      nh_.advertise<mission_planner::WaypointAngleArray>("set_new_bunch_of_waypoints_angle", 1);
   point_to_inspect_pub_ = 
       nh_.advertise<geometry_msgs::Pose>("point_to_inspect", 1);
   sphere_pub_ =
@@ -338,15 +345,24 @@ bool MissionPlannerRos::addWaypointByAngleServiceCallback(
 
   geometry_msgs::Point point;
 
-  point.x = 1*cos(req.angle);
-  point.y = 1*sin(req.angle);
+  Eigen::Vector3d point_to_inspect = mission_planner_ptr_->getPointToInspect();
+
+  point.x = 3*cos(req.angle) + point_to_inspect(0);
+  point.y = 3*sin(req.angle) + point_to_inspect(1);
   point.z = req.height;
   points_.push_back(std::move(point));
 
+  Eigen::Vector2d waypoint_req;
+
+  waypoint_req(0) = req.angle;
+  waypoint_req(1) = req.height;
+
+  mission_planner_ptr_->appendWaypointAngle(waypoint_req);
+
   state state_req;
 
-  state_req.pos(0) = point.x;
-  state_req.pos(1) = point.y;
+  state_req.pos(0) = point.x + point_to_inspect(0);
+  state_req.pos(1) = point.y + point_to_inspect(1);
   state_req.pos(2) = point.z;
 
   mission_planner_ptr_->appendGoal(state_req);
@@ -550,6 +566,17 @@ void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
   }
   publishWaypoints(waypoints_pub_, points);
 
+  std::vector<waypoint_angle_height> goals_vector = mission_planner_ptr_->getWaypointsAngle();
+
+  mission_planner::WaypointAngleArray goals_angle;
+
+  for (auto const &goal : goals_vector) {
+    goals_angle.angle.push_back(goal.angle);
+    goals_angle.height.push_back(goal.height);
+  }
+
+  publishWaypointsAngle(waypoints_angle_pub_, goals_angle);
+
 }
 
 void MissionPlannerRos::clockCB(const ros::TimerEvent &e) {
@@ -627,6 +654,19 @@ void MissionPlannerRos::waypointsCallback(
   }  
 
   mission_planner_ptr_ -> setGoals(goals);
+}
+
+void MissionPlannerRos::waypointsAngleCallback(
+    const mission_planner::WaypointAngleArray::ConstPtr &waypoints, int id){
+  Eigen::Vector2d waypoint;
+
+  mission_planner_ptr_ -> clearWaypointsAngle();
+
+  for (auto i = 0; i < waypoints->angle.size(); i++){
+    waypoint(0) = waypoints->angle[i];
+    waypoint(1) = waypoints->height[i];
+    mission_planner_ptr_ -> appendWaypointAngle(waypoint);
+  }  
 }
 
 void MissionPlannerRos::relativeAngleCallback(
@@ -787,6 +827,13 @@ void MissionPlannerRos::publishWaypoints(
   points.poses = _points.poses;
 
   pub_waypoints.publish(points);
+}
+
+void MissionPlannerRos::publishWaypointsAngle(
+  const ros::Publisher &pub_waypoints,
+  const mission_planner::WaypointAngleArray &_points){
+
+  pub_waypoints.publish(_points);
 }
 
 void MissionPlannerRos::publishOperationMode(const ros::Publisher &pub_operation_mode){

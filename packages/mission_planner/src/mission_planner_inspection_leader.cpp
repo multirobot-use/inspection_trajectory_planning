@@ -8,7 +8,7 @@ std::vector<state> MissionPlannerInspectionLeader::initialTrajectory(
     const state &initial_pose) {
   
   // Refresh the goals (waypoints) in case that either the inspection point or the inspection distance have changed
-  refreshGoals();
+  refreshGoalsExpressedInAngle();
 
   // Refresh relative_angle_ considering its minimum/maximum value
   float min_formation_angle = MissionPlannerInspection::minimumFormationAngle();
@@ -78,7 +78,7 @@ std::vector<state> MissionPlannerInspectionLeader::initialTrajectory(
 std::vector<state> MissionPlannerInspectionLeader::inspectionTrajectory(
     const state &initial_pose){
 
-  refreshGoals();
+  refreshGoalsExpressedInAngle();
 
   // Trajectory to return in that function
   std::vector<state> traj;
@@ -216,6 +216,7 @@ bool MissionPlannerInspectionLeader::checks() {
       std::cout << "Removed waypoint" << std::endl;
       init_point_ = goals_[0].pos;
       goals_.erase(goals_.begin());
+      waypoints_angle_.erase(waypoints_angle_.begin());
 
       if (!hasGoal()) return false;
     }

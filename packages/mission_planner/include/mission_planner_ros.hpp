@@ -13,6 +13,8 @@
 #include <mission_planner/WaypointSrv.h>
 #include <mission_planner/Float32withHeader.h>
 #include <mission_planner/AddWaypointByAngle.h>
+#include <mission_planner/WaypointAngle.h>
+#include <mission_planner/WaypointAngleArray.h>
 #include <mission_planner/BoolWithHeader.h>
 #include <uav_abstraction_layer/State.h>
 #include <nav_msgs/Odometry.h>
@@ -74,6 +76,7 @@ class MissionPlannerRos {
   std::map<int, ros::Subscriber> operation_mode_sub_;
   std::map<int, ros::Subscriber> planner_status_sub_;
   std::map<int, ros::Subscriber> waypoints_sub_;
+  std::map<int, ros::Subscriber> waypoints_angle_sub_;
 
   std::map<int, ros::Subscriber> pcd_sub_;
 
@@ -81,6 +84,7 @@ class MissionPlannerRos {
   ros::Publisher points_pub_;
   ros::Publisher points_trans_pub_;
   ros::Publisher waypoints_pub_;
+  ros::Publisher waypoints_angle_pub_;
   ros::Publisher point_to_inspect_pub_;
   ros::Publisher pub_path_;
   ros::Publisher pub_ref_path_;
@@ -268,6 +272,12 @@ class MissionPlannerRos {
    **/
   void waypointsCallback(const geometry_msgs::PoseArray::ConstPtr &waypoints, int id);
 
+  /*! \brief Callback for waypoints expressed in angles
+   *   \param waypoints list of waypoints, mission_planner/WaypointAngle
+   *   \param id  identifier of the drone
+   **/
+  void waypointsAngleCallback(const mission_planner::WaypointAngleArray::ConstPtr &waypoints, int id);
+
   /*! \brief Callback for drone's planner status
    *   \param planner_status leader's planner status, std_msgs/Uint8
    *   \param id  identifier of the drone
@@ -351,6 +361,13 @@ class MissionPlannerRos {
    */
   void publishWaypoints(const ros::Publisher &pub_waypoints,
                         const geometry_msgs::PoseArray &_points);
+
+  /*! \brief function to publish waypoints to a topic
+   *   \param pub_waypoints publisher
+   *   \param _points vector of points to publish
+   */
+  void publishWaypointsAngle(const ros::Publisher &pub_waypoints,
+                             const mission_planner::WaypointAngleArray &_points);
 
   /*! \brief function to publish the cylinder on RViz
    *   \param pub_sphere publisher

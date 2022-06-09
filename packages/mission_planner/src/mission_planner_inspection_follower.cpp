@@ -21,7 +21,7 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
   Eigen::Quaterniond rotation;
 
   if (!reference_trajectories_[inspection_params_.leader_id].empty()) {
-    refreshGoals();
+    refreshGoalsExpressedInAngle();
     state aux;
 
     // Need to know the elapsed time
@@ -96,7 +96,7 @@ std::vector<state> MissionPlannerInspectionFollower::initialTrajectory(
 std::vector<state> MissionPlannerInspectionFollower::inspectionTrajectory(
     const state &initial_pose){
   // Refresh the goals before anything else
-  refreshGoals();
+  refreshGoalsExpressedInAngle();
 
   // Trajectory to return in that function
   std::vector<state> traj;
