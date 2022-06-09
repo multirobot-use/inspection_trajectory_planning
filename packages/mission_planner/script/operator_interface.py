@@ -75,17 +75,17 @@ class Drone:
         # Subscribe topics
         for id in drone_ids:
             rospy.Subscriber("/drone_" + str(id) + "/ual/state", State, self.callbackState)
-            rospy.Subscriber("/drone_" + str(id) + "/inspection_distance", Float32withHeader, self.callbackInspectionDistance, id)
+            rospy.Subscriber("/drone_" + str(id) + "/mission_planner_ros/inspection_distance", Float32withHeader, self.callbackInspectionDistance, id)
             if (id != 1):
-                rospy.Subscriber("/drone_" + str(id) + "/formation_angle", Float32withHeader, self.callbackFormationAngle, id)
+                rospy.Subscriber("/drone_" + str(id) + "/mission_planner_ros/formation_angle", Float32withHeader, self.callbackFormationAngle, id)
         
-        rospy.Subscriber("/drone_1/absolute_distance_to_inspect", Float32withHeader, self.callbackRefDistance)
-        rospy.Subscriber("/drone_1/absolute_relative_angle", Float32withHeader, self.callbackRefAngle)
-        rospy.Subscriber("/drone_1/operation_mode", UInt8, self.callbackOperationMode)
+        rospy.Subscriber("/drone_1/mission_planner_ros/current_distance_respect_the_inspection_point", Float32withHeader, self.callbackRefDistance)
+        rospy.Subscriber("/drone_1/mission_planner_ros/current_angle_respect_the_inspection_point", Float32withHeader, self.callbackRefAngle)
+        rospy.Subscriber("/drone_1/mission_planner_ros/operation_mode", UInt8, self.callbackOperationMode)
         
         # Publishers (only one drone topic needed for each one)
-        self.distance_inspection_pub = rospy.Publisher('/drone_1/mission_planner_ros/distance_to_inspection_point', Bool, queue_size = 1)
-        self.relative_angle_pub      = rospy.Publisher('/drone_1/mission_planner_ros/relative_angle', Bool, queue_size = 1)
+        self.distance_inspection_pub = rospy.Publisher('/drone_1/mission_planner_ros/inspection_distance_joy', Bool, queue_size = 1)
+        self.relative_angle_pub      = rospy.Publisher('/drone_1/mission_planner_ros/formation_angle_joy', Bool, queue_size = 1)
 
         # Wait for services
         activate_planner_url = drone_ns + "/mission_planner_ros/activate_planner"
@@ -93,10 +93,10 @@ class Drone:
         clear_1_waypoint_url = drone_ns + "/mission_planner_ros/clear_first_waypoint"
         clear_waypoints_url  = drone_ns + "/mission_planner_ros/clear_waypoints"
         change_operation_url = drone_ns + "/mission_planner_ros/change_operation_mode"
-        point_to_inspect_url = drone_ns + "/mission_planner_ros/point_to_inspect"
-        distance_url         = drone_ns + "/mission_planner_ros/distance_to_inspect"
-        orbit_time_url       = drone_ns + "/mission_planner_ros/orbit_time"
-        relative_angle_url   = drone_ns + "/mission_planner_ros/change_relative_angle"
+        inspection_point_url = drone_ns + "/mission_planner_ros/change_inspection_point"
+        distance_url         = drone_ns + "/mission_planner_ros/change_inspection_distance"
+        orbit_time_url       = drone_ns + "/mission_planner_ros/change_orbit_time"
+        formation_angle_url  = drone_ns + "/mission_planner_ros/change_formation_angle"
         take_off_url         = drone_ns + "/ual/take_off"
         land_url             = drone_ns + "/ual/land"
         go_to_waypoint_url   = drone_ns + "/ual/go_to_waypoint"
@@ -126,16 +126,16 @@ class Drone:
         self.orbit_time               = rospy.ServiceProxy(orbit_time_url, OrbitTimeSrv)
 
         # Change point to inspect service
-        rospy.wait_for_service(point_to_inspect_url)
-        self.point_to_inspect_service = rospy.ServiceProxy(point_to_inspect_url, PointToInspectSrv)
+        rospy.wait_for_service(inspection_point_url)
+        self.point_to_inspect_service = rospy.ServiceProxy(inspection_point_url, PointToInspectSrv)
 
         # Change distance to inspect service
         rospy.wait_for_service(distance_url)
         self.distance_service         = rospy.ServiceProxy(distance_url, DistanceSrv)
 
         # Change relative angle service
-        rospy.wait_for_service(relative_angle_url)
-        self.relative_angle_service   = rospy.ServiceProxy(relative_angle_url, AngleSrv)
+        rospy.wait_for_service(formation_angle_url)
+        self.relative_angle_service   = rospy.ServiceProxy(formation_angle_url, AngleSrv)
 
         # TakeOff service
         rospy.wait_for_service(take_off_url)
