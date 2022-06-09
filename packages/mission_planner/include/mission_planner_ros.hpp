@@ -89,6 +89,7 @@ class MissionPlannerRos {
   ros::Publisher sphere_pub_;
   ros::Publisher distance_pub_;
   ros::Publisher angle_pub_;
+  ros::Publisher orbit_time_pub_;
   ros::Publisher mission_status_pub_;
   ros::Publisher corridor_pub_;
   ros::Publisher pub_point_cloud_;
@@ -371,6 +372,11 @@ class MissionPlannerRos {
    *   \param pub_angle publisher
    */
   void publishRelativeAngle(const ros::Publisher &pub_angle);
+
+  /*! \brief function to publish the orbit time 
+   *   \param pub_orbit_time publisher
+   */
+  void publishOrbitTime(const ros::Publisher &pub_orbit_time);
 
   /*! \brief function to publish the current formation angle between the follower UAV and the leader UAV 
    *   \param pub_angle publisher

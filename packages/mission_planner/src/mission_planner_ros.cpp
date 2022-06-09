@@ -206,6 +206,10 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
       "/drone_" + std::to_string(param_.drone_id) +
           "/absolute_relative_angle",
       10);
+  orbit_time_pub_ = nh_.advertise<mission_planner::Float32withHeader>(
+      "/drone_" + std::to_string(param_.drone_id) +
+          "/orbit_time",
+      10);
   mission_status_pub_ = nh_.advertise<mission_planner::BoolWithHeader>(
       "/drone_" + std::to_string(param_.drone_id) +
           "/mission_status",
@@ -507,6 +511,7 @@ void MissionPlannerRos::replanCB(const ros::TimerEvent &e) {
   publishPlannerStatus(planner_status_pub_);
   publishDistance(distance_pub_);
   publishRelativeAngle(angle_pub_);
+  publishOrbitTime(orbit_time_pub_);
   publishMissionStatus(mission_status_pub_);
   publishPointToInspect(point_to_inspect_pub_);
 
@@ -806,6 +811,16 @@ void MissionPlannerRos::publishRelativeAngle(const ros::Publisher &pub_angle) {
   angle.data = mission_planner_ptr_ -> getRelativeAngle();
 
   pub_angle.publish(angle);
+}
+
+void MissionPlannerRos::publishOrbitTime(const ros::Publisher &pub_orbit_time) {
+  mission_planner::Float32withHeader orbit_time;
+
+  orbit_time.header.frame_id = param_.frame;
+  orbit_time.header.stamp    = ros::Time::now();
+  orbit_time.data = mission_planner_ptr_ -> getOrbitTime();
+
+  pub_orbit_time.publish(orbit_time);
 }
 
 void MissionPlannerRos::publishFormationAngle(const ros::Publisher &pub_angle) {

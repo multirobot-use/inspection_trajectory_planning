@@ -123,6 +123,13 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
   float getRelativeAngle() { return relative_angle_; }
 
   /**
+   * @brief gives the relative angle
+   *
+   * @return relative angle
+   */
+  float getOrbitTime() { return orbit_time_; }
+
+  /**
    * @brief gives the current formation angle of a UAV
    *
    * @return formation angle
