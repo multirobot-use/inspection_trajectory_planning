@@ -88,8 +88,8 @@ class MissionPlannerInspection : public trajectory_planner::TrajectoryPlanner{
    * @param _time true if increase, false if decrease
    */
   void incOrbitTime(const bool &_time) {
-    if (_time)      setDistanceToInspect(orbit_time_ + inspection_params_.inc_orbit_time);
-    else            setDistanceToInspect(orbit_time_ - inspection_params_.inc_orbit_time);
+    if (_time)      setOrbitTime(orbit_time_ + inspection_params_.inc_orbit_time);
+    else            setOrbitTime(orbit_time_ - inspection_params_.inc_orbit_time);
   }
 
   /**
