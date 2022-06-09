@@ -58,21 +58,21 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
         std::bind(&MissionPlannerRos::uavVelocityCallback, this,
                   std::placeholders::_1, drone));
 
-    distance_to_inspection_point_sub_[drone] = nh_.subscribe<std_msgs::Bool>(
+    inspection_distance_joy_sub_[drone] = nh_.subscribe<std_msgs::Bool>(
         "/drone_" + std::to_string(drone) +
-            "/mission_planner_ros/distance_to_inspection_point",
+            "/mission_planner_ros/inspection_distance_joy",
         1,
         std::bind(&MissionPlannerRos::distanceToInspectionPointCallback, this,
                   std::placeholders::_1, drone));
 
-    relative_angle_sub_[drone] = nh_.subscribe<std_msgs::Bool>(
+    formation_angle_joy_sub_[drone] = nh_.subscribe<std_msgs::Bool>(
         "/drone_" + std::to_string(drone) +
-            "/mission_planner_ros/relative_angle",
+            "/mission_planner_ros/formation_angle_joy",
         1,
         std::bind(&MissionPlannerRos::relativeAngleCallback, this,
                   std::placeholders::_1, drone));
     
-    orbit_time_sub_[drone] = nh_.subscribe<std_msgs::Bool>(
+    orbit_time_joy_sub_[drone] = nh_.subscribe<std_msgs::Bool>(
         "/drone_" + std::to_string(drone) +
             "/mission_planner_ros/orbit_time_joy",
         1,
@@ -96,17 +96,17 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
     }
     if (drone != inspection_params_.leader_id) {
       operation_mode_sub_[drone] = nh_.subscribe<std_msgs::UInt8>(
-          "/drone_1/operation_mode",
+          "/drone_1/mission_planner_ros/operation_mode",
           1,
           std::bind(&MissionPlannerRos::operationModeCallback, this,
                     std::placeholders::_1, drone));
       planner_status_sub_[drone] = nh_.subscribe<std_msgs::UInt8>(
-          "/drone_1/planner_status",
+          "/drone_1/mission_planner_ros/planner_status",
           1,
           std::bind(&MissionPlannerRos::plannerStatusCallback, this,
                     std::placeholders::_1, drone));
       waypoints_sub_[drone] = nh_.subscribe<geometry_msgs::PoseArray>(
-          "/drone_1/mission_planner_ros/waypoints",
+          "/drone_1/mission_planner_ros/set_new_bunch_of_waypoints",
           1,
           std::bind(&MissionPlannerRos::waypointsCallback, this,
                     std::placeholders::_1, drone));
@@ -202,37 +202,37 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
       1);
   distance_pub_ = nh_.advertise<mission_planner::Float32withHeader>(
       "/drone_" + std::to_string(param_.drone_id) +
-          "/absolute_distance_to_inspect",
+          "/mission_planner_ros/current_distance_respect_the_inspection_point",
       10);
   angle_pub_ = nh_.advertise<mission_planner::Float32withHeader>(
       "/drone_" + std::to_string(param_.drone_id) +
-          "/absolute_relative_angle",
+          "/mission_planner_ros/current_angle_respect_the_inspection_point",
       10);
   orbit_time_pub_ = nh_.advertise<mission_planner::Float32withHeader>(
       "/drone_" + std::to_string(param_.drone_id) +
-          "/orbit_time",
+          "/mission_planner_ros/orbit_time",
       10);
   mission_status_pub_ = nh_.advertise<mission_planner::BoolWithHeader>(
       "/drone_" + std::to_string(param_.drone_id) +
-          "/mission_status",
+          "/mission_planner_ros/mission_status",
       1);
   operation_mode_pub_ = nh_.advertise<std_msgs::UInt8>(
       "/drone_" + std::to_string(param_.drone_id) +
-          "/operation_mode",
+          "/mission_planner_ros/operation_mode",
       1);
   planner_status_pub_ = nh_.advertise<std_msgs::UInt8>(
       "/drone_" + std::to_string(param_.drone_id) +
-          "/planner_status",
+          "/mission_planner_ros/planner_status",
       1);
   if (param_.drone_id != inspection_params_.leader_id){
     formation_angle_pub_ = nh_.advertise<mission_planner::Float32withHeader>(
         "/drone_" + std::to_string(param_.drone_id) +
-            "/formation_angle",
+            "/mission_planner_ros/formation_angle",
         1);
   }
   inspection_distance_pub_ = nh_.advertise<mission_planner::Float32withHeader>(
       "/drone_" + std::to_string(param_.drone_id) +
-          "/inspection_distance",
+          "/mission_planner_ros/inspection_distance",
       1);
 
   // Services
@@ -244,7 +244,7 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   service_waypoint_by_angle = nh_.advertiseService(
       "add_waypoint_by_angle", &MissionPlannerRos::addWaypointByAngleServiceCallback, this);
   service_point_to_inspect = nh_.advertiseService(
-      "point_to_inspect", &MissionPlannerRos::pointToInspectServiceCallback,
+      "change_inspection_point", &MissionPlannerRos::pointToInspectServiceCallback,
       this);
   clear_waypoints = nh_.advertiseService(
       "clear_waypoints", &MissionPlannerRos::clearWaypointsServiceCallback,
@@ -252,14 +252,14 @@ MissionPlannerRos::MissionPlannerRos(ros::NodeHandle _nh, const bool leader)
   clear_first_waypoint = nh_.advertiseService(
       "clear_first_waypoint", &MissionPlannerRos::clearFirstWaypointServiceCallback,
       this);
-  service_distance_to_inspect = nh_.advertiseService(
-      "distance_to_inspect",
+  service_inspection_distance = nh_.advertiseService(
+      "change_inspection_distance",
       &MissionPlannerRos::distanceToInspectServiceCallback, this);
-  service_relative_angle = nh_.advertiseService(
-      "change_relative_angle",
+  service_formation_angle = nh_.advertiseService(
+      "change_formation_angle",
       &MissionPlannerRos::changeRelativeAngleServiceCallback, this);
   service_orbit_time = nh_.advertiseService(
-      "orbit_time",
+      "change_orbit_time",
       &MissionPlannerRos::orbitTimeServiceCallback, this);
   service_operation_mode = nh_.advertiseService(
       "change_operation_mode",

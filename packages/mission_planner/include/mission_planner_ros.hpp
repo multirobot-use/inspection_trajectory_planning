@@ -68,9 +68,9 @@ class MissionPlannerRos {
   std::map<int, ros::Subscriber> cur_vel_sub_;
   std::map<int, ros::Subscriber> solved_trajectories_sub_;
   std::map<int, ros::Subscriber> reference_trajectories_sub_;
-  std::map<int, ros::Subscriber> distance_to_inspection_point_sub_;
-  std::map<int, ros::Subscriber> relative_angle_sub_;
-  std::map<int, ros::Subscriber> orbit_time_sub_;
+  std::map<int, ros::Subscriber> inspection_distance_joy_sub_;
+  std::map<int, ros::Subscriber> formation_angle_joy_sub_;
+  std::map<int, ros::Subscriber> orbit_time_joy_sub_;
   std::map<int, ros::Subscriber> operation_mode_sub_;
   std::map<int, ros::Subscriber> planner_status_sub_;
   std::map<int, ros::Subscriber> waypoints_sub_;
@@ -104,8 +104,8 @@ class MissionPlannerRos {
   ros::ServiceServer service_waypoint_by_angle;
   ros::ServiceServer clear_waypoints;
   ros::ServiceServer service_point_to_inspect;
-  ros::ServiceServer service_distance_to_inspect;
-  ros::ServiceServer service_relative_angle;
+  ros::ServiceServer service_inspection_distance;
+  ros::ServiceServer service_formation_angle;
   ros::ServiceServer service_operation_mode;
   ros::ServiceServer clear_first_waypoint;
   ros::ServiceServer service_orbit_time;
