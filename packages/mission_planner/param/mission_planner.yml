@@ -15,6 +15,8 @@ orbit_time: 60              # s
 vel_inspect: 0.2            # m/s
 acc_max: 1                  # m/s²
 inspection_dist: 6          # m 
+min_inspection_dist: 4      # m
+max_inspection_dist: 12.5   # m
 inc_distance: 0.25          # m
 inc_angle: 0.03             # rad
 inc_orbit_time: 0.2         # s
