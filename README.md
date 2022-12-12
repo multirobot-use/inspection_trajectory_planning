@@ -1,6 +1,6 @@
 # Inspection Trajectory Planning
 ## Overview
-This repository is about an operator-oriented inspection task of cylindrical structures, in this case, of wind turbines, with optimal trajectory planning of a multi UAV formation. To generate the optimal trajectory planning, a reference path is given to an optimal solver in order to minimize the accelerations of each drone, making their paths smooth and avoiding jerky movements and going through the optimal path at a constant speed (cruising speed). This also encourages to have a good image taken from the drones, that is intended to build a VR image where some interesting information from the mission, as you can see in the following [link][https://www.youtube.com/watch?v=ITQlD-N-QPQ].
+This repository is about an operator-oriented inspection task of cylindrical structures, in this case, of wind turbines, with optimal trajectory planning of a multi UAV formation. To generate the optimal trajectory planning, a reference path is given to an optimal solver in order to minimize the accelerations of each drone, making their paths smooth and avoiding jerky movements and going through the optimal path at a constant speed (cruising speed). This also encourages to have a good image taken from the drones, that is intended to build a VR image where some interesting information from the mission, as you can see in the following [link](https://www.youtube.com/watch?v=ITQlD-N-QPQ).
 
 This work is developed on Ubuntu 18.04 with ROS Melodic. It has been tested in Ubuntu 20.04 with ROS Noetic as well, but it is not desirable to work on this version as *PX4/MAVROS* is not prepared to work on this version yet nor the LiDAR will work for the online obstacle avoidance. Anyway, we let you the automatic installation script for both Ubuntu 18.04 with ROS Melodic and Ubuntu 20.04 with ROS Noetic. Everything in this project is supposed to work with Python3 and it is not guaranteed that this work in another version of Python.
 
@@ -190,7 +190,7 @@ cd packages/mission_planner/
 ## How to launch simulations and experiments
 There are two ways to launch the simulations: simulation-oriented and experiment-oriented; but only one way to launch the experiments in real life: experiment-oriented.
 
-If you get lost anytime with the setups, this [wiki][https://github.com/multirobot-use/multiuav-wiki/wiki] may suit for you.
+If you get lost anytime with the setups, this [wiki](https://github.com/multirobot-use/multiuav-wiki/wiki) may suit for you.
 
 ### Simulation-oriented:
 Simulation-oriented employs an interface that is mainly intended to be used to debug the code on simulations. Its functionality is based on executing an auto-configuration file that take off the drones, add some waypoints (depending on the experiment that is going to be launched) and starts the mission. Afterwards, the operator can interact with the formation through it by landing the drones, adding new waypoints, changing the distance to the inspection point or the relative angle, among other things.
