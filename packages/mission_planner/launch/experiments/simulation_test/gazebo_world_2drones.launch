@@ -1,0 +1,32 @@
+<launch>
+    <!-- Launch Gazebo simulation -->
+	<rosparam param="/use_sim_time">true</rosparam>
+    <node pkg="px4_bringup" type="launch_gzworld.py" name="gazebo_world" output="screen"
+    args="-physics=ode -world=$(find grvc_gazebo_worlds)/worlds/basketball_court_lite.world
+		  -add_model_path=$(find grvc_gazebo_worlds)/models
+		  -description_package=robots_description">
+		<rosparam param="sim_origin">[38.138728, -3.173825, 0]</rosparam>  <!-- [lat,lon,alt] -->
+	</node>
+
+	<include file="$(find mission_planner)/launch/experiments/simulation_test/spawn_robot_experiment.launch" ns="drone_1">
+		<arg name="id" value="1"/>
+        <arg name="robot_model" value="typhoon_h480"/>
+		<arg name="material" value="Indigo"/>
+        <arg name="x" value="-10"/>
+        <arg name="y" value="5"/>
+        <arg name="z" value="0"/>
+        <arg name="yaw" value="0"/>
+	</include>
+
+	<include file="$(find mission_planner)/launch/experiments/simulation_test/spawn_robot_experiment.launch" ns="drone_2">
+		<arg name="id" value="2"/>
+        <arg name="robot_model" value="typhoon_h480"/>
+		<arg name="material" value="Indigo"/>
+        <arg name="x" value="-8"/>
+        <arg name="y" value="0"/>
+        <arg name="z" value="0"/>
+        <arg name="yaw" value="0"/>
+	</include>
+
+    <node pkg="tf" type="static_transform_publisher" name="link1_broadcaster" args="0 0 0 0 0 0.707 0.707 drone_1/base_link drone_1/velodyne 100" />
+</launch>

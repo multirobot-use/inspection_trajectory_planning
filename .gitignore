@@ -1,0 +1,45 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+
+packages/PX4/
+packages/Firmware/
+packages/acado/
+packages/grvc-utils/
+packages/grvc-ual/
+packages/catkin_simple/
+packages/upat_follower/
+packages/seeker-ros/
+packages/safe_corridor_generator/
+packages/ros-sharp/
+packages/ROS-TCP-Endpoint/

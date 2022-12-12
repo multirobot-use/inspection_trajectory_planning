@@ -1,0 +1,4 @@
+nav_msgs/Odometry waypoint
+---
+bool success
+string message

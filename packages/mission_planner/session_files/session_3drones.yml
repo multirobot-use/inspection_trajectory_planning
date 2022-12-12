@@ -1,0 +1,47 @@
+name: mission_planner
+root: ./
+
+windows:
+  - gazebo:
+      layout: even-vertical
+      panes:
+        # - roslaunch mission_planner simulation_wind_turbine_3drones.launch
+        - roslaunch mission_planner simulation_wind_turbine_3drones_light.launch
+        # - roslaunch mission_planner simulation_obstacle_avoidance_3drones.launch
+  - leader:
+      layout: even-vertical
+      panes:
+        - sleep 10; roslaunch mission_planner mission_planner.launch drone_id:=1 leader:=true
+  - follower1:
+      layout: even-vertical
+      panes:
+        - sleep 11; roslaunch mission_planner mission_planner_follower.launch drone_id:=2 leader:=false
+  - follower2:
+      layout: even-vertical
+      panes:
+        - sleep 12; roslaunch mission_planner mission_planner_follower.launch drone_id:=3 leader:=false
+  - trajectory_follower:
+      layout: even-vertical
+      panes:
+        - sleep 13; roslaunch trajectory_follower trajectory_follower.launch drone_id:=1
+        - sleep 13; roslaunch trajectory_follower trajectory_follower.launch drone_id:=2
+        - sleep 13; roslaunch trajectory_follower trajectory_follower.launch drone_id:=3
+  - rviz:
+      layout: even-vertical
+      panes:
+        - sleep 10; roslaunch mission_planner rviz_experiment3.launch
+  - python script:  
+      layout: even-vertical
+      panes:
+        - sleep 15; python3 ../operator_interface.py
+  # - rosbag:
+  #     layout: even-vertical
+  #     panes:
+        # - sleep 50; roslaunch mission_planner rosbag_recorder.launch
+        # - sleep 40; roslaunch mission_planner rosbag_cameras.launch
+        # - sleep 20; rostopic echo /drone_1/ual/pose >> ~/Desktop/p_experiment6_uav1.txt
+        # - sleep 20; rostopic echo /drone_2/ual/pose >> ~/Desktop/p_experiment6_uav2.txt
+        # - sleep 20; rostopic echo /drone_3/ual/pose >> ~/Desktop/p_experiment6_uav3.txt
+        # - sleep 20; rostopic echo /drone_1/mission_planner_ros/solved_traj >> ~/Desktop/t_experiment6_uav1.txt
+        # - sleep 20; rostopic echo /drone_2/mission_planner_ros/solved_traj >> ~/Desktop/t_experiment6_uav2.txt
+        # - sleep 20; rostopic echo /drone_3/mission_planner_ros/solved_traj >> ~/Desktop/t_experiment6_uav3.txt

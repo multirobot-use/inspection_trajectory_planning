@@ -1,0 +1,44 @@
+name: mission_planner_with_VR
+root: ./
+
+windows:
+  - gazebo:
+      layout: even-vertical
+      panes:
+        # - roslaunch mission_planner simulation_wind_turbine_1drone_light.launch
+        # - roslaunch mission_planner simulation_wind_turbine_2drones_light.launch
+        - roslaunch mission_planner simulation_wind_turbine_3drones_light.launch
+  - leader:
+      layout: even-vertical
+      panes:
+        - sleep 10; roslaunch mission_planner mission_planner.launch drone_id:=1 leader:=true
+  - follower1:
+      layout: even-vertical
+      panes:
+        - sleep 11; roslaunch mission_planner mission_planner_follower.launch drone_id:=2 leader:=false
+  - follower2:
+      layout: even-vertical
+      panes:
+        - sleep 12; roslaunch mission_planner mission_planner_follower.launch drone_id:=3 leader:=false
+  - trajectory_follower:
+      layout: even-vertical
+      panes:
+        - sleep 13; roslaunch trajectory_follower trajectory_follower.launch drone_id:=1
+        - sleep 13; roslaunch trajectory_follower trajectory_follower.launch drone_id:=2
+        - sleep 13; roslaunch trajectory_follower trajectory_follower.launch drone_id:=3
+  - rviz:
+      layout: even-vertical
+      panes:
+        - sleep 10; roslaunch mission_planner rviz_experiment3.launch
+  # - python script:  
+  #     layout: even-vertical
+  #     panes:
+  #       - sleep 20; python3 ../operator_interface.py
+  - layout_unity_tcp:
+      layout: even-vertical
+      panes:
+        - sleep 5; roslaunch ros_tcp_endpoint endpoint.launch
+  - ros_sharp_connector:
+      layout: even-vertical
+      panes:
+        - sleep 5; roslaunch file_server ros_sharp_communication.launch

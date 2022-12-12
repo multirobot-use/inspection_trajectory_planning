@@ -1,0 +1,11 @@
+<launch>
+    <arg name="drone_id" default="2"/>
+    <arg name="pcl_map_filename" default="$(find trajectory_planner)/maps/empty.pcd" />
+
+    <node pkg="mission_planner" type="mission_planner_node" name="mission_planner_ros" output="screen" ns="drone_$(arg drone_id)" launch-prefix="">
+        <rosparam file="$(find mission_planner)/param/mission_planner.yml" command="load"/>
+        <param name="drone_id" value="$(arg drone_id)"/>
+        <param name="leader" value="false"/>
+        <param name="pcl_filepath" value="$(arg pcl_map_filename)"/>
+    </node>
+</launch>

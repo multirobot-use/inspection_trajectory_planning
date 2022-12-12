@@ -1,0 +1,35 @@
+name: mission_planner
+root: ./
+
+windows:
+  - gazebo:
+      layout: even-vertical
+      panes:
+        # - roslaunch mission_planner simulation_wind_turbine_2drones.launch
+        - roslaunch mission_planner simulation_wind_turbine_2drones_light.launch
+        # - roslaunch mission_planner simulation_obstacle_avoidance_2drones.launch
+  - leader:
+      layout: even-vertical
+      panes:
+        - sleep 10; roslaunch mission_planner mission_planner.launch drone_id:=1 leader:=true
+  - follower:
+      layout: even-vertical
+      panes:
+        - sleep 11; roslaunch mission_planner mission_planner_follower.launch drone_id:=2 leader:=false
+  - trajectory_follower:
+      layout: even-horizontal
+      panes:
+        - sleep 12; roslaunch trajectory_follower trajectory_follower.launch drone_id:=1
+        - sleep 12; roslaunch trajectory_follower trajectory_follower.launch drone_id:=2
+  - rviz:
+      layout: even-vertical
+      panes:
+        - sleep 13; roslaunch mission_planner rviz2.launch
+  - python script:  
+      layout: even-vertical
+      panes:
+        - sleep 15; python3 script/operator_interface.py
+  # - rosbag:
+  #     layout: even-vertical
+  #     panes:
+  #       - sleep 40; roslaunch mission_planner rosbag_recorder.launch

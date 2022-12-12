@@ -1,0 +1,48 @@
+<launch>
+
+    <arg name="ual_backend" default="light"/>
+    <arg name="robot_model" value="mbzirc"/>
+
+    <!-- Launch Gazebo simulation -->
+	<rosparam param="/use_sim_time">true</rosparam>
+    <node pkg="px4_bringup" type="launch_gzworld.py" name="gazebo_world" output="screen"
+    args="-physics=ode -world=$(find grvc_gazebo_worlds)/worlds/wind_turbine.world
+		  -add_model_path=$(find grvc_gazebo_worlds)/models
+		  -description_package=robots_description">
+		<rosparam param="sim_origin">[38.138728, -3.173825, 0]</rosparam>  <!-- [lat,lon,alt] -->
+	</node>
+
+    <!-- Launch robot id=1 -->
+    <node pkg="px4_bringup" type="spawn_gzmodel.py" name="spawn_gzmodel_1" output="screen"
+        args="-model=mbzirc -id=1 -material=Orange -ual_backend=$(arg ual_backend) -x -10 -y 5 -z 0 -Y 0"/>
+
+    <!-- Launch UAL server for uav id=1 -->
+    <node pkg="ual_backend_gazebo_light" type="ual_backend_gazebo_light_server" name="ual" output="screen" ns="drone_1">
+        <param name="uav_id" value="1"/>
+        <param name="pose_frame_id" value="map"/>
+        <param name="model_name" value="$(arg robot_model)_1"/>
+        <rosparam param="home_pose">[-10, 5, 0]</rosparam><!-- [x,y,z] -->
+    </node>
+
+
+    <!-- Launch robot id=2 -->
+    <node pkg="px4_bringup" type="spawn_gzmodel.py" name="spawn_gzmodel_2" output="screen"
+        args="-model=mbzirc -id=2 -material=Orange -ual_backend=$(arg ual_backend) -x -8 -y -5 -z 0 -Y 0"/>
+
+    <!-- Launch UAL server for uav id=2 -->
+    <node pkg="ual_backend_gazebo_light" type="ual_backend_gazebo_light_server" name="ual" output="screen" ns="drone_2">
+        <param name="uav_id" value="2"/>
+        <param name="pose_frame_id" value="map"/>
+        <param name="model_name" value="$(arg robot_model)_2"/>
+        <rosparam param="home_pose">[-8, -5, 0]</rosparam>
+    </node>
+
+    <!-- Launch camera for drone id=1 -->
+    <!-- <node name="rqt_image_view_1" pkg="rqt_image_view" type="rqt_image_view" args="/mbzirc_1/camera_0/image_raw"/> -->
+
+    <!-- Launch camera for drone id=2 -->
+    <!-- <node name="rqt_image_view_2" pkg="rqt_image_view" type="rqt_image_view" args="/mbzirc_2/camera_0/image_raw"/> -->
+
+    <node pkg="tf" type="static_transform_publisher" name="link1_broadcaster" args="0 0 0 0 0 0.707 0.707 drone_1/base_link drone_1/velodyne 100" />
+
+</launch>

@@ -1,0 +1,5 @@
+<launch>
+
+ <node pkg="rosbag" type="record" name="rosbag_record_topics"
+       args="record --duration=90s -o simulation -e (.*)/image_raw (.*)/image_raw/compressed"/>
+</launch>

@@ -1,0 +1,5 @@
+<launch>
+
+ <node pkg="rosbag" type="record" name="rosbag_record_topics"
+       args="record --duration=3m -o simulation -e (.*)/mission_status (.*)/follower/trajectory_to_follow (.*)/ual/pose (.*)/formation_angle (.*)/inspection_distance (.*)/ual/velocity (.*)/mission_planner_ros/ref_traj (.*)/absolute_distance_to_inspect (.*)/mission_planner_ros/solved_traj (.*)/absolute_relative_angle (.*)/mission_planner_ros/points_to_inspect_transformed"/>
+</launch>
