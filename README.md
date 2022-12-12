@@ -162,6 +162,11 @@ mkdir -p src
 cd src
 git clone https://github.com/multirobot-use/inspection_trajectory_planning
 cd inspection_trajectory_planning
+```
+
+To end up, choose either Ubuntu 18 + ROS Melodic or Ubuntu 20 + ROS Noetic installation file:
+
+```
 ./install_packages_u18_melodic.sh
 ./install_packages_u20_noetic.sh
 ```
